@@ -59,8 +59,8 @@ java com.mypackage.myclass.Main	</pre>
 java -jar myapp.jar </pre>
 		Very nice.  So what's the catch?  There are numerous.  One catch is that you must first unjar all of the supporting
 		classes and flatten them out into a single directory tree before creating the final 
-		myapp.jar.  Suppose for example what happens if your application depends on some of the
-		web-services JAR files from the Java Web Services Developer Pack.  There are many of them
+		myapp.jar.  For example: what happens if your application depends on some of the
+		web-services JAR files from the Java Web Services Developer Pack?  There are many of them
 		and they all contain code which lives in the same packages (javax.*, com.sun.* etc).
 		<p>Is this a problem?  Well it may be.  Consider that after you have expanded all of the
 		code into a single tree, you have lost all trace of any code signatures that might have been
