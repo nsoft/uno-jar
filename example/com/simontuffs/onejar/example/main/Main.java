@@ -76,7 +76,6 @@ public class Main {
 			System.out.println();
 		} catch (Exception x) {
 			System.out.println("Test.classLoader() failed: " + x);
-			System.out.println("  (probably needs a wrapping classloader)");
 		}
 		
 		long end = new Date().getTime();
