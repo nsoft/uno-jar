@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="D:/work/eclipse-2.1.1/workspace-fripp/one-jar/wrap/wraploader.jar"/>
+    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/wrap/wraploader.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
-        descriptionLocation="/one-jar/wraploader.jardesc"
+        descriptionLocation="/one-jar/one-jar-wraploader.jardesc"
         useSourceFolders="false" buildIfNeeded="true"/>
     <manifest manifestVersion="1.0" usesManifest="true"
         reuseManifest="true" saveManifest="true"

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="d:/work/eclipse-2.1.1/workspace-fripp/one-jar/lib/util.jar"/>
+    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/lib/util.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
-        descriptionLocation="/one-jar/util.jardesc"
+        descriptionLocation="/one-jar/one-jar-util.jardesc"
         useSourceFolders="false" buildIfNeeded="true"/>
     <manifest manifestVersion="1.0" usesManifest="true"
         reuseManifest="true" saveManifest="true"
