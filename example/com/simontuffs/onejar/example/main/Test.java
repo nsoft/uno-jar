@@ -118,10 +118,14 @@ public class Test {
 		System.out.println("loading " + name);
 		testLoader.loadClass(name);
 		System.out.println("loaded " + name + " OK!");
-		name = "com.simontuffs.onejar.example.util.NonExistant";
-		System.out.println("loading " + name);
-		testLoader.loadClass(name);
-		System.out.println("loaded " + name + " OK!");
+		try {
+			name = "com.simontuffs.onejar.example.util.NonExistant";
+			System.out.println("loading " + name);
+			testLoader.loadClass(name);
+			System.out.println("Huh?  Should not find " + name);
+		} catch (ClassNotFoundException cnfx) {
+			System.out.println("not found " + name + " OK!");
+		}
 	}
 	
 }

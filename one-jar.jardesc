@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="D:/work/eclipse-2.1.1/workspace-fripp/one-jar/lib/one-jar.jar"/>
+    <jar path="D:/work/eclipse-2.1.1/workspace-fripp/one-jar/one-jar.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
         descriptionLocation="/one-jar/one-jar.jardesc"
