@@ -71,8 +71,13 @@ public class Main {
 		test.loadCodeSource();
 		System.out.println();
 
-		test.classLoader();
-		System.out.println();
+		try {
+			test.classLoader();
+			System.out.println();
+		} catch (Exception x) {
+			System.out.println("Test.classLoader() failed: " + x);
+			System.out.println("  (probably needs a wrapping classloader)");
+		}
 		
 		long end = new Date().getTime();
 		
