@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+    <jar path="d:/work/eclipse-2.1.1/workspace-fripp/one-jar/main/main.jar"/>
+    <options overwrite="true" compress="true" exportErrors="false"
+        exportWarnings="true" saveDescription="true"
+        descriptionLocation="/one-jar/main.jardesc"
+        useSourceFolders="false" buildIfNeeded="true"/>
+    <manifest manifestVersion="1.0" usesManifest="true"
+        reuseManifest="true" saveManifest="true"
+        generateManifest="false"
+        manifestLocation="/one-jar/example/main-manifest.mf" mainClassHandleIdentifier="=one-jar/example&lt;com.simontuffs.onejar.example.main{Main.java[Main">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false">
+        <file path="/one-jar/example/main-manifest.mf"/>
+        <file path="/one-jar/duplicate.txt"/>
+        <javaElement handleIdentifier="=one-jar/example&lt;com.simontuffs.onejar.example.main"/>
+        <javaElement handleIdentifier="=one-jar/example&lt;com.simontuffs.onejar.example.util{Duplicate.java"/>
+    </selectedElements>
+</jardesc>

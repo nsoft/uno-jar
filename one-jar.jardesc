@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+    <jar path="D:/work/eclipse-2.1.1/workspace-fripp/one-jar/lib/one-jar.jar"/>
+    <options overwrite="true" compress="true" exportErrors="false"
+        exportWarnings="true" saveDescription="true"
+        descriptionLocation="/one-jar/one-jar.jardesc"
+        useSourceFolders="false" buildIfNeeded="true"/>
+    <manifest manifestVersion="1.0" usesManifest="true"
+        reuseManifest="true" saveManifest="true"
+        generateManifest="false"
+        manifestLocation="/one-jar/src/boot-manifest.mf" mainClassHandleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Boot.java[Boot">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false">
+        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Boot.java"/>
+        <file path="/one-jar/lib/util.jar"/>
+        <folder path="/one-jar/main"/>
+        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{JarClassLoader.java"/>
+    </selectedElements>
+</jardesc>

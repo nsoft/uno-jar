@@ -1,0 +1,2 @@
+This is an example of a duplicate resource file named duplicate.txt,
+placed into main.jar
