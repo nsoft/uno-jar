@@ -79,7 +79,7 @@ public class JarClassLoader extends ClassLoader {
 	public final static String RECORDING = "recording";
 	public final static String TMP = "tmp";
 	public final static String UNPACK = "unpack";
-	public final static String EXPAND_DIRS = "Expand-Dirs";
+	public final static String EXPAND = "One-Jar-Expand";
 
 	protected String PREFIX() {
 		return "JarClassLoader: ";
@@ -209,9 +209,12 @@ public class JarClassLoader extends ClassLoader {
 			Enumeration enum = jarFile.entries();
 			Manifest manifest = jarFile.getManifest();
 			String paths[] = null;
-			String expand = manifest.getMainAttributes().getValue(EXPAND_DIRS);
+			// TODO: Allow a destination directory (relative or absolute) to 
+			// be specified like this:
+			// One-Jar-Expand: build=../expanded
+			String expand = manifest.getMainAttributes().getValue(EXPAND);
 			if (expand != null) {
-				VERBOSE(EXPAND_DIRS + "=" + expand);
+				VERBOSE(EXPAND + "=" + expand);
 				paths = expand.split(",");
 			}
 			while (enum.hasMoreElements()) {
