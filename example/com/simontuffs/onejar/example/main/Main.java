@@ -49,13 +49,21 @@ public class Main {
     	Test test = new Test();
     	
     	long start = new Date().getTime();
+    	int failures = 0;
     	
-    	test.useUtil();
+    	try {
+			test.useUtil();
+    	} catch (Exception x) {
+    		System.out.println("test.useUtil() failed: " + x);
+    		x.printStackTrace();
+			failures++;
+    	}
+    	
     	System.out.println();
     	try {
 			test.dumpResource("/main-manifest.mf");
     	} catch (Exception x) {
-    		System.err.println("test.useResource() failed: " + x);
+    		System.out.println("test.useResource() failed: " + x);
     		x.printStackTrace();
     	}
 		System.out.println();
@@ -63,24 +71,47 @@ public class Main {
 			// Dump a resource relative to this jar file.
 			test.dumpResource("/duplicate.txt");
 		} catch (Exception x) {
-			System.err.println("test.useResource() failed: " + x);
+			System.out.println("test.useResource() failed: " + x);
 			x.printStackTrace();
+			failures++;
 		}
 		System.out.println();
 		
+		try {
+			// Dump a resource relative to this class file.
+			test.dumpResource("main.txt");
+		} catch (Exception x) {
+			System.out.println("test.useResource() failed: " + x);
+			x.printStackTrace();
+			failures++;
+		}
+		System.out.println();
+
 		test.loadCodeSource();
 		System.out.println();
 
 		try {
 			test.classLoader();
-			System.out.println();
 		} catch (Exception x) {
 			System.out.println("Test.classLoader() failed: " + x);
+			failures++;
 		}
+		System.out.println();
 		
 		long end = new Date().getTime();
 		
+		try {
+			test.classURL();
+		} catch (Exception x) {
+			System.out.println("Test.classURL() failed: " + x);
+			x.printStackTrace();
+			failures++;
+		}
+		System.out.println();
+		
 		System.out.println("Main: finished in " + (end - start) + " ms");
+		String f = "failure" + (failures==0 || failures>2? "s": "");
+		System.out.println(failures + " " + f + " (TODO: JUnit!)");
 		
     }
 }

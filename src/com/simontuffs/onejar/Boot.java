@@ -71,7 +71,7 @@ public class Boot {
 	public final static String MAIN_JAR = "main/main.jar";
 
 	public final static String WRAP_CLASS_LOADER = "Wrap-Class-Loader";
-	public final static String WRAP_JAR = "/wrap/wraploader.jar";
+	public final static String WRAP_JAR = "/boot/wraploader.jar";
 
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
@@ -80,26 +80,34 @@ public class Boot {
 	public final static String VERBOSE = PROPERTY_PREFIX + "verbose";
 	public final static String INFO = PROPERTY_PREFIX + "info";
 	
-	protected boolean info, verbose;
+	public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
+	
+	protected static boolean info, verbose;
 
-	protected void VERBOSE(String message) {
+	// Singleton loader.
+	protected static JarClassLoader loader = null;
+	
+	public static ClassLoader getClassLoader() {
+		return loader;
+	}
+
+	protected static void VERBOSE(String message) {
 		if (verbose) System.out.println("Boot: " + message);
 	}
 
-	protected void WARNING(String message) {
+	protected static void WARNING(String message) {
 		System.err.println("Boot: Warning: " + message); 
 	}
 	
-	protected void INFO(String message) {
+	protected static void INFO(String message) {
 		if (info) System.out.println("Boot: Info: " + message);
 	}
 
     public static void main(String[] args) throws Exception {
-    	
-    	new Boot().run(args);
+    	run(args);
     }
     
-    public void run(String args[]) throws Exception {
+    public static void run(String args[]) throws Exception {
     	
 		if (false) {
 			// What are the system properties.
@@ -111,6 +119,16 @@ public class Boot {
 	    		System.out.println(key + "=" + props.get(key));
 	    	}
 		}
+		
+		// Add our 'onejar:' protocol handler, but leave open the 
+		// possibility of a subsequent class taking over the 
+		// factory.  TODO: (how reasonable is this?)
+		String handlerPackage = System.getProperty(JAVA_PROTOCOL_HANDLER);
+		if (handlerPackage == null) handlerPackage = "";
+		if (handlerPackage.length() > 0) handlerPackage = "|" + handlerPackage;
+		handlerPackage = "com.simontuffs|" + handlerPackage;
+		System.setProperty(JAVA_PROTOCOL_HANDLER, handlerPackage);
+		System.out.println(JAVA_PROTOCOL_HANDLER + "=" + handlerPackage);
 	    	
     	String prefix = "Boot: ";
     	// Is the main class specified on the command line?  If so, boot it.
@@ -118,7 +136,33 @@ public class Boot {
 		String mainClass = null, recording = null;
 		boolean record = false, jarnames = false;
 		boolean verbose = false;
-		
+
+		{
+			// Default properties are in resource 'one-jar.properties'.
+			Properties properties = new Properties();
+			String props = "/one-jar.properties";
+			InputStream is = Boot.class.getResourceAsStream(props); 
+			if (is != null) {
+				INFO("loading properties from " + props);
+				properties.load(is);
+			}
+				 
+			// Merge in anything in a local file with the same name.
+			props = "file:one-jar.properties";
+			is = Boot.class.getResourceAsStream(props);
+			if (is != null) {
+				INFO("loading properties from " + props);
+				properties.load(is);
+			} 
+			// Set system properties only if not already specified.
+			Enumeration enum = properties.propertyNames();
+			while (enum.hasMoreElements()) {
+				String name = (String)enum.nextElement();
+				if (System.getProperty(name) == null) {
+					System.setProperty(name, properties.getProperty(name));
+				}
+			}
+		}		
 		// Process developer properties:
 		mainClass = System.getProperty(MAIN_CLASS);
 		if (System.getProperties().containsKey(RECORD)) {
@@ -133,6 +177,7 @@ public class Boot {
 		
 		if (System.getProperties().containsKey(VERBOSE)) {
 			verbose = true;
+			info = true;
 		} 
 		if (System.getProperties().containsKey(INFO)) {
 			info = true;
@@ -164,13 +209,12 @@ public class Boot {
 		}
 	
 		// Do we need to create a wrapping classloader?  Check for the
-		// presence of a "wrap" directory at the top of the jar file.
+		// presence of a "boot" directory at the top of the jar file.
 		URL url = Boot.class.getResource(WRAP_JAR);
 		
-		JarClassLoader loader = null;
 		if (url != null) {
 			// Wrap class loaders.
-			JarClassLoader bootLoader = new JarClassLoader("wrap");
+			JarClassLoader bootLoader = new JarClassLoader("boot");
 			bootLoader.setRecord(record);
 			bootLoader.setFlatten(!jarnames);
 			bootLoader.setRecording(recording);
@@ -193,7 +237,7 @@ public class Boot {
 				
 		} else {
 			INFO("using JarClassLoader");
-			loader = new JarClassLoader(this.getClass().getClassLoader());
+			loader = new JarClassLoader(Boot.class.getClassLoader());
 		}
 		loader.setRecord(record);
 		loader.setFlatten(!jarnames);

@@ -98,11 +98,11 @@ public class JarClassLoader extends ClassLoader {
 	protected Map byteCode = new HashMap();
 	protected Map pdCache = Collections.synchronizedMap(new HashMap());
 	
-	protected boolean record = false, flatten = false;
+	protected boolean record = false, flatten = false, unpackFindResource = false;
 	protected boolean verbose = false, info = false;
 	protected String recording = RECORDING;
 	
-	protected String jarName, mainJar, wrap;
+	protected String jarName, mainJar, boot;
 	
 	protected class ByteCode {
 		public ByteCode(String $name, String $original, byte $bytes[], String $codebase) {
@@ -119,11 +119,11 @@ public class JarClassLoader extends ClassLoader {
 	/**
 	 * Create a non-delegating but jar-capable classloader for bootstrap
 	 * purposes.
-	 * @param $wrap  The directory in the archive from which to load a 
+	 * @param $boot  The directory in the archive from which to load a 
 	 * wrapping classloader.
 	 */
 	public JarClassLoader(String $wrap) {
-		wrap = $wrap;
+		boot = $wrap;
 		// System.out.println(PREFIX() + this + " boot=" + boot + " loaded by " + this.getClass().getClassLoader());
 	}
 	
@@ -209,8 +209,8 @@ public class JarClassLoader extends ClassLoader {
 				JarEntry entry = (JarEntry)enum.nextElement();
 				if (entry.isDirectory()) continue;
 				String jar = entry.getName();
-				if (wrap != null && jar.startsWith(wrap) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
-					if (wrap != null && !entry.getName().startsWith(wrap)) continue;
+				if (boot != null && jar.startsWith(boot) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
+					if (boot != null && !entry.getName().startsWith(boot)) continue;
 					// Load it! 
 					INFO("caching " + jar);
 					InputStream is = this.getClass().getResourceAsStream("/" + jar);
@@ -228,7 +228,7 @@ public class JarClassLoader extends ClassLoader {
 							WARNING("mainClass is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
 						}
 					} 
-				} else if (wrap == null && entry.getName().startsWith(UNPACK)) {
+				} else if (boot == null && entry.getName().startsWith(UNPACK)) {
 					// Unpack into a temporary directory which is on the classpath of
 					// the application classloader.  Badly designed code which relies on the
 					// application classloader can be made to work in this way.
@@ -266,7 +266,6 @@ public class JarClassLoader extends ClassLoader {
 			
 			String entryName = entry.getName().replace('/', '.');
 			int index = entryName.lastIndexOf('.');
-			String name = entryName.substring(0, index);
 			String type = entryName.substring(index+1);
 			
 			// Because we are doing stream processing, we don't know what
@@ -293,20 +292,19 @@ public class JarClassLoader extends ClassLoader {
 				// they are cached inside the VM until the classloader is released.
 				byte[] bytes = baos.toByteArray();
 				if (type.equals("class")) {
-					if (alreadyCached(name, jar, bytes)) continue;
-					byteCode.put(name, new ByteCode(name, entry.getName(), bytes, jar));
-					VERBOSE("Cached bytes for " + name);
+					if (alreadyCached(entryName, jar, bytes)) continue;
+					byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
+					VERBOSE("Cached bytes for class " + entryName);
 				} else {
 					// Another kind of resource.  Cache this by name, and also prefixed
 					// by the jar name.  Don't duplicate the bytes.  This allows us
 					// to map resource lookups to either jar-local, or globally defined.
-					name = "/" + entry.getName();
-					String localname = "/" + jar + "/" + entry.getName();
+					String localname = jar + "/" + entryName;
 					byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar));
 					VERBOSE("Cached bytes for " + localname);
-					if (alreadyCached(name, jar, bytes)) continue;
-					byteCode.put(name, new ByteCode(name, entry.getName(), bytes, jar));
-					VERBOSE("Cached bytes for " + name);
+					if (alreadyCached(entryName, jar, bytes)) continue;
+					byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
+					VERBOSE("Cached bytes for " + entryName);
 					
 				}
 			}
@@ -323,8 +321,8 @@ public class JarClassLoader extends ClassLoader {
     	// Look up the class in the byte codes.
     	// Translate path?
     	VERBOSE("findClass(" + name + ")");
-		name = name.replace('/', '.');
-    	ByteCode bytecode = (ByteCode)byteCode.get(name);
+		String cache = name.replace('/', '.') + ".class";
+    	ByteCode bytecode = (ByteCode)byteCode.get(cache);
     	if (bytecode != null) {
     		VERBOSE("found " + name + " in " + bytecode.codebase);
     		if (record) {
@@ -383,13 +381,30 @@ public class JarClassLoader extends ClassLoader {
    
 	/**
 	 * Overriden to return resources from the appropriate codebase.
+	 * There are basically two ways this method will be called: most commonly
+	 * it will be called through the class of an object which wishes to 
+	 * load a resource, i.e. this.getClass().getResourceAsStream().  Before
+	 * passing the call to us, java.lang.Class mangles the name.  It 
+	 * converts a file path such as foo/bar/Class.class into a name like foo.bar.Class, 
+	 * and it strips leading '/' characters e.g. converting '/foo' to 'foo'.
+	 * All of which is a nuisance, since we wish to do a lookup on the original
+	 * name of the resource as present in the One-Jar jar files.  
+	 * The other way is more direct, i.e. this.getClass().getClassLoader().getResourceAsStream().
+	 * Then we get the name unmangled, and can deal with it directly. 
+	 *
+	 * The problem is this: if one resource is called /foo/bar/data, and another 
+	 * resource is called /foo.bar.data, both will have the same mangled name, 
+	 * namely 'foo.bar.data' and only one of them will be visible.  Perhaps the
+	 * best way to deal with this is to store the lookup names in mangled form, and
+	 * simply issue warnings if collisions occur.  This is not very satisfactory,
+	 * but is consistent with the somewhat limiting design of the resource name mapping
+	 * strategy in Java today.
 	 */
-	public InputStream getResourceAsStream(String resource) {
+	public InputStream getResourceAsStream(String $resource) {
+		
+		String resource = resolve($resource);
 
-		// Special case for .class files.
-		if (resource.endsWith(".class")) {
-			int index = resource.lastIndexOf('.');
-			resource = resource.substring(0, index).replace('/', '.');
+		if (resource != null) {
 			ByteCode bytecode = (ByteCode)byteCode.get(resource);
 			if (bytecode == null) {
 				VERBOSE("could not locate: " + resource);
@@ -397,9 +412,11 @@ public class JarClassLoader extends ClassLoader {
 			} 
 			return new ByteArrayInputStream(bytecode.bytes);
 		}
+		return null;
+		/*
 		
 		// If we are the bootstrap classloader, simply load the resource.
-		if (wrap != null) {
+		if (boot != null) {
 			VERBOSE("getResourceAsStream() boot mode resource " + resource);
 			// Do we have it in our cache?
 			ByteCode bytecode = null;
@@ -430,28 +447,26 @@ public class JarClassLoader extends ClassLoader {
 		// calling class.  The calling class should always be three or more levels
 		// above us.  For example, as reported by getStackTrace():
 		// com.simontuffs.onejar.example.main.Test.useResource(Test.java:56)
-		StackTraceElement[] stack = new Throwable().getStackTrace();
-		// Search upward until we get to a known class.
-		String caller = null;
-		for (int i=0; i<stack.length; i++) {
-			if (byteCode.get(stack[i].getClassName()) != null) {
-				caller = stack[i].getClassName();
-				break;
-			}
-		}
+		String caller = getCaller();
 		
 		VERBOSE("getResourceAsStream(" + resource + ") called by " + caller);
 		
-		// Default is global lookup.
-		String location = "/" + resource;
-		ByteCode bytecode = (ByteCode)byteCode.get(location);
+		// Do local lookup first, then if not found do global lookup.  This
+		// allows jar files with conflicting resource definitions to see what
+		// they expect.
 		// Look up the codebase for the caller.
 		ByteCode callerCode = ((ByteCode)byteCode.get(caller));
+		ByteCode bytecode= null;
+		String location = "";
 		if (callerCode != null) {
 			String jar = callerCode.codebase;	
-			String local = "/" + jar + "/" + resource;
-			ByteCode bc = (ByteCode)byteCode.get(local);
+			location = "/" + jar + "/" + resource;
+			ByteCode bc = (ByteCode)byteCode.get(location);
 			if (bc != null) bytecode = bc;
+		}
+		if (bytecode == null) {
+			location = "/" + resource;
+			bytecode = (ByteCode)byteCode.get(location);
 		}
 		if (bytecode != null) {
 			VERBOSE("resource " + resource + " loaded from " + location);
@@ -459,8 +474,43 @@ public class JarClassLoader extends ClassLoader {
 			return new ByteArrayInputStream(bytecode.bytes);
 		}
 		VERBOSE("not found, return null");
-		// Not found?  What do we return?
+		// Not found?  What do we return?  null seems appropriate.
 		return null;
+		*/
+	}
+	 
+	/**
+	 * Resolve a resource name.  Look first in jar-relative, then in global scope.
+	 * @param resource
+	 * @return
+	 */
+	protected String resolve(String $resource) {
+
+		if ($resource.startsWith("/")) $resource = $resource.substring(1);
+		$resource = $resource.replace('/', '.');
+		String resource = null;
+		String caller = getCaller();
+		ByteCode callerCode = (ByteCode)byteCode.get(caller + ".class");
+		
+		if (caller == null) Thread.dumpStack();
+		
+		if (callerCode != null) {
+			// Jar-local first, then global.
+			String tmp = callerCode.codebase + "/" + $resource;
+			if (byteCode.get(tmp) != null) {
+				resource = tmp; 
+			} 
+		}
+		if (resource == null) {
+			// One last try.
+			if (byteCode.get($resource) == null) {
+				resource = null; 
+			} else {
+				resource = $resource;
+			}
+		}
+		VERBOSE("resource " + $resource + " resolved to " + resource);
+		return resource;
 	}
 	
 	protected boolean alreadyCached(String name, String jar, byte[] bytes) {
@@ -480,6 +530,21 @@ public class JarClassLoader extends ClassLoader {
 			return true;
 		}
 		return false;
+	}
+
+		
+	protected String getCaller() {
+		StackTraceElement[] stack = new Throwable().getStackTrace();
+		// Search upward until we get to a known class, i.e. one with a non-null
+		// codebase.
+		String caller = null;
+		for (int i=0; i<stack.length; i++) {
+			if (byteCode.get(stack[i].getClassName() + ".class") != null) {
+				caller = stack[i].getClassName();
+				break;
+			}
+		}
+		return caller;
 	}
 
     /**
@@ -531,10 +596,24 @@ public class JarClassLoader extends ClassLoader {
      * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
     protected URL findResource(String $resource) {
-    	// TODO: Either need to automatically unpack into a temporary
-    	// directory so that a URL will be valid, or a better solution
-    	// would be to improve the 'jar:' protocol so that it can handle
-    	// nested jar files.  Use the q&d solution for now.
+    	try {
+	    	INFO("findResource(" + $resource + ")");
+	    	// Do we have the named resource in our cache?  If so, construct a 
+	    	// 'onejar:' URL so that a later attempt to access the resource
+	    	// will be redirected to our Handler class, and thence to this class.
+	    	String resource = resolve($resource);
+	    	if (resource != null) {
+	    		// We know how to handle it.
+	    		return new URL(Handler.PROTOCOL + ":" + resource); 
+	    	}
+	    	// If all else fails, return null.
+	    	return null;
+		} catch (MalformedURLException mux) {
+			WARNING("unable to locate " + $resource + " due to " + mux);
+		}
+    	return null;
+    	    	
+    	/*
     	String resource = $resource;
     	if (!resource.startsWith("/")) resource = "/" + resource;
 		ByteCode bytecode = (ByteCode)byteCode.get(resource);
@@ -562,6 +641,7 @@ public class JarClassLoader extends ClassLoader {
     	// load the resouce, since it has TMP on its classpath by virtue
     	// of the jar manifest.
         return super.findResource($resource);
+        */
     }
-
+    
 }

@@ -33,7 +33,9 @@
 package com.simontuffs.onejar.example.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.ProtectionDomain;
 import java.util.jar.JarEntry;
@@ -82,10 +84,11 @@ public class Test {
 	
 	public void dumpResource(String resource) throws Exception {
 		InputStream is = this.getClass().getResourceAsStream(resource);
-		if (is == null) throw new Exception("Unable to load resource " + resource);
+		if (is == null) throw new Exception("dumpResource: Unable to load resource " + resource);
 		System.out.println("Test.useResource(" + resource + ") OK");
 		// Dump it.
 		byte buf[] = new byte[256];
+		System.out.println("dumpResource: " + resource);
 		System.out.println("-------------------------------------------");
 		while (true) {
 			int len = is.read(buf);
@@ -136,4 +139,27 @@ public class Test {
 			
 	}
 	
+	public void classURL() throws IOException, MalformedURLException {
+		String className = "/com/simontuffs/onejar/example/main/Main.class";
+		String resource = "onejar:" + className;
+		System.out.println("classURL(): Opening onejar resource using new URL(" + resource + ")");
+		URL url = new URL(resource);
+		InputStream is = url.openStream();
+		System.out.println("classURL(): Opened: " + url);
+		if (is == null) {
+			System.out.println("Huh? Should find " + resource + " as a resource");
+		} else {
+			System.out.println("classURL(): OK.");
+		}
+		
+		// Now do it using getResource().
+		System.out.println("classURL(): opening using getResource(" + className + ")");
+		url = this.getClass().getResource(className);
+		is = url.openStream();
+		if (is == null) {
+			System.out.println("Huh? Should find " + resource + " as a resource");
+		} else {
+			System.out.println("classURL(): OK.");
+		}
+	}
 }
