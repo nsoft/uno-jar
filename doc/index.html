@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Deliver Your Java Application in One-Jar!</title>
+		<title>Deliver Your Java Application in One-JAR!</title>
 		<style>
 			h1,h2 {color:blue}
 			pre {color:green}
@@ -8,7 +8,27 @@
 		</style>
 	</head>
 	<body>
-		<h1>Deliver Your Java Application in One-Jar!</h1>
+<table align="center" cellpadding="20">
+<tr>
+<td>
+  <a href="http://www.simontuffs.com" target="_blank">
+    <img src="simontuffs.com.jpg" width="147" height="37" border="0" alt="simontuffs.com" />
+  </a>
+</td>
+<td>
+  <a href="http://www.sourceforge.net/projects/one-jar" target="_blank">
+    <img src="one-jar.jpg" width="105" height="37" border="0" alt="simontuffs.com" />
+  </a>
+</td>
+<td>
+  <a href="http://sourceforge.net" target="_blank">
+    <img src="http://sourceforge.net/sflogo.php?group_id=yaccl&amp;type=2" width="125" height="37" border="0" alt="SourceForge.net Logo" />
+  </a>
+</td>
+</tr>
+</table>
+<hr>
+		<h1>Deliver Your Java Application in One-JAR!</h1>
 		<b>by P. Simon Tuffs, Software Architect and Consultant (<a href="http://www.simontuffs.com">www.simontuffs.com</a>)</b>
 		<p>
 		<hr>
@@ -51,7 +71,7 @@ java -jar myapp.jar </pre>
 		file called <code>log4j.properties</code> to control logging, where you might like to enable/disable
 		logging on a boundary set by the initial jar file.
 		<p>Wouldn't it be nice if you could just bundle the supporting jar-files into your <code>myapp.jar</code>
-		file and be done?  This is the problem addressed, and solved, by One-Jar.
+		file and be done?  This is the problem addressed, and solved, by One-JAR.
 		
 		<h2>Class-Path Manifest Does Not Work (like you might think!)</h2>
 		Judging by the conversations on Usenet which we have seen, many people have tried and
@@ -89,9 +109,9 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		This is most unfortunate, and most frustrating, and pretty much unexpected by 
 		developers who tread this route.
 		<p>What about using the 'jar:' protocol in the <code>Class-Path</code> entry?  This
-		doesn't work either.  It appears that the JAR loader only supports file-based URLS. Which is where One-Jar 
+		doesn't work either.  It appears that the JAR loader only supports file-based URLS. Which is where One-JAR 
 		comes in.
-		<h2>One-Jar: Cracking the Problem</h2>
+		<h2>One-JAR: Cracking the Problem</h2>
 		At this stage we have laid out a rational format for our application JAR file.  This layout is 
 		in the spirit of the layout specified by J2EE containers for Web-Application and Enterprise Application
 		code, and there is a reason for this as we will see.
@@ -99,15 +119,20 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 			<li>The main class jar-file is placed in a sub-directory named <code>main</code></li>
 			<li>The supporting code jar-files are placed in a sub-directory named <code>lib</code></li>
 		</ul>
-		All that remains to enable an application for launching with One-Jar is to create a bootstrap
-		environment which is cable of installing a classloader that understands this layout, and 
-		which can locate and start the main program.
+		<a name="quickstart"/>
+		<h2>QuickStart</h2>
+		All that is required to enable an application for launching with One-JAR is to create a bootstrap
+		environment which is capable of installing a classloader that understands the One-JAR layout, and 
+		which can locate and start the main program.  You can download the latest pre-built 
+		one-jar-boot.jar here: <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-boot-0.9.jar?download">
+			<img align="middle" border="0" src="one-jar.jpg"/></a>
+		<p>If you're really impatient to see One-JAR
+		in action without writing any code or jarring any jars, <a href="#impatient">follow this link</a>.
+		
 		<p>At this point we have to augment our <code>myapp.jar</code> file with some bootstrap
 		code, and a <code>META-INF/MANIFEST.MF</code> file to let the bootstrap code assume
 		control.  
-		<a name="quickstart"/>
-		<h2>QuickStart</h2>
-		<p>One-Jar ships with a pre-built bootstrap jar file called <code>one-jar-bootstrap.jar</code> that contains all the code you need
+		<p>One-JAR ships with a pre-built bootstrap jar file called <code>one-jar-boot.jar</code> that contains all the code you need
 		to do this.
 		<pre>
 $ jar -tf one-jar-boot.jar
@@ -121,7 +146,7 @@ boot-manifest.mf </pre>
 		There are five classes which control the bootstrap process, all residing in the <code>com.simontuffs.onejar</code>
 		package.  We'll be discovering the details of these later.
 		<p>There is also a pre-built manifest file called <code>boot-manifest.mf</code>.  To complete
-		the One-Jar deployment process, create a suitable directory and expand this file into it, then
+		the One-JAR deployment process, create a suitable directory and expand this file into it, then
 		update the <code>myapp.jar</code> file as follows:
 		<pre>
 $ mkdir boot
@@ -136,14 +161,14 @@ B() </pre>
 		<h2>But How Do I Know It's Working?</h2>
 		This looks like the previous <i>working</i> case, how do you know that things are
 		actually going to work when you move this JAR file to a new location and run it?
-		<p>Well, One-Jar has some built-in diagnostics that you can enable to see what it is 
+		<p>Well, One-JAR has some built-in diagnostics that you can enable to see what it is 
 		doing on behalf of your application.  These can be enabled using command-line switches
 		to the JVM, placed before the <code>-jar</code> option:
 		<ul>
 			<li><code>-Done-jar.info</code>: Enable <code>INFO</code> level diagnostics.  These
-			show high-level operations inside the One-Jar support code.</li>
+			show high-level operations inside the One-JAR support code.</li>
 			<li><code>-Done-jar.verbose</code>: Enable <code>VERBOSE</code> level diagnostics.  These
-			show in tedious detail the operations inside One-Jar, including class-loading and 
+			show in tedious detail the operations inside One-JAR, including class-loading and 
 			resource resolution. </li>
 		</ul>
 		Let's look at the program output when we enable each of these diagnostic levels:
@@ -155,7 +180,7 @@ JarClassLoader: Info: caching lib/b.jar
 JarClassLoader: Info: caching main/main.jar
 A()
 B() </pre>
-		Now we see that something interesting is indeed happening inside the application: One-Jar is 
+		Now we see that something interesting is indeed happening inside the application: One-JAR is 
 		using a custom classloader called <code>JarClassLoader</code> to load information 
 		from the <code>myapp.jar</code> file.  We can get more detail:
 		<pre>
@@ -178,17 +203,95 @@ B() </pre>
 		Notice how the <code>JarClassLoader</code> keeps track of where classes came
 		from: for example the <code>com.a.A</code> class is contained inside the <code>lib/a.jar</code>
 		file inside <code>myapp.jar</code>.
-		<p>At this stage you should be asking "How does One-Jar decide which is the main class?".
+		<p>At this stage you should be asking "How does One-JAR decide which is the main class?".
 		The <i>conventional</i> way would be to have a manifest attribute in the top-level JAR
 		file <code>myapp.jar</code> and require this to be edited before the final jar was
-		assembled.  But this is all unnecessary: One-Jar simply looks for a jar file inside the <code>main</code>
+		assembled.  But this is all unnecessary: One-JAR simply looks for a jar file inside the <code>main</code>
 		sub-directory of the composite JAR file <code>myapp.jar</code>, and provided that that JAR file has a <code>Main-Class</code> manifest
 		attribute, it will be used as the main entry point.  This allows an existing main-class JAR file to be bundled inside
-		a One-Jar archive without further modification!
+		a One-JAR archive without further modification!
 			
-		<p>That's a high-level overview of One-Jar, next we'll get into the details behind the
+		<p>That's a high-level overview of One-JAR, next we'll get into the details behind the
 		custom classloader <code>JarClassLoader</code> and what it does to make all of this
 		possible.
+
+		<a name="#impatient"/><h2>Super-Quick Start One-JAR Example</h2>
+		<p>If you're really in a hurry to see One-JAR in action, there is a pre-built One-JAR example which
+		can be downloaded here: <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.9.jar?download">
+			<img align="middle" border="0" src="one-jar.jpg"/></a>
+		<p>Once you save this file to disk you can
+		run it as shown below.  Unfortunately, this example is fairly complex, and we'll be discussing 
+		precisely what is going on in the next section.  
+		<p>You can gain more insight into the role of the One-JAR
+		classloader by running with a <code>java -Done-jar.verbose</code> command.  Don't be perturbed by the failure, it is expected
+		and caused by pathalogical behaviour in one of the test cases.
 		
+		<ul>
+<pre>		
+$ java -jar one-jar-example.jar
+Main: com.simontuffs.onejar.example.main.Main.main()
+DetectClassLoader: Warning: com.simontuffs.onejar.example.main.Test$TestLoader is a ClassLoader
+DetectClassLoader: Warning: loaded from codesource (jar:file:/C:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/dist/one-jar-example.jar!/main/main.jar <no certificates>)
+DetectClassLoader: Warning: and declared 'loadClass(String)'. It may not be able to load classes without being modified.
+Test: loaded by com.simontuffs.onejar.DetectClassLoader@1888759
+Test: codesource is jar:file:/C:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/dist/one-jar-example.jar!/main/main.jar
+Util: loaded by com.simontuffs.onejar.DetectClassLoader@1888759
+Util.sayHello()
+Test.useResource(/duplicate.txt) OK
+-------------------------------------------
+This is an example of a duplicate resource file named duplicate.txt,
+placed into main.jar
+-------------------------------------------
+
+Util.InnerClass loaded by com.simontuffs.onejar.DetectClassLoader@1888759
+Util.StaticInnerClass loaded by com.simontuffs.onejar.DetectClassLoader@1888759
+
+Test.useUtil() OK
+
+Test.useResource(/main-manifest.mf) OK
+dumpResource: /main-manifest.mf
+-------------------------------------------
+Manifest-Version: 1.0
+Main-Class: com.simontuffs.onejar.example.main.Main
+
+-------------------------------------------
+
+Test.useResource(/duplicate.txt) OK
+dumpResource: /duplicate.txt
+-------------------------------------------
+This is an example of a duplicate resource file named duplicate.txt,
+placed into main.jar
+-------------------------------------------
+
+Test.useResource(main.txt) OK
+dumpResource: main.txt
+-------------------------------------------
+This is main.txt
+-------------------------------------------
+
+Test.loadCodeSource(): dumping entries in jar:file:/C:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/dist/one-jar-example.jar!/main/main.jar
+Test: entry=main-manifest.mf
+Test: entry=duplicate.txt
+Test: entry=com/simontuffs/onejar/example/util/Duplicate.class
+Test: entry=com/simontuffs/onejar/example/main/Main.class
+Test: entry=com/simontuffs/onejar/example/main/Test$TestLoader.class
+Test: entry=com/simontuffs/onejar/example/main/Test.class
+Test: entry=com/simontuffs/onejar/example/main/main.txt
+
+Creating new TestLoader()
+loading com.simontuffs.onejar.example.util.Util
+TestLoader.loadClass(com.simontuffs.onejar.example.util.Util)
+Test.classLoader() failed: java.lang.ClassNotFoundException: com.simontuffs.onejar.example.util.Util
+
+classURL(): Opening onejar resource using new URL(onejar:/com/simontuffs/onejar/example/main/Main.class)
+classURL(): Opened: onejar:/com/simontuffs/onejar/example/main/Main.class
+classURL(): OK.
+classURL(): opening using getResource(/com/simontuffs/onejar/example/main/Main.class)
+classURL(): OK.
+
+Main: finished in 31 ms
+1 failure (TODO: JUnit!)
+</pre>	
+		</ul>
 	</body>
 </html>

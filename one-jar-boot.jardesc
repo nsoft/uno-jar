@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/one-jar-boot.jar"/>
+    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/dist/one-jar-boot.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
         descriptionLocation="/one-jar/one-jar-boot.jardesc"

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/one-jar.jar"/>
+    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/dist/one-jar-example.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
-        descriptionLocation="/one-jar/one-jar.jardesc"
+        descriptionLocation="/one-jar/one-jar-example.jardesc"
         useSourceFolders="false" buildIfNeeded="true"/>
     <manifest manifestVersion="1.0" usesManifest="true"
         reuseManifest="true" saveManifest="true"
