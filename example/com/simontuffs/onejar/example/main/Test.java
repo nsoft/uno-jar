@@ -126,6 +126,14 @@ public class Test {
 		} catch (ClassNotFoundException cnfx) {
 			System.out.println("not found " + name + " OK!");
 		}
+
+		// Pick up a class as a resource.
+		name = "com/simontuffs/onejar/example/util/Util.class";
+		InputStream is = testLoader.getResourceAsStream(name);
+		if (is == null) {
+			System.out.println("Huh? Should find " + name + " as a resource");
+		}
+			
 	}
 	
 }
