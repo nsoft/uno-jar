@@ -1,0 +1,198 @@
+<html>
+	<head>
+		<title>Deliver Your Java Application in One-Jar!</title>
+		<style>
+			h1,h2 {color:blue}
+			pre {color:green}
+			code {color:darkblue}
+		</style>
+	</head>
+	<body>
+		<h1>Deliver Your Java Application in One-Jar!</h1>
+		Delivering a runnable Java application is an exercise often frought with complexity and frustation.
+		In principle, if you have a main class called <code>com.mypackage.myclass.Main</code>, you simply say
+		<pre>
+java com.mypackage.myclass.Main
+		</pre>
+		However, this assumes that some magic has been applied to your shell environment
+		to set the value of your <code>CLASSPATH</code> so that the java runtime can actually find this class.
+		The <code>CLASSPATH</code> also has to contain all of the other classes which will be loaded and executed
+		by your main program.  
+		<p>This is where things start to get much more complicated.  Multiple entries on the <code>CLASSPATH</code> must
+		be separated by a special character, and this special character is unfortunately operating system
+		dependent (since it would otherwise interact badly with the common command shells).  For example
+		on UNIX it is ':', on DOS it is ';'.  If these choices were reversed, the command shell on each
+		operating system would become very confused.  And there had better not be version any conflicts between
+		entries on the <code>CLASSPATH</code>: the order of entries 
+		controls the order of class resolution, incompatible versions created by incorrect orderings 
+		will lead to obscure <code>NoSuchMethodException</code> exceptions and other runtime problems.
+		<p>Wouldn't it be nice if you could just wrap up all your classes into one big executable, 
+		and run it?  Well the Java2 Runtime Environment has a way of doing this using a JAR launcher.
+		If you bundle your class, and all the supporting classes in a file called myapp.jar, and
+		set the <code>MANIFEST.MF</code> appropriately, you can simply say:
+		
+		<pre>
+    java -jar myapp.jar
+		</pre>
+		Very nice.  So what's the catch?  There are numerous.  One catch is that you must first unjar all of the supporting
+		classes and flatten them out into a single directory tree before creating the final 
+		myapp.jar.  Suppose for example what happens if your application depends on some of the
+		web-services JAR files from the Java Web Services Developer Pack.  There are many of them
+		and they all contain code which lives in the same packages (javax.*, com.sun.* etc).
+		<p>Is this a problem?  Well it may be.  Consider that after you have expanded all of the
+		code into a single tree, you have lost all trace of any code signatures that might have been
+		present.  Why?  Because code signatures are located in <code>/META-INF/MANIFEST.MF</code> file, and 
+		each jar file will contain one of these manifest files, with different content.  Likewise,
+		any resources which have the same name (a distinct possibility given that the jar files
+		themselves may contain flattened out packages) will be in conflict: you can only have one
+		file called <code>log4j.properties</code> to control logging, where you might like to enable/disable
+		logging on a boundary set by the initial jar file.
+		<p>Wouldn't it be nice if you could just bundle the supporting jar-files into your <code>myapp.jar</code>
+		file and be done?  This is the problem addressed, and solved, by One-Jar.
+		
+		<h2>Class-Path Manifest Does Not Work (like you might think!)</h2>
+		Judging by the conversations on Usenet which we have seen, many people have tried and
+		failed to use the <code>META-INF/MANIFEST.MF</code> property called <code>Class-Path</code> to 
+		solve this problem. 
+		<p>But first, lets set up a concrete example of what we're trying to do.  Suppose our
+		main class, plus other classes we have written is in a JAR file called <code>main.jar</code>
+		Suppose that our application depends on three other JAR files, called <code>a.jar, b.jar</code>
+		Can we construct a manifest which will allow the JAR launcher to run this?  First, we construct
+		our compound Jar file:
+		
+		<pre> 
+$ jar -tf myapp.jar
+META-INF/MANIFEST.MF
+lib/a.jar
+lib/b.jar
+main/main.jar
+		</pre>
+			The manifest contains a <code>Main-Class</code> setting to launch our application, 
+			and entries for the supporting JAR files <code>a.jar</code> and <code>b.jar</code>.
+		<pre>
+Manifest-Version: 1.0
+Class-Path: main/main.jar lib/a.jar lib/b.jar
+Main-Class: com.main.Main
+		</pre>
+		What happens if you run this?
+		<pre>
+$ java -jar myapp.jar
+A()
+B()
+		</pre>
+		Looks good, exactly what we want right?  Wrong.  What's happening here is that the
+		<code>Class-Path</code> entries are being resolved in the file-system, not inside
+		the JAR file.  If you move this JAR file somewhere else and try to run it, you get the following:
+		<pre>
+$ java -jar myapp.jar
+Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main
+		</pre>
+		This is most unfortunate, and most frustrating, and pretty much unexpected by 
+		developers who tread this route.
+		<p>What about using the 'jar:' protocol in the <code>Class-Path</code> entry?  This
+		doesn't work either.  It appears that the JAR loader only supports file-based URLS. Which is where One-Jar 
+		comes in.
+		<h2>One-Jar: Cracking the Problem</h2>
+		At this stage we have laid out a rational format for our application JAR file.  This layout is 
+		in the spirit of the layout specified by J2EE containers for Web-Application and Enterprise Application
+		code, and there is a reason for this as we will see.
+		<ul>
+			<li>The main class jar-file is placed in a sub-directory named <code>main</code></li>
+			<li>The supporting code jar-files are placed in a sub-directory named <code>lib</code></li>
+		</ul>
+		All that remains to enable an application for launching with One-Jar is to create a bootstrap
+		environment which is cable of installing a classloader that understands this layout, and 
+		which can locate and start the main program.
+		<p>At this point we have to augment our <code>myapp.jar</code> file with some bootstrap
+		code, and a <code>META-INF/MANIFEST.MF</code> file to let the bootstrap code assume
+		control.  
+		<p>One-Jar ships with a pre-built bootstrap jar file called <code>one-jar-bootstrap.jar</code> that contains all the code you need
+		to do this.
+		<pre>
+$ jar -tf one-jar-boot.jar
+META-INF/MANIFEST.MF
+com/simontuffs/onejar/Boot.class
+com/simontuffs/onejar/Handler$1.class
+com/simontuffs/onejar/Handler.class
+com/simontuffs/onejar/JarClassLoader$ByteCode.class
+com/simontuffs/onejar/JarClassLoader.class
+boot-manifest.mf
+		</pre>
+		There are five classes which control the bootstrap process, all residing in the <code>com.simontuffs.onejar</code>
+		package.  We'll be discovering the details of these later.
+		<p>There is also a pre-built manifest file called <code>boot-manifest.mf</code>.  To complete
+		the One-Jar deployment process, create a suitable directory and expand this file into it, then
+		update the <code>myapp.jar</code> file as follows:
+		<pre>
+$ mkdir boot
+$ cd boot
+$ jar -xvf ../one-jar-boot.jar
+$ jar -uvfm ../myapp.jar boot-manifest.mf .
+		</pre>
+		Thats it!  You can now run your application in the simplest possible fashion:
+		<pre>
+$ java -jar myapp.jar
+A()
+B()
+		</pre>
+		<h2>But How Do I Know It's Working?</h2>
+		This looks like the previous <i>working</i> case, how do you know that things are
+		actually going to work when you move this JAR file to a new location and run it?
+		<p>Well, One-Jar has some built-in diagnostics that you can enable to see what it is 
+		doing on behalf of your application.  These can be enabled using command-line switches
+		to the JVM, placed before the <code>-jar</code> option:
+		<ul>
+			<li><code>-Done-jar.info</code>: Enable <code>INFO</code> level diagnostics.  These
+			show high-level operations inside the One-Jar support code.</li>
+			<li><code>-Done-jar.verbose</code>: Enable <code>VERBOSE</code> level diagnostics.  These
+			show in tedious detail the operations inside One-Jar, including class-loading and 
+			resource resolution. </li>
+		</ul>
+		Let's look at the program output when we enable each of these diagnostic levels:
+		<pre>
+$ java -Done-jar.info -jar myapp.jar
+Boot: Info: using JarClassLoader
+JarClassLoader: Info: caching lib/a.jar
+JarClassLoader: Info: caching lib/b.jar
+JarClassLoader: Info: caching main/main.jar
+A()
+B()
+		</pre>
+		Now we see that something interesting is indeed happening inside the application: One-Jar is 
+		using a custom classloader called <code>JarClassLoader</code> to load information 
+		from the <code>myapp.jar</code> file.  We can get more detail:
+		<pre>
+$ java -Done-jar.verbose -jar myapp.jar
+Boot: Info: using JarClassLoader
+JarClassLoader: Info: caching lib/a.jar
+JarClassLoader: Cached bytes for class com.a.A.class
+JarClassLoader: Info: caching lib/b.jar
+JarClassLoader: Cached bytes for class com.b.B.class
+JarClassLoader: Info: caching main/main.jar
+JarClassLoader: Cached bytes for class com.main.Main.class
+JarClassLoader: findClass(com.main.Main)
+JarClassLoader: found com.main.Main in main/main.jar
+JarClassLoader: findClass(com.a.A)
+JarClassLoader: found com.a.A in lib/a.jar
+A()
+JarClassLoader: findClass(com.b.B)
+JarClassLoader: found com.b.B in lib/b.jar
+B()
+		</pre>
+		Notice how the <code>JarClassLoader</code> keeps track of where classes came
+		from: for example the <code>com.a.A</code> class is contained inside the <code>lib/a.jar</code>
+		file inside <code>myapp.jar</code>.
+		<p>At this stage you should be asking "How does One-Jar decide which is the main class?".
+		The <i>conventional</i> way would be to have a manifest attribute in the top-level JAR
+		file <code>myapp.jar</code> and require this to be edited before the final jar was
+		assembled.  But this is all unnecessary: One-Jar simply looks for a jar file inside the <code>main</code>
+		sub-directory of the composite JAR file <code>myapp.jar</code>, and provided that that JAR file has a <code>Main-Class</code> manifest
+		attribute, it will be used as the main entry point.  This allows an existing main-class JAR file to be bundled inside
+		a One-Jar archive without further modification!
+			
+		<p>That's a high-level overview of One-Jar, next we'll get into the details behind the
+		custom classloader <code>JarClassLoader</code> and what it does to make all of this
+		possible.
+		
+	</body>
+</html>
