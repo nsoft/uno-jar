@@ -1,23 +1,28 @@
 <html>
 	<head>
 		<title>Deliver Your Java Application in One-JAR!</title>
-		<style>
-			h1,h2,i {color:blue}
-			pre {color:green}
-			code {color:darkblue}
-		</style>
+		<link rel="stylesheet" type="text/css" href="style.css" />
 	</head>
 	<body>
 <table align="center" cellpadding="20">
 <tr>
+<td>
+	<a href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.95.jar?download">
+			<img src="download-examples.jpg" border="0" alt="download one-jar examples"/>
+</td>
+<td>
+  <a href="http://www.sourceforge.net/projects/one-jar" target="_blank">
+    <img src="one-jar.jpg" border="0" alt="one-jar at sourceforge.net" />
+  </a>
+</td>
 <td>
   <a href="http://www.simontuffs.com" target="_blank">
     <img src="simontuffs.com.jpg" border="0" alt="simontuffs.com" />
   </a>
 </td>
 <td>
-  <a href="http://www.sourceforge.net/projects/one-jar" target="_blank">
-    <img src="one-jar.jpg" border="0" alt="one-jar at sourceforge.net" />
+  <a href="one-jar-license.txt" target="_blank">
+    <img src="license.jpg" border="0" alt="licensing information" />
   </a>
 </td>
 <td>
@@ -42,9 +47,9 @@
 		<p>
 		<h2>Introduction (or <a href="#quickstart">Quickstart</a>)</h2>
 		Delivering a runnable Java application is an exercise often frought with complexity and frustation.
-		In principle, if you have a main class called <code>com.mypackage.myclass.Main</code>, you can simply say:
-		<pre>
-java com.mypackage.myclass.Main	</pre>
+		In principle, if you have a main class called <code>com.mydomain.mypackage.Main</code>, you can simply say:
+		<ul><pre>
+java com.mydomain.mypackage.Main	</pre></ul>
 		However, this assumes that some magic has been applied to your shell environment
 		to set the value of your <code>CLASSPATH</code> so that the java runtime can actually find this class.
 		The <code>CLASSPATH</code> also has to contain all of the other classes which will be loaded and executed
@@ -62,8 +67,8 @@ java com.mypackage.myclass.Main	</pre>
 		If you bundle your class, and all the supporting classes in a file called myapp.jar, and
 		set the <code>MANIFEST.MF</code> appropriately, you can simply say:
 		
-		<pre>
-java -jar myapp.jar </pre>
+		<ul><pre>
+java -jar myapp.jar </pre></ul>
 		Very nice.  So what's the catch?  There are numerous.  One catch is that you must first unjar all of the supporting
 		classes and flatten them out into a single directory tree before creating the final 
 		myapp.jar.  For example: what happens if your application depends on some of the
@@ -90,29 +95,29 @@ java -jar myapp.jar </pre>
 		Can we construct a manifest which will allow the JAR launcher to run this?  First, we construct
 		our compound Jar file:
 		
-		<pre> 
+		<ul><pre> 
 $ jar -tf myapp.jar
 META-INF/MANIFEST.MF
 lib/a.jar
 lib/b.jar
-main/main.jar </pre>
+main/main.jar </pre></ul>
 			The manifest contains a <code>Main-Class</code> setting to launch our application, 
 			and entries for the supporting JAR files <code>a.jar</code> and <code>b.jar</code>.
-		<pre>
+		<ul><pre>
 Manifest-Version: 1.0
 Class-Path: main/main.jar lib/a.jar lib/b.jar
-Main-Class: com.main.Main </pre>
+Main-Class: com.main.Main </pre></ul>
 		What happens if you run this?
-		<pre>
+		<ul><pre>
 $ java -jar myapp.jar
 A()
-B() </pre>
+B() </pre></ul>
 		Looks good, exactly what we want right?  Wrong.  What's happening here is that the
 		<code>Class-Path</code> entries are being resolved in the file-system, not inside
 		the JAR file.  If you move this JAR file somewhere else and try to run it, you get the following:
-		<pre>
+		<ul><pre>
 $ java -jar myapp.jar
-Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
+Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre></ul>
 		This is most unfortunate, and most frustrating, and pretty much unexpected by 
 		developers who follow this route.
 		<p>What about using the 'jar:' protocol in the <code>Class-Path</code> entry?  This
@@ -141,7 +146,7 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		to do this.  You can download the latest pre-built 
 		one-jar-boot.jar here: <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-boot-0.95.jar?download">
 			<img align="middle" border="0" src="one-jar.jpg"/></a>
-		<pre>
+		<ul><pre>
 $ jar -tf one-jar-boot.jar
 META-INF/MANIFEST.MF
 com/simontuffs/onejar/Boot.class
@@ -149,22 +154,22 @@ com/simontuffs/onejar/Handler$1.class
 com/simontuffs/onejar/Handler.class
 com/simontuffs/onejar/JarClassLoader$ByteCode.class
 com/simontuffs/onejar/JarClassLoader.class
-boot-manifest.mf </pre>
+boot-manifest.mf </pre></ul>
 		There are five classes which control the bootstrap process, all residing in the <code>com.simontuffs.onejar</code>
 		package.  We'll be discovering the details of these later.
 		<p>There is also a pre-built manifest file called <code>boot-manifest.mf</code>.  To complete
 		the One-JAR deployment process, create a suitable directory and expand this file into it, then
 		update the <code>myapp.jar</code> file as follows:
-		<pre>
+		<ul><pre>
 $ mkdir boot
 $ cd boot
 $ jar -xvf ../one-jar-boot.jar
-$ jar -uvfm ../myapp.jar boot-manifest.mf . </pre>
+$ jar -uvfm ../myapp.jar boot-manifest.mf . </pre></ul>
 		Thats it!  You can now run your application in the simplest possible fashion:
-		<pre>
+		<ul><pre>
 $ java -jar myapp.jar
 A()
-B() </pre>
+B() </pre></ul>
 		<h2>But How Do I Know It's Working?</h2>
 		This looks like the previous <i>working</i> case, how do you know that things are
 		actually going to work when you move this JAR file to a new location and run it?
@@ -179,18 +184,18 @@ B() </pre>
 			resource resolution. </li>
 		</ul>
 		Let's look at the program output when we enable each of these diagnostic levels:
-		<pre>
+		<ul><pre>
 $ java -Done-jar.info -jar myapp.jar
 Boot: Info: using JarClassLoader
 JarClassLoader: Info: caching lib/a.jar
 JarClassLoader: Info: caching lib/b.jar
 JarClassLoader: Info: caching main/main.jar
 A()
-B() </pre>
+B() </pre></ul>
 		Now we see that something interesting is indeed happening inside the application: One-JAR is 
 		using a custom classloader called <code>JarClassLoader</code> to load information 
 		from the <code>myapp.jar</code> file.  We can get more detail:
-		<pre>
+		<ul><pre>
 $ java -Done-jar.verbose -jar myapp.jar
 Boot: Info: using JarClassLoader
 JarClassLoader: Info: caching lib/a.jar
@@ -206,7 +211,7 @@ JarClassLoader: found com.a.A in lib/a.jar
 A()
 JarClassLoader: findClass(com.b.B)
 JarClassLoader: found com.b.B in lib/b.jar
-B() </pre>
+B() </pre></ul>
 		Notice how the <code>JarClassLoader</code> keeps track of where classes came
 		from: for example the <code>com.a.A</code> class is contained inside the <code>lib/a.jar</code>
 		file inside <code>myapp.jar</code>.
@@ -299,7 +304,7 @@ classURL(): OK.
 
 Main: finished in 31 ms
 1 failure (TODO: JUnit!)
-</pre>	
+</pre>
 		</ul>
 		<hr>
 		If you like <i>One-JAR</i> then you might want to check out some of the other Open-Source projects
@@ -311,7 +316,14 @@ Main: finished in 31 ms
 					border="0" alt="soap-stone at sourceforge.net"></a> 
 				</td>
 				<td>
-					<a href="http://yaccl.sourceforge.net" target="_blank"><img src="http://yaccl.sourceforge.net/yaccl.jpg" border="0" alt="simontuffs.com"></a> 
+					<a href="http://xml-xig.sourceforge.net" target="_blank"><img 						src="http://xml-xig.sourceforge.net/xml-xig.jpg" border="0" alt="XML Instance Generator"></a> 
+				</td>
+				<td>
+					<a href="http://jar-plug.sourceforge.net" target="_blank"><img 						src="http://jar-plug.sourceforge.net/jar-plug.jpg" border="0" alt="Eclipse JAR Plugin"></a> 
+				</td>
+				<td>
+					<a href="http://yaccl.sourceforge.net" target="_blank"><img 
+						src="http://yaccl.sourceforge.net/yaccl.jpg" border="0" alt="Yet Another Compiler Compiler Language"></a> 
 				</td>
 			</tr>
 		</table>

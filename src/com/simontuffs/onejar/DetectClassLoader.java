@@ -1,9 +1,12 @@
 /*
- * Created on Jun 9, 2004
+ * Copyright (c) 2004, P. Simon Tuffs (simon@simontuffs.com)
+ * All rights reserved.
  *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * See full license at http://one-jar.sourceforge.net/one-jar-license.txt
+ * This license is also included in the distributions of this software
+ * under doc/one-jar-license.txt
  */
+
 package com.simontuffs.onejar;
 
 import java.security.ProtectionDomain;

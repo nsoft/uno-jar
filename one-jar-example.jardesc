@@ -20,7 +20,8 @@
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Handler.java"/>
         <folder path="/one-jar/main"/>
         <folder path="/one-jar/expand"/>
-        <folder path="/one-jar/lib"/>
+        <file path="/one-jar/doc/one-jar-license.txt"/>
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{JarClassLoader.java"/>
+        <folder path="/one-jar/lib"/>
     </selectedElements>
 </jardesc>
