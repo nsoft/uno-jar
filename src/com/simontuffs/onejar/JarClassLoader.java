@@ -45,6 +45,7 @@ import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -228,14 +229,14 @@ public class JarClassLoader extends ClassLoader {
 			JarFile jarFile = new JarFile(jarName);
 			Enumeration enum = jarFile.entries();
 			Manifest manifest = jarFile.getManifest();
-			String paths[] = null;
+			String expandPaths[] = null;
 			// TODO: Allow a destination directory (relative or absolute) to 
 			// be specified like this:
 			// One-Jar-Expand: build=../expanded
 			String expand = manifest.getMainAttributes().getValue(EXPAND);
 			if (expand != null) {
 				VERBOSE(EXPAND + "=" + expand);
-				paths = expand.split(",");
+				expandPaths = expand.split(",");
 			}
 			while (enum.hasMoreElements()) {
 				JarEntry entry = (JarEntry)enum.nextElement();
@@ -246,14 +247,16 @@ public class JarClassLoader extends ClassLoader {
 				// Expand-Dirs: build,tmp,webapps
 				boolean expanded = false;
 				String name = entry.getName();
-				if (paths != null) {
+				if (expandPaths != null) {
 					// TODO: Can't think of a better way to do this right now.  
 					// This code really doesn't need to be optimized anyway.
-					for (int i=0; i<paths.length; i++) {
-						if (name.startsWith(paths[i])) {
+					for (int i=0; i<expandPaths.length; i++) {
+						if (name.startsWith(expandPaths[i])) {
 							File dest = new File(name);
-							if (!dest.exists()) {
+							// Override if ZIP file is newer than existing.
+							if (!dest.exists() || dest.lastModified() < entry.getTime()) {
 								INFO("Expanding " + name);
+								if (dest.exists()) INFO("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
 								dest.getParentFile().mkdirs();
 								VERBOSE("using jarFile.getInputStream(" + entry + ")");
 								InputStream is = jarFile.getInputStream(entry);
