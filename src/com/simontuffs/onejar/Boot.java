@@ -80,8 +80,6 @@ public class Boot {
 	public final static String VERBOSE = PROPERTY_PREFIX + "verbose";
 	public final static String INFO = PROPERTY_PREFIX + "info";
 	
-	public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
-	
 	protected static boolean info, verbose;
 
 	// Singleton loader.
@@ -120,15 +118,6 @@ public class Boot {
 	    	}
 		}
 		
-		// Add our 'onejar:' protocol handler, but leave open the 
-		// possibility of a subsequent class taking over the 
-		// factory.  TODO: (how reasonable is this?)
-		String handlerPackage = System.getProperty(JAVA_PROTOCOL_HANDLER);
-		if (handlerPackage == null) handlerPackage = "";
-		if (handlerPackage.length() > 0) handlerPackage = "|" + handlerPackage;
-		handlerPackage = "com.simontuffs" + handlerPackage;
-		System.setProperty(JAVA_PROTOCOL_HANDLER, handlerPackage);
-		INFO(JAVA_PROTOCOL_HANDLER + "=" + handlerPackage);
 	    	
     	String prefix = "Boot: ";
     	// Is the main class specified on the command line?  If so, boot it.
@@ -177,7 +166,6 @@ public class Boot {
 		
 		if (System.getProperties().containsKey(VERBOSE)) {
 			verbose = true;
-			info = true;
 		} 
 		if (System.getProperties().containsKey(INFO)) {
 			info = true;
@@ -209,7 +197,7 @@ public class Boot {
 		}
 	
 		// Do we need to create a wrapping classloader?  Check for the
-		// presence of a "boot" directory at the top of the jar file.
+		// presence of a "wrap" directory at the top of the jar file.
 		URL url = Boot.class.getResource(WRAP_JAR);
 		
 		if (url != null) {
@@ -218,11 +206,13 @@ public class Boot {
 			bootLoader.setRecord(record);
 			bootLoader.setFlatten(!jarnames);
 			bootLoader.setRecording(recording);
-			bootLoader.setVerbose(verbose);
+			// Note: order of setInfo & setVerbose is significant, since verbose => info
+			// but not vice-versa.
 			bootLoader.setInfo(info);
+			bootLoader.setVerbose(verbose);
 			bootLoader.load(null);
 			
-			// Read the "Main-Class" property from the wraploader jar file.
+			// Read the "Wrap-Class-Loader" property from the wraploader jar file.
 			// This is the class to use as a wrapping class-loader.
 			JarInputStream jis = new JarInputStream(Boot.class.getResourceAsStream(WRAP_JAR));
 			String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
@@ -242,8 +232,8 @@ public class Boot {
 		loader.setRecord(record);
 		loader.setFlatten(!jarnames);
 		loader.setRecording(recording);
-		loader.setVerbose(verbose);
 		loader.setInfo(info);
+		loader.setVerbose(verbose);
 		mainClass = loader.load(mainClass);
 
 		// Set the context classloader in case any classloaders delegate to it.

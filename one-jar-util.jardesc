@@ -13,7 +13,7 @@
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="true" exportJavaFiles="false">
+    <selectedElements exportClassFiles="true" exportJavaFiles="true">
         <file path="/one-jar/example/util-manifest.mf"/>
         <javaElement handleIdentifier="=one-jar/example&lt;com.simontuffs.onejar.example.util"/>
         <file path="/one-jar/duplicate.txt"/>

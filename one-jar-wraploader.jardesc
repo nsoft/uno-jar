@@ -13,7 +13,7 @@
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="true" exportJavaFiles="false">
+    <selectedElements exportClassFiles="true" exportJavaFiles="true">
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{DetectClassLoader.java"/>
     </selectedElements>
 </jardesc>

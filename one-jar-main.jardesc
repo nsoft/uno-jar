@@ -3,7 +3,7 @@
     <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/main/main.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
-        descriptionLocation="/one-jar/main.jardesc"
+        descriptionLocation="/one-jar/one-jar-main.jardesc"
         useSourceFolders="false" buildIfNeeded="true"/>
     <manifest manifestVersion="1.0" usesManifest="true"
         reuseManifest="true" saveManifest="true"

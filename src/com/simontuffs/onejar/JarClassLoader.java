@@ -32,7 +32,6 @@
 
 package com.simontuffs.onejar;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -80,6 +79,21 @@ public class JarClassLoader extends ClassLoader {
 	public final static String TMP = "tmp";
 	public final static String UNPACK = "unpack";
 	public final static String EXPAND = "One-Jar-Expand";
+	public final static String CLASS = ".class";
+
+	public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
+
+	static {
+		// Add our 'onejar:' protocol handler, but leave open the 
+		// possibility of a subsequent class taking over the 
+		// factory.  TODO: (how reasonable is this?)
+		String handlerPackage = System.getProperty(JAVA_PROTOCOL_HANDLER);
+		if (handlerPackage == null) handlerPackage = "";
+		if (handlerPackage.length() > 0) handlerPackage = "|" + handlerPackage;
+		handlerPackage = "com.simontuffs" + handlerPackage;
+		System.setProperty(JAVA_PROTOCOL_HANDLER, handlerPackage);
+		
+	}
 
 	protected String PREFIX() {
 		return "JarClassLoader: ";
@@ -197,14 +211,20 @@ public class JarClassLoader extends ClassLoader {
 	}
 	
 	public String load(String mainClass) {
+		return load(mainClass, null);
+	}
+		
+	public String load(String mainClass, String jarName) {
 		if (record) {
 			new File(recording).mkdirs();
 		}
 		try {
-			// Hack to get the lib directory entries.   We know we are being
-			// loaded out of a jar file, so there is only one jar-file on the
-			// classpath: ours!  So we open it.
-			jarName = System.getProperty(JAVA_CLASS_PATH);
+			if (jarName == null) {
+				// Hack to get the lib directory entries.   We know we are being
+				// loaded out of a jar file, so there is only one jar-file on the
+				// classpath: ours!  So we open it.
+				jarName = System.getProperty(JAVA_CLASS_PATH);
+			}
 			JarFile jarFile = new JarFile(jarName);
 			Enumeration enum = jarFile.entries();
 			Manifest manifest = jarFile.getManifest();
@@ -225,8 +245,8 @@ public class JarClassLoader extends ClassLoader {
 				// directories in the JAR to be expanded (comma separated). For example:
 				// Expand-Dirs: build,tmp,webapps
 				boolean expanded = false;
+				String name = entry.getName();
 				if (paths != null) {
-					String name = entry.getName();
 					// TODO: Can't think of a better way to do this right now.  
 					// This code really doesn't need to be optimized anyway.
 					for (int i=0; i<paths.length; i++) {
@@ -235,7 +255,8 @@ public class JarClassLoader extends ClassLoader {
 							if (!dest.exists()) {
 								INFO("Expanding " + name);
 								dest.getParentFile().mkdirs();
-								InputStream is = this.getClass().getResourceAsStream("/" + name);
+								VERBOSE("using jarFile.getInputStream(" + entry + ")");
+								InputStream is = jarFile.getInputStream(entry);
 								FileOutputStream os = new FileOutputStream(dest); 
 								copy(is, os);
 								is.close();
@@ -255,14 +276,15 @@ public class JarClassLoader extends ClassLoader {
 					if (wrapDir != null && !entry.getName().startsWith(wrapDir)) continue;
 					// Load it! 
 					INFO("caching " + jar);
-					InputStream is = this.getClass().getResourceAsStream("/" + jar);
-					if (is == null) throw new IOException("Unable to load resource /" + jar);
+					VERBOSE("using jarFile.getInputStream(" + entry + ")");
+					InputStream is = jarFile.getInputStream(entry);
+					if (is == null) 
+						throw new IOException("Unable to load resource /" + jar + " using " + this);
 					loadByteCode(is, jar);
 					
 					// Do we need to look for a main class?
 					if (jar.startsWith(MAIN_PREFIX)) {
 						if (mainClass == null) {
-							is = this.getClass().getResourceAsStream("/" + jar);
 							JarInputStream jis = new JarInputStream(is);
 							mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 							mainJar = jar;
@@ -271,7 +293,7 @@ public class JarClassLoader extends ClassLoader {
 							WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
 						}
 					} 
-				} else if (wrapDir == null && entry.getName().startsWith(UNPACK)) {
+				} else if (wrapDir == null && name.startsWith(UNPACK)) {
 					// Unpack into a temporary directory which is on the classpath of
 					// the application classloader.  Badly designed code which relies on the
 					// application classloader can be made to work in this way.
@@ -286,7 +308,15 @@ public class JarClassLoader extends ClassLoader {
 						sentinel.getParentFile().mkdirs();
 						sentinel.createNewFile();
 					}
+				} else if (name.endsWith(CLASS)) {
+					// A plain vanilla class file rooted at the top of the jar file.
+					loadBytes(entry, jarFile.getInputStream(entry), "/", null);
+					
 				}
+			}
+			// If mainClass is still not defined, check the manifest of the jar file.
+			if (mainClass == null) {
+				mainClass = jarFile.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 			}
 		
 		} catch (IOException iox) {
@@ -301,55 +331,57 @@ public class JarClassLoader extends ClassLoader {
 	}
 	
 	protected void loadByteCode(InputStream is, String jar, String tmp) throws IOException {
-		JarInputStream jis = new JarInputStream(new BufferedInputStream(is));
+		JarInputStream jis = new JarInputStream(is);
 		JarEntry entry = null;
 		// TODO: implement lazy loading of bytecode.
 		while ((entry = jis.getNextJarEntry()) != null) {
 			if (entry.isDirectory()) continue;
-			
-			String entryName = entry.getName().replace('/', '.');
-			int index = entryName.lastIndexOf('.');
-			String type = entryName.substring(index+1);
-			
-			// Because we are doing stream processing, we don't know what
-			// the size of the entries is.  So we store them dynamically.
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			byte[] buf = new byte[1024];
-			copy(jis, baos);
-
-			if (tmp != null) {
-				// Unpack into a temporary working directory which is on the classpath.
-				File file = new File(tmp, entry.getName());
-				file.getParentFile().mkdirs();
-				FileOutputStream fos = new FileOutputStream(file);
-				fos.write(baos.toByteArray());
-				fos.close();
-				
-			} else {
-				// If entry is a class, check to see that it hasn't been defined
-				// already.  Class names must be unique within a classloader because
-				// they are cached inside the VM until the classloader is released.
-				byte[] bytes = baos.toByteArray();
-				if (type.equals("class")) {
-					if (alreadyCached(entryName, jar, bytes)) continue;
-					byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
-					VERBOSE("Cached bytes for class " + entryName);
-				} else {
-					// Another kind of resource.  Cache this by name, and also prefixed
-					// by the jar name.  Don't duplicate the bytes.  This allows us
-					// to map resource lookups to either jar-local, or globally defined.
-					String localname = jar + "/" + entryName;
-					byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar));
-					VERBOSE("Cached bytes for " + localname);
-					if (alreadyCached(entryName, jar, bytes)) continue;
-					byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
-					VERBOSE("Cached bytes for " + entryName);
-					
-				}
-			}
+			loadBytes(entry, jis, jar, tmp);
 		}
 	}
 	
+	protected void loadBytes(JarEntry entry, InputStream is, String jar, String tmp) throws IOException {
+		String entryName = entry.getName().replace('/', '.');
+		int index = entryName.lastIndexOf('.');
+		String type = entryName.substring(index+1);
+			
+		// Because we are doing stream processing, we don't know what
+		// the size of the entries is.  So we store them dynamically.
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		copy(is, baos);
+
+		if (tmp != null) {
+			// Unpack into a temporary working directory which is on the classpath.
+			File file = new File(tmp, entry.getName());
+			file.getParentFile().mkdirs();
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.write(baos.toByteArray());
+			fos.close();
+				
+		} else {
+			// If entry is a class, check to see that it hasn't been defined
+			// already.  Class names must be unique within a classloader because
+			// they are cached inside the VM until the classloader is released.
+			byte[] bytes = baos.toByteArray();
+			if (type.equals("class")) {
+				if (alreadyCached(entryName, jar, bytes)) return;
+				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
+				VERBOSE("cached bytes for class " + entryName);
+			} else {
+				// Another kind of resource.  Cache this by name, and also prefixed
+				// by the jar name.  Don't duplicate the bytes.  This allows us
+				// to map resource lookups to either jar-local, or globally defined.
+				String localname = jar + "/" + entryName;
+				byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar));
+				VERBOSE("cached bytes for local name " + localname);
+				if (alreadyCached(entryName, jar, bytes)) return;
+				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar));
+				VERBOSE("cached bytes for entry name " + entryName);
+					
+			}
+		}
+	}
+
 	protected boolean classPool = false;
 
 	/**
@@ -357,13 +389,17 @@ public class JarClassLoader extends ClassLoader {
 	 * jar file which was used to load <u>this</u> class.
 	 */
     protected Class findClass(String name) throws ClassNotFoundException {
+    	// Make sure not to load duplicate classes.
+    	Class cls = findLoadedClass(name);
+    	if (cls != null) return cls;
+    	
     	// Look up the class in the byte codes.
     	// Translate path?
     	VERBOSE("findClass(" + name + ")");
 		String cache = name.replace('/', '.') + ".class";
     	ByteCode bytecode = (ByteCode)byteCode.get(cache);
     	if (bytecode != null) {
-    		VERBOSE("found " + name + " in " + bytecode.codebase);
+    		VERBOSE("found " + name + " in codebase '" + bytecode.codebase + "'");
     		if (record) {
     			record(bytecode);
     		}
@@ -558,6 +594,7 @@ public class JarClassLoader extends ClassLoader {
     
 	public void setVerbose(boolean $verbose) {
 		verbose = $verbose;
+		info = verbose;
 	}
 	
 	public boolean getVerbose() {

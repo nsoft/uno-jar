@@ -14,7 +14,7 @@
             <packagesToUnSeal/>
         </sealing>
     </manifest>
-    <selectedElements exportClassFiles="true" exportJavaFiles="false">
+    <selectedElements exportClassFiles="true" exportJavaFiles="true">
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Boot.java"/>
         <folder path="/one-jar/wrap"/>
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Handler.java"/>
