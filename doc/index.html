@@ -69,9 +69,9 @@ java -jar myapp.jar </pre>
 		any resources which have the same name (a distinct possibility given that the jar files
 		themselves may contain flattened out packages) will be in conflict: you can only have one
 		file called <code>log4j.properties</code> to control logging, where you might like to enable/disable
-		logging on a boundary set by the initial jar file.
+		logging on a boundary set by the individual jar files.
 		<p>Wouldn't it be nice if you could just bundle the supporting jar-files into your <code>myapp.jar</code>
-		file and be done?  This is the problem addressed, and solved, by One-JAR.
+		file without expanding them?  This is the problem addressed, and solved, by One-JAR.
 		
 		<h2>Class-Path Manifest Does Not Work (like you might think!)</h2>
 		Judging by the conversations on Usenet which we have seen, many people have tried and
@@ -79,7 +79,7 @@ java -jar myapp.jar </pre>
 		solve this problem. 
 		<p>But first, lets set up a concrete example of what we're trying to do.  Suppose our
 		main class, plus other classes we have written is in a JAR file called <code>main.jar</code>
-		Suppose that our application depends on three other JAR files, called <code>a.jar, b.jar</code>
+		Suppose that our application depends on two other JAR files, called <code>a.jar, b.jar</code>
 		Can we construct a manifest which will allow the JAR launcher to run this?  First, we construct
 		our compound Jar file:
 		
@@ -107,7 +107,7 @@ B() </pre>
 $ java -jar myapp.jar
 Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		This is most unfortunate, and most frustrating, and pretty much unexpected by 
-		developers who tread this route.
+		developers who follow this route.
 		<p>What about using the 'jar:' protocol in the <code>Class-Path</code> entry?  This
 		doesn't work either.  It appears that the JAR loader only supports file-based URLS. Which is where One-JAR 
 		comes in.
@@ -123,9 +123,7 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		<h2>QuickStart</h2>
 		All that is required to enable an application for launching with One-JAR is to create a bootstrap
 		environment which is capable of installing a classloader that understands the One-JAR layout, and 
-		which can locate and start the main program.  You can download the latest pre-built 
-		one-jar-boot.jar here: <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-boot-0.9.jar?download">
-			<img align="middle" border="0" src="one-jar.jpg"/></a>
+		which can locate and start the main program.  
 		<p>If you're really impatient to see One-JAR
 		in action without writing any code or jarring any jars, <a href="#impatient">follow this link</a>.
 		
@@ -133,7 +131,9 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		code, and a <code>META-INF/MANIFEST.MF</code> file to let the bootstrap code assume
 		control.  
 		<p>One-JAR ships with a pre-built bootstrap jar file called <code>one-jar-boot.jar</code> that contains all the code you need
-		to do this.
+		to do this.  You can download the latest pre-built 
+		one-jar-boot.jar here: <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-boot-0.9.jar?download">
+			<img align="middle" border="0" src="one-jar.jpg"/></a>
 		<pre>
 $ jar -tf one-jar-boot.jar
 META-INF/MANIFEST.MF
