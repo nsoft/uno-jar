@@ -81,12 +81,19 @@ public class JarClassLoader extends ClassLoader {
 	protected String PREFIX() {
 		return "JarClassLoader: ";
 	}
-	protected String INFO() {
-		return PREFIX() + "Info: ";
+
+	protected void VERBOSE(String message) {
+		if (verbose) System.out.println(PREFIX() + message);
 	}
-	protected String WARNING() {
-		return PREFIX() + "Warn: ";
+
+	protected void WARNING(String message) {
+		System.err.println(PREFIX() + "Warning: " + message); 
 	}
+	
+	protected void INFO(String message) {
+		if (info) System.out.println(PREFIX() + "Info: " + message);
+	}
+
 
 	protected Map byteCode = new HashMap();
 	protected Map pdCache = Collections.synchronizedMap(new HashMap());
@@ -205,7 +212,7 @@ public class JarClassLoader extends ClassLoader {
 				if (wrap != null && jar.startsWith(wrap) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
 					if (wrap != null && !entry.getName().startsWith(wrap)) continue;
 					// Load it! 
-					if (info) System.out.println(INFO() + "loading " + jar);
+					INFO("loading " + jar);
 					InputStream is = this.getClass().getResourceAsStream("/" + jar);
 					if (is == null) throw new IOException(jar);
 					loadByteCode(is, jar);
@@ -218,7 +225,7 @@ public class JarClassLoader extends ClassLoader {
 							mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 							mainJar = jar;
 						} else if (mainJar != null) {
-							System.out.println(WARNING() + "mainClass is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
+							WARNING("mainClass is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
 						}
 					} 
 				} else if (wrap == null && entry.getName().startsWith(UNPACK)) {
@@ -231,7 +238,7 @@ public class JarClassLoader extends ClassLoader {
 					File dir = new File(TMP);
 					File sentinel = new File(dir, jar.replace('/', '.'));
 					if (!sentinel.exists()) {
-						if (info) System.out.println(INFO() + "unpacking " + jar + " into " + dir.getCanonicalPath());
+						INFO("unpacking " + jar + " into " + dir.getCanonicalPath());
 						loadByteCode(is, jar, TMP);
 						sentinel.getParentFile().mkdirs();
 						sentinel.createNewFile();
@@ -288,7 +295,7 @@ public class JarClassLoader extends ClassLoader {
 				if (type.equals("class")) {
 					if (alreadyCached(name, jar, bytes)) continue;
 					byteCode.put(name, new ByteCode(name, entry.getName(), bytes, jar));
-					if (verbose) System.out.println(PREFIX() + "Cached bytes for " + name);
+					VERBOSE("Cached bytes for " + name);
 				} else {
 					// Another kind of resource.  Cache this by name, and also prefixed
 					// by the jar name.  Don't duplicate the bytes.  This allows us
@@ -296,10 +303,10 @@ public class JarClassLoader extends ClassLoader {
 					name = "/" + entry.getName();
 					String localname = "/" + jar + "/" + entry.getName();
 					byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar));
-					if (verbose) System.out.println(PREFIX() + "Cached bytes for " + localname);
+					VERBOSE("Cached bytes for " + localname);
 					if (alreadyCached(name, jar, bytes)) continue;
 					byteCode.put(name, new ByteCode(name, entry.getName(), bytes, jar));
-					if (verbose) System.out.println(PREFIX() + "Cached bytes for " + name);
+					VERBOSE("Cached bytes for " + name);
 					
 				}
 			}
@@ -315,11 +322,11 @@ public class JarClassLoader extends ClassLoader {
     protected Class findClass(String name) throws ClassNotFoundException {
     	// Look up the class in the byte codes.
     	// Translate path?
-    	if (verbose) System.out.println(INFO() + "findClass(" + name + ")");
+    	VERBOSE("findClass(" + name + ")");
 		name = name.replace('/', '.');
     	ByteCode bytecode = (ByteCode)byteCode.get(name);
     	if (bytecode != null) {
-    		if (verbose) System.out.println(PREFIX() + "found " + name + " in " + bytecode.codebase);
+    		VERBOSE("found " + name + " in " + bytecode.codebase);
     		if (record) {
     			record(bytecode);
     		}
@@ -344,7 +351,7 @@ public class JarClassLoader extends ClassLoader {
 			byte bytes[] = bytecode.bytes;
 			return defineClass(name, bytes, pd);
     	}
-    	if (verbose) System.out.println(INFO() + name + " not found");
+    	VERBOSE(name + " not found");
         throw new ClassNotFoundException(name);
         
     }
@@ -361,7 +368,7 @@ public class JarClassLoader extends ClassLoader {
 		File file = new File(dir, fileName);
 		if (!file.exists()) {
 			file.getParentFile().mkdirs();
-			if (verbose) System.out.println(PREFIX() + "" + file);
+			VERBOSE("" + file);
 			try {
 				FileOutputStream fos = new FileOutputStream(file);
 				fos.write(bytecode.bytes);
@@ -381,7 +388,7 @@ public class JarClassLoader extends ClassLoader {
 		
 		// If we are the bootstrap classloader, simply load the resource.
 		if (wrap != null) {
-			if (info) System.out.println(INFO() + "getResourceAsStream() wrap mode resource " + resource);
+			INFO("getResourceAsStream() wrap mode resource " + resource);
 			// Do we have it in our cache?
 			ByteCode bytecode = null;
 			if (resource.endsWith(".class")) {
@@ -402,12 +409,12 @@ public class JarClassLoader extends ClassLoader {
 				}
 			}
 			if (bytes != null) {
-				System.out.println(INFO() + "returned " + resource + " from cache");
+				INFO("returned " + resource + " from cache");
 				return new ByteArrayInputStream(bytes);
 			}
 			// Look one last time.
 			InputStream is = super.getResourceAsStream(resource);
-			if (info) System.out.println(INFO() + "returning " + is);
+			INFO("returning " + is);
 			return is;
 		}
 		
@@ -425,7 +432,7 @@ public class JarClassLoader extends ClassLoader {
 			}
 		}
 		
-		if (info) System.out.println(INFO() + "getResourceAsStream(" + resource + ") called by " + caller);
+		INFO("getResourceAsStream(" + resource + ") called by " + caller);
 		
 		// Default is global lookup.
 		String location = "/" + resource;
@@ -439,11 +446,11 @@ public class JarClassLoader extends ClassLoader {
 			if (bc != null) bytecode = bc;
 		}
 		if (bytecode != null) {
-			if (info) System.out.println(INFO() + "resource " + resource + " loaded from " + location);
+			INFO("resource " + resource + " loaded from " + location);
 			if (record) record(bytecode);
 			return new ByteArrayInputStream(bytecode.bytes);
 		}
-		if (info) System.out.println(INFO() + "not found, return null");
+		INFO("not found, return null");
 		// Not found?  What do we return?
 		return null;
 	}
@@ -458,11 +465,9 @@ public class JarClassLoader extends ClassLoader {
 			// If bytecodes are identical, no real problem.  Likewise if it's in
 			// META-INF.
 			if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("/META-INF")) {
-				System.out.println(WARNING() + existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+				WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
 			} else {
-				if (verbose) {
-					System.out.println(INFO() + existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
-				}
+				VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
 			}
 			return true;
 		}
@@ -530,7 +535,7 @@ public class JarClassLoader extends ClassLoader {
 			File sentinel = new File(dir, resource.replace('/', '.'));
 			if (!sentinel.exists()) {
 				try {
-					if (info) System.out.println(INFO() + "unpacking " + $resource + " into " + dir.getCanonicalPath());
+					INFO("unpacking " + $resource + " into " + dir.getCanonicalPath());
 					File file = new File(dir, $resource);
 					file.getParentFile().mkdirs();
 					FileOutputStream fos = new FileOutputStream(file);

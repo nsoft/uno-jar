@@ -70,15 +70,29 @@ public class Boot {
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
 	public final static String MAIN_JAR = "main/main.jar";
 
-	/**
-	 */	
+	public final static String WRAP_CLASS_LOADER = "Wrap-Class-Loader";
+	public final static String WRAP_JAR = "/wrap/wraploader.jar";
+
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
 	public final static String RECORD = PROPERTY_PREFIX + "record";
 	public final static String JARNAMES = PROPERTY_PREFIX + "jar-names";
-	public final static String WRAP_CLASSLOADERS = PROPERTY_PREFIX + "wrap";	
 	public final static String VERBOSE = PROPERTY_PREFIX + "verbose";
 	public final static String INFO = PROPERTY_PREFIX + "info";
+	
+	protected boolean info, verbose;
+
+	protected void VERBOSE(String message) {
+		if (verbose) System.out.println("Boot: " + message);
+	}
+
+	protected void WARNING(String message) {
+		System.err.println("Boot: Warning: " + message); 
+	}
+	
+	protected void INFO(String message) {
+		if (info) System.out.println("Boot: Info: " + message);
+	}
 
     public static void main(String[] args) throws Exception {
     	
@@ -102,8 +116,8 @@ public class Boot {
     	// Is the main class specified on the command line?  If so, boot it.
     	// Othewise, read the main class out of the manifest.
 		String mainClass = null, recording = null;
-		boolean record = false, jarnames = false, wrap = true;
-		boolean verbose = false, info = false;
+		boolean record = false, jarnames = false;
+		boolean verbose = false;
 		
 		// Process developer properties:
 		mainClass = System.getProperty(MAIN_CLASS);
@@ -115,9 +129,6 @@ public class Boot {
 		if (System.getProperties().containsKey(JARNAMES)) {
 			record = true;
 			jarnames = true;
-		}
-		if (System.getProperties().containsKey(WRAP_CLASSLOADERS)) {
-			wrap = new Boolean(System.getProperty(WRAP_CLASSLOADERS)).booleanValue();
 		}
 		
 		if (System.getProperties().containsKey(VERBOSE)) {
@@ -154,7 +165,7 @@ public class Boot {
 	
 		// Do we need to create a wrapping classloader?  Check for the
 		// presence of a "wrap" directory at the top of the jar file.
-		URL url = Boot.class.getResource("/wrap/wraploader.jar");
+		URL url = Boot.class.getResource(WRAP_JAR);
 		
 		JarClassLoader loader = null;
 		if (url != null) {
@@ -167,13 +178,21 @@ public class Boot {
 			bootLoader.setInfo(info);
 			bootLoader.load(null);
 			
-			System.out.println("bootLoader=" + bootLoader);
+			// Read the "Main-Class" property from the wraploader jar file.
+			// This is the class to use as a wrapping class-loader.
+			JarInputStream jis = new JarInputStream(Boot.class.getResourceAsStream(WRAP_JAR));
+			String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
+			if (wrapLoader == null) {
+				WARNING(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
+			} else {
+				INFO("using " + wrapLoader);
+				Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
+				Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
+				loader = (JarClassLoader)ctor.newInstance(new Object[]{bootLoader});
+			}
 				
-			Class jarLoaderClass = bootLoader.loadClass("com.simontuffs.onejar.WrapClassLoader");
-			Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
-			
-			loader = (JarClassLoader)ctor.newInstance(new Object[]{bootLoader});
 		} else {
+			INFO("using JarClassLoader");
 			loader = new JarClassLoader(this.getClass().getClassLoader());
 		}
 		loader.setRecord(record);
