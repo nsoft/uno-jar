@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="one-jar" default="javadoc">
+    <target name="javadoc">
+        <javadoc destdir="doc" access="public" use="true" notree="false"
+            nonavbar="false" noindex="false" splitindex="true"
+            author="true" version="true" nodeprecatedlist="false"
+            nodeprecated="false"
+            packagenames="com.simontuffs.onejar.example.util,com.simontuffs.onejar.example.main"
+            sourcefiles="src\com\simontuffs\onejar\Boot.java,src\com\simontuffs\onejar\DetectClassLoader.java,src\com\simontuffs\onejar\JarClassLoader.java"
+            sourcepath="src;example"
+            classpath="classes;D:\work\javaassist-2.6\javassist.jar" doctitle="One-Jar"/>
+    </target>
+</project>
