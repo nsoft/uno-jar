@@ -16,8 +16,9 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false">
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Boot.java"/>
-        <file path="/one-jar/lib/util.jar"/>
+        <folder path="/one-jar/wrap"/>
         <folder path="/one-jar/main"/>
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{JarClassLoader.java"/>
+        <folder path="/one-jar/lib"/>
     </selectedElements>
 </jardesc>
