@@ -102,7 +102,7 @@ public class JarClassLoader extends ClassLoader {
 	protected boolean verbose = false, info = false;
 	protected String recording = RECORDING;
 	
-	protected String jarName, mainJar, boot;
+	protected String jarName, mainJar, wrap;
 	
 	protected class ByteCode {
 		public ByteCode(String $name, String $original, byte $bytes[], String $codebase) {
@@ -119,12 +119,11 @@ public class JarClassLoader extends ClassLoader {
 	/**
 	 * Create a non-delegating but jar-capable classloader for bootstrap
 	 * purposes.
-	 * @param $boot  The directory in the archive from which to load a 
+	 * @param $wrap  The directory in the archive from which to load a 
 	 * wrapping classloader.
 	 */
 	public JarClassLoader(String $wrap) {
-		boot = $wrap;
-		// System.out.println(PREFIX() + this + " boot=" + boot + " loaded by " + this.getClass().getClassLoader());
+		wrap = $wrap;
 	}
 	
 	/**
@@ -209,12 +208,12 @@ public class JarClassLoader extends ClassLoader {
 				JarEntry entry = (JarEntry)enum.nextElement();
 				if (entry.isDirectory()) continue;
 				String jar = entry.getName();
-				if (boot != null && jar.startsWith(boot) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
-					if (boot != null && !entry.getName().startsWith(boot)) continue;
+				if (wrap != null && jar.startsWith(wrap) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
+					if (wrap != null && !entry.getName().startsWith(wrap)) continue;
 					// Load it! 
 					INFO("caching " + jar);
 					InputStream is = this.getClass().getResourceAsStream("/" + jar);
-					if (is == null) throw new IOException(jar);
+					if (is == null) throw new IOException("Unable to load resource /" + jar);
 					loadByteCode(is, jar);
 					
 					// Do we need to look for a main class?
@@ -228,7 +227,7 @@ public class JarClassLoader extends ClassLoader {
 							WARNING("mainClass is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
 						}
 					} 
-				} else if (boot == null && entry.getName().startsWith(UNPACK)) {
+				} else if (wrap == null && entry.getName().startsWith(UNPACK)) {
 					// Unpack into a temporary directory which is on the classpath of
 					// the application classloader.  Badly designed code which relies on the
 					// application classloader can be made to work in this way.
@@ -402,6 +401,12 @@ public class JarClassLoader extends ClassLoader {
 	 */
 	public InputStream getResourceAsStream(String $resource) {
 		
+		// If we are the bootstrap classloader, simply load the resource.
+		if (wrap != null) {
+			VERBOSE("getResourceAsStream() wrap mode resource " + $resource);
+			return super.getResourceAsStream($resource);
+		}
+
 		String resource = resolve($resource);
 
 		if (resource != null) {
@@ -491,8 +496,6 @@ public class JarClassLoader extends ClassLoader {
 		String resource = null;
 		String caller = getCaller();
 		ByteCode callerCode = (ByteCode)byteCode.get(caller + ".class");
-		
-		if (caller == null) Thread.dumpStack();
 		
 		if (callerCode != null) {
 			// Jar-local first, then global.

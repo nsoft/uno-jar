@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.ProtectionDomain;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -47,6 +46,8 @@ import com.simontuffs.onejar.example.util.Util;
  * @author simon@simontuffs.com
  */
 public class Test {
+	
+	public int failures = 0;
 
 	public Test() {
 		System.out.println("Test: loaded by " + this.getClass().getClassLoader());
@@ -104,12 +105,15 @@ public class Test {
 	 * @author simon@simontuffs.com
 	 */
 	public static class TestLoader extends ClassLoader {
+		// A badly behaved loadClass does not delegate to its loading 
+		// class or its parent.
 		public Class loadClass(String name) throws ClassNotFoundException {
 			System.out.println("TestLoader.loadClass(" + name + ")");
 			return super.loadClass(name);
 		}
-		public Class $defineClass(String name, byte bytes[], int off, int len, ProtectionDomain pd) {
-			return super.defineClass(name, bytes, off, len, pd);
+		// A well behaved classloader must delegate findResource to its loading class.
+		public URL findResource(String resource) {
+			return this.getClass().getResource(resource); 
 		}
 	}
 	
@@ -126,15 +130,17 @@ public class Test {
 			System.out.println("loading " + name);
 			testLoader.loadClass(name);
 			System.out.println("Huh?  Should not find " + name);
+			failures++;
 		} catch (ClassNotFoundException cnfx) {
 			System.out.println("not found " + name + " OK!");
 		}
 
 		// Pick up a class as a resource.
-		name = "com/simontuffs/onejar/example/util/Util.class";
+		name = "/com/simontuffs/onejar/example/util/Util.class";
 		InputStream is = testLoader.getResourceAsStream(name);
 		if (is == null) {
 			System.out.println("Huh? Should find " + name + " as a resource");
+			failures++;
 		}
 			
 	}
@@ -148,6 +154,7 @@ public class Test {
 		System.out.println("classURL(): Opened: " + url);
 		if (is == null) {
 			System.out.println("Huh? Should find " + resource + " as a resource");
+			failures++;
 		} else {
 			System.out.println("classURL(): OK.");
 		}
@@ -158,6 +165,7 @@ public class Test {
 		is = url.openStream();
 		if (is == null) {
 			System.out.println("Huh? Should find " + resource + " as a resource");
+			failures++;
 		} else {
 			System.out.println("classURL(): OK.");
 		}

@@ -71,7 +71,7 @@ public class Boot {
 	public final static String MAIN_JAR = "main/main.jar";
 
 	public final static String WRAP_CLASS_LOADER = "Wrap-Class-Loader";
-	public final static String WRAP_JAR = "/boot/wraploader.jar";
+	public final static String WRAP_JAR = "/wrap/wraploader.jar";
 
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
@@ -214,7 +214,7 @@ public class Boot {
 		
 		if (url != null) {
 			// Wrap class loaders.
-			JarClassLoader bootLoader = new JarClassLoader("boot");
+			JarClassLoader bootLoader = new JarClassLoader("wrap");
 			bootLoader.setRecord(record);
 			bootLoader.setFlatten(!jarnames);
 			bootLoader.setRecording(recording);

@@ -109,6 +109,8 @@ public class Main {
 		}
 		System.out.println();
 		
+		failures += test.failures;
+		
 		System.out.println("Main: finished in " + (end - start) + " ms");
 		String f = "failure" + (failures==0 || failures>2? "s": "");
 		System.out.println(failures + " " + f + " (TODO: JUnit!)");
