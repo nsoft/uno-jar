@@ -83,6 +83,8 @@ public class JarClassLoader extends ClassLoader {
 	public final static String CLASS = ".class";
 
 	public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
+	
+	protected String name;
 
 	static {
 		// Add our 'onejar:' protocol handler, but leave open the 
@@ -99,17 +101,21 @@ public class JarClassLoader extends ClassLoader {
 	protected String PREFIX() {
 		return "JarClassLoader: ";
 	}
+	
+	protected String NAME() {
+		return (name != null? "'" + name + "' ": "");
+	}
 
 	protected void VERBOSE(String message) {
-		if (verbose) System.out.println(PREFIX() + message);
+		if (verbose) System.out.println(PREFIX() + NAME() + message);
 	}
 
 	protected void WARNING(String message) {
-		System.err.println(PREFIX() + "Warning: " + message); 
+		System.err.println(PREFIX() + "Warning: " + NAME() + message); 
 	}
 	
 	protected void INFO(String message) {
-		if (info) System.out.println(PREFIX() + "Info: " + message);
+		if (info) System.out.println(PREFIX() + "Info: " + NAME() + message);
 	}
 
 
@@ -121,6 +127,7 @@ public class JarClassLoader extends ClassLoader {
 	protected String recording = RECORDING;
 	
 	protected String jarName, mainJar, wrapDir;
+	protected boolean delegateToParent;
 	
 	protected class ByteCode {
 		public ByteCode(String $name, String $original, byte $bytes[], String $codebase) {
@@ -142,6 +149,7 @@ public class JarClassLoader extends ClassLoader {
 	 */
 	public JarClassLoader(String $wrap) {
 		wrapDir = $wrap;
+		delegateToParent = wrapDir == null;
 	}
 	
 	/**
@@ -208,6 +216,7 @@ public class JarClassLoader extends ClassLoader {
 	 */
 	public JarClassLoader(ClassLoader parent) {
 		super(parent);
+		delegateToParent = true;
 		// System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
 	}
 	
@@ -495,8 +504,9 @@ public class JarClassLoader extends ClassLoader {
 		if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
 		// Special case: if we are a wrapping classloader, look up to our
 		// parent codebase.  Logic is that the boot JarLoader will have 
-		// wrapDir != null, the wrapping classloader will have wrapDir == null.
-		if (result == null && wrapDir == null) {
+		// delegateToParent = false, the wrapping classloader will have 
+		// delegateToParent = true;
+		if (result == null && delegateToParent) {
 			result = ((JarClassLoader)getParent()).getByteStream(resource);
 		}
 		VERBOSE("getByteStream(" + resource + ") -> " + result);
@@ -627,8 +637,10 @@ public class JarClassLoader extends ClassLoader {
 	    	String resource = resolve($resource);
 	    	if (resource != null) {
 	    		// We know how to handle it.
+	    		INFO("findResource() found: " + $resource);
 	    		return new URL(Handler.PROTOCOL + ":" + resource); 
 	    	}
+	    	INFO("findResource(): unable to locate " + $resource);
 	    	// If all else fails, return null.
 	    	return null;
 		} catch (MalformedURLException mux) {
@@ -654,4 +666,24 @@ public class JarClassLoader extends ClassLoader {
 		}
     }
     
+	public String toString() {
+		return super.toString() + (name != null? "(" + name + ")": "");
+	}
+
+    /**
+     * Returns name of the classloader.
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets name of the classloader.  Default is null.
+     * @param string
+     */
+    public void setName(String string) {
+        name = string;
+    }
+
 }
