@@ -224,7 +224,8 @@ public class JarClassLoader extends ClassLoader {
 							mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 							mainJar = jar;
 						} else if (mainJar != null) {
-							WARNING("mainClass is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
+							WARNING("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
+							WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
 						}
 					} 
 				} else if (wrap == null && entry.getName().startsWith(UNPACK)) {
@@ -400,88 +401,31 @@ public class JarClassLoader extends ClassLoader {
 	 * strategy in Java today.
 	 */
 	public InputStream getResourceAsStream(String $resource) {
-		
-		// If we are the bootstrap classloader, simply load the resource.
-		if (wrap != null) {
-			VERBOSE("getResourceAsStream() wrap mode resource " + $resource);
-			return super.getResourceAsStream($resource);
-		}
 
-		String resource = resolve($resource);
-
-		if (resource != null) {
-			ByteCode bytecode = (ByteCode)byteCode.get(resource);
-			if (bytecode == null) {
-				VERBOSE("could not locate: " + resource);
-				return null;
-			} 
-			return new ByteArrayInputStream(bytecode.bytes);
+		// Can we resolve this resouce?
+		{
+			String resource = resolve($resource);
+			if (resource != null) {
+				ByteCode bytecode = (ByteCode)byteCode.get(resource);
+				VERBOSE("getResourceAsStream(" + $resource + ") -> " + bytecode.codebase);
+				return new ByteArrayInputStream(bytecode.bytes);
+			}
 		}
-		return null;
-		/*
-		
-		// If we are the bootstrap classloader, simply load the resource.
-		if (boot != null) {
-			VERBOSE("getResourceAsStream() boot mode resource " + resource);
-			// Do we have it in our cache?
-			ByteCode bytecode = null;
-			bytecode = (ByteCode)byteCode.get(resource);
-			byte bytes[] = null;
-			if (bytecode != null) {
-				bytes = bytecode.bytes; 
-			} else {
-				bytecode = (ByteCode)byteCode.get(resource);
-				if (bytecode != null) {
-					bytes = bytecode.bytes;
-				} else {
-					bytecode = (ByteCode)byteCode.get("/" + resource);
-					if (bytecode != null) bytes = bytecode.bytes;
-				}
-			}
-			if (bytes != null) {
-				VERBOSE("returned " + resource + " from cache");
-				return new ByteArrayInputStream(bytes);
-			}
-			// Look one last time.
-			InputStream is = super.getResourceAsStream(resource);
-			VERBOSE("returning " + is);
+		InputStream is = null;
+		if (getParent() != null) is = getParent().getResourceAsStream($resource);
+		if (is != null) {
+			VERBOSE("parent.getResourceAsStream(" + $resource + ") -> " + is);
 			return is;
 		}
-		
-		// Try to load resources relative to the jar file containing the
-		// calling class.  The calling class should always be three or more levels
-		// above us.  For example, as reported by getStackTrace():
-		// com.simontuffs.onejar.example.main.Test.useResource(Test.java:56)
-		String caller = getCaller();
-		
-		VERBOSE("getResourceAsStream(" + resource + ") called by " + caller);
-		
-		// Do local lookup first, then if not found do global lookup.  This
-		// allows jar files with conflicting resource definitions to see what
-		// they expect.
-		// Look up the codebase for the caller.
-		ByteCode callerCode = ((ByteCode)byteCode.get(caller));
-		ByteCode bytecode= null;
-		String location = "";
-		if (callerCode != null) {
-			String jar = callerCode.codebase;	
-			location = "/" + jar + "/" + resource;
-			ByteCode bc = (ByteCode)byteCode.get(location);
-			if (bc != null) bytecode = bc;
+		// If we are the bootstrap loader, then check with our superclass.
+		if (wrap != null) {
+			is = super.getResourceAsStream($resource);
+			VERBOSE("super.getResourceAsStream(" + $resource + ")");
+			return is;
 		}
-		if (bytecode == null) {
-			location = "/" + resource;
-			bytecode = (ByteCode)byteCode.get(location);
-		}
-		if (bytecode != null) {
-			VERBOSE("resource " + resource + " loaded from " + location);
-			if (record) record(bytecode);
-			return new ByteArrayInputStream(bytecode.bytes);
-		}
-		VERBOSE("not found, return null");
-		// Not found?  What do we return?  null seems appropriate.
-		return null;
-		*/
+		VERBOSE("getResourceAsStream(" + $resource + ") -> " + is);
+		return is;
+		  
 	}
 	 
 	/**
@@ -526,7 +470,7 @@ public class JarClassLoader extends ClassLoader {
 			// If bytecodes are identical, no real problem.  Likewise if it's in
 			// META-INF.
 			if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("/META-INF")) {
-				WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+				INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
 			} else {
 				VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
 			}
@@ -616,35 +560,6 @@ public class JarClassLoader extends ClassLoader {
 		}
     	return null;
     	    	
-    	/*
-    	String resource = $resource;
-    	if (!resource.startsWith("/")) resource = "/" + resource;
-		ByteCode bytecode = (ByteCode)byteCode.get(resource);
-		if (bytecode != null) {
-			File dir = new File(TMP);
-			File sentinel = new File(dir, resource.replace('/', '.'));
-			if (!sentinel.exists()) {
-				try {
-					INFO("unpacking " + $resource + " into " + dir.getCanonicalPath());
-					File file = new File(dir, $resource);
-					file.getParentFile().mkdirs();
-					FileOutputStream fos = new FileOutputStream(file);
-					fos.write(bytecode.bytes);
-					fos.close();
-	
-					sentinel.getParentFile().mkdirs();
-					sentinel.createNewFile();
-				} catch (IOException iox) {
-					iox.printStackTrace();
-				}
-			}
-			if (record) record(bytecode);
-		}
-    	// Now that we are unpacked, we can use the app class loader to 
-    	// load the resouce, since it has TMP on its classpath by virtue
-    	// of the jar manifest.
-        return super.findResource($resource);
-        */
     }
     
 }

@@ -126,9 +126,9 @@ public class Boot {
 		String handlerPackage = System.getProperty(JAVA_PROTOCOL_HANDLER);
 		if (handlerPackage == null) handlerPackage = "";
 		if (handlerPackage.length() > 0) handlerPackage = "|" + handlerPackage;
-		handlerPackage = "com.simontuffs|" + handlerPackage;
+		handlerPackage = "com.simontuffs" + handlerPackage;
 		System.setProperty(JAVA_PROTOCOL_HANDLER, handlerPackage);
-		System.out.println(JAVA_PROTOCOL_HANDLER + "=" + handlerPackage);
+		INFO(JAVA_PROTOCOL_HANDLER + "=" + handlerPackage);
 	    	
     	String prefix = "Boot: ";
     	// Is the main class specified on the command line?  If so, boot it.
