@@ -277,15 +277,19 @@ public class JarClassLoader extends ClassLoader {
 					// Load it! 
 					INFO("caching " + jar);
 					VERBOSE("using jarFile.getInputStream(" + entry + ")");
-					InputStream is = jarFile.getInputStream(entry);
-					if (is == null) 
-						throw new IOException("Unable to load resource /" + jar + " using " + this);
-					loadByteCode(is, jar);
+					{
+						// Note: loadByteCode consumes the input stream, so make sure its scope
+						// does not extend beyond here.
+						InputStream is = jarFile.getInputStream(entry);
+						if (is == null) 
+							throw new IOException("Unable to load resource /" + jar + " using " + this);
+						loadByteCode(is, jar);
+					}
 					
 					// Do we need to look for a main class?
 					if (jar.startsWith(MAIN_PREFIX)) {
 						if (mainClass == null) {
-							JarInputStream jis = new JarInputStream(is);
+							JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
 							mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 							mainJar = jar;
 						} else if (mainJar != null) {
