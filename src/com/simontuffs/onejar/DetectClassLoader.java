@@ -40,6 +40,7 @@ public class DetectClassLoader extends JarClassLoader {
 			try {
 				if (cls.getMethod("loadClass", new Class[]{String.class}) != null) {    	
 					WARNING(name + " is a ClassLoader");
+					WARNING("loaded from codesource " + pd.getCodeSource());
 					WARNING("and declared 'loadClass(String)'. It may not be able to load classes without being modified.");
 				}
 			} catch (SecurityException e) {
