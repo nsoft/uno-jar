@@ -9,11 +9,15 @@
 	</head>
 	<body>
 		<h1>Deliver Your Java Application in One-Jar!</h1>
+		<b>by P. Simon Tuffs, Software Architect and Consultant (<a href="http://www.simontuffs.com">www.simontuffs.com</a>)</b>
+		<p>
+		<hr>
+		<p>
+		<h2>Introduction (or <a href="#quickstart">Quickstart</a>)</h2>
 		Delivering a runnable Java application is an exercise often frought with complexity and frustation.
-		In principle, if you have a main class called <code>com.mypackage.myclass.Main</code>, you simply say
+		In principle, if you have a main class called <code>com.mypackage.myclass.Main</code>, you can simply say:
 		<pre>
-java com.mypackage.myclass.Main
-		</pre>
+java com.mypackage.myclass.Main	</pre>
 		However, this assumes that some magic has been applied to your shell environment
 		to set the value of your <code>CLASSPATH</code> so that the java runtime can actually find this class.
 		The <code>CLASSPATH</code> also has to contain all of the other classes which will be loaded and executed
@@ -32,8 +36,7 @@ java com.mypackage.myclass.Main
 		set the <code>MANIFEST.MF</code> appropriately, you can simply say:
 		
 		<pre>
-    java -jar myapp.jar
-		</pre>
+java -jar myapp.jar </pre>
 		Very nice.  So what's the catch?  There are numerous.  One catch is that you must first unjar all of the supporting
 		classes and flatten them out into a single directory tree before creating the final 
 		myapp.jar.  Suppose for example what happens if your application depends on some of the
@@ -65,28 +68,24 @@ $ jar -tf myapp.jar
 META-INF/MANIFEST.MF
 lib/a.jar
 lib/b.jar
-main/main.jar
-		</pre>
+main/main.jar </pre>
 			The manifest contains a <code>Main-Class</code> setting to launch our application, 
 			and entries for the supporting JAR files <code>a.jar</code> and <code>b.jar</code>.
 		<pre>
 Manifest-Version: 1.0
 Class-Path: main/main.jar lib/a.jar lib/b.jar
-Main-Class: com.main.Main
-		</pre>
+Main-Class: com.main.Main </pre>
 		What happens if you run this?
 		<pre>
 $ java -jar myapp.jar
 A()
-B()
-		</pre>
+B() </pre>
 		Looks good, exactly what we want right?  Wrong.  What's happening here is that the
 		<code>Class-Path</code> entries are being resolved in the file-system, not inside
 		the JAR file.  If you move this JAR file somewhere else and try to run it, you get the following:
 		<pre>
 $ java -jar myapp.jar
-Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main
-		</pre>
+Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main </pre>
 		This is most unfortunate, and most frustrating, and pretty much unexpected by 
 		developers who tread this route.
 		<p>What about using the 'jar:' protocol in the <code>Class-Path</code> entry?  This
@@ -106,6 +105,8 @@ Exception in thread "main" java.lang.NoClassDefFoundError: com/main/Main
 		<p>At this point we have to augment our <code>myapp.jar</code> file with some bootstrap
 		code, and a <code>META-INF/MANIFEST.MF</code> file to let the bootstrap code assume
 		control.  
+		<a name="quickstart"/>
+		<h2>QuickStart</h2>
 		<p>One-Jar ships with a pre-built bootstrap jar file called <code>one-jar-bootstrap.jar</code> that contains all the code you need
 		to do this.
 		<pre>
@@ -116,8 +117,7 @@ com/simontuffs/onejar/Handler$1.class
 com/simontuffs/onejar/Handler.class
 com/simontuffs/onejar/JarClassLoader$ByteCode.class
 com/simontuffs/onejar/JarClassLoader.class
-boot-manifest.mf
-		</pre>
+boot-manifest.mf </pre>
 		There are five classes which control the bootstrap process, all residing in the <code>com.simontuffs.onejar</code>
 		package.  We'll be discovering the details of these later.
 		<p>There is also a pre-built manifest file called <code>boot-manifest.mf</code>.  To complete
@@ -127,14 +127,12 @@ boot-manifest.mf
 $ mkdir boot
 $ cd boot
 $ jar -xvf ../one-jar-boot.jar
-$ jar -uvfm ../myapp.jar boot-manifest.mf .
-		</pre>
+$ jar -uvfm ../myapp.jar boot-manifest.mf . </pre>
 		Thats it!  You can now run your application in the simplest possible fashion:
 		<pre>
 $ java -jar myapp.jar
 A()
-B()
-		</pre>
+B() </pre>
 		<h2>But How Do I Know It's Working?</h2>
 		This looks like the previous <i>working</i> case, how do you know that things are
 		actually going to work when you move this JAR file to a new location and run it?
@@ -156,8 +154,7 @@ JarClassLoader: Info: caching lib/a.jar
 JarClassLoader: Info: caching lib/b.jar
 JarClassLoader: Info: caching main/main.jar
 A()
-B()
-		</pre>
+B() </pre>
 		Now we see that something interesting is indeed happening inside the application: One-Jar is 
 		using a custom classloader called <code>JarClassLoader</code> to load information 
 		from the <code>myapp.jar</code> file.  We can get more detail:
@@ -177,8 +174,7 @@ JarClassLoader: found com.a.A in lib/a.jar
 A()
 JarClassLoader: findClass(com.b.B)
 JarClassLoader: found com.b.B in lib/b.jar
-B()
-		</pre>
+B() </pre>
 		Notice how the <code>JarClassLoader</code> keeps track of where classes came
 		from: for example the <code>com.a.A</code> class is contained inside the <code>lib/a.jar</code>
 		file inside <code>myapp.jar</code>.
