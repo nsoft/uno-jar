@@ -212,7 +212,7 @@ public class JarClassLoader extends ClassLoader {
 				if (wrap != null && jar.startsWith(wrap) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
 					if (wrap != null && !entry.getName().startsWith(wrap)) continue;
 					// Load it! 
-					INFO("loading " + jar);
+					INFO("caching " + jar);
 					InputStream is = this.getClass().getResourceAsStream("/" + jar);
 					if (is == null) throw new IOException(jar);
 					loadByteCode(is, jar);
@@ -385,17 +385,25 @@ public class JarClassLoader extends ClassLoader {
 	 * Overriden to return resources from the appropriate codebase.
 	 */
 	public InputStream getResourceAsStream(String resource) {
+
+		// Special case for .class files.
+		if (resource.endsWith(".class")) {
+			int index = resource.lastIndexOf('.');
+			resource = resource.substring(0, index).replace('/', '.');
+			ByteCode bytecode = (ByteCode)byteCode.get(resource);
+			if (bytecode == null) {
+				VERBOSE("could not locate: " + resource);
+				return null;
+			} 
+			return new ByteArrayInputStream(bytecode.bytes);
+		}
 		
 		// If we are the bootstrap classloader, simply load the resource.
 		if (wrap != null) {
-			INFO("getResourceAsStream() wrap mode resource " + resource);
+			VERBOSE("getResourceAsStream() boot mode resource " + resource);
 			// Do we have it in our cache?
 			ByteCode bytecode = null;
-			if (resource.endsWith(".class")) {
-				int index = resource.lastIndexOf('.');
-				String res = resource.substring(0, index).replace('/', '.');
-				bytecode = (ByteCode)byteCode.get(res);
-			}
+			bytecode = (ByteCode)byteCode.get(resource);
 			byte bytes[] = null;
 			if (bytecode != null) {
 				bytes = bytecode.bytes; 
@@ -409,12 +417,12 @@ public class JarClassLoader extends ClassLoader {
 				}
 			}
 			if (bytes != null) {
-				INFO("returned " + resource + " from cache");
+				VERBOSE("returned " + resource + " from cache");
 				return new ByteArrayInputStream(bytes);
 			}
 			// Look one last time.
 			InputStream is = super.getResourceAsStream(resource);
-			INFO("returning " + is);
+			VERBOSE("returning " + is);
 			return is;
 		}
 		
@@ -432,7 +440,7 @@ public class JarClassLoader extends ClassLoader {
 			}
 		}
 		
-		INFO("getResourceAsStream(" + resource + ") called by " + caller);
+		VERBOSE("getResourceAsStream(" + resource + ") called by " + caller);
 		
 		// Default is global lookup.
 		String location = "/" + resource;
@@ -446,11 +454,11 @@ public class JarClassLoader extends ClassLoader {
 			if (bc != null) bytecode = bc;
 		}
 		if (bytecode != null) {
-			INFO("resource " + resource + " loaded from " + location);
+			VERBOSE("resource " + resource + " loaded from " + location);
 			if (record) record(bytecode);
 			return new ByteArrayInputStream(bytecode.bytes);
 		}
-		INFO("not found, return null");
+		VERBOSE("not found, return null");
 		// Not found?  What do we return?
 		return null;
 	}
