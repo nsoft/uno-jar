@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="D:/work/eclipse-2.1.1/workspace-fripp/one-jar/one-jar.jar"/>
+    <jar path="c:/work/eclipse-2.1.1/workspace-simontuffs/one-jar/one-jar.jar"/>
     <options overwrite="true" compress="true" exportErrors="false"
         exportWarnings="true" saveDescription="true"
         descriptionLocation="/one-jar/one-jar.jardesc"
@@ -16,10 +16,11 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false">
         <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Boot.java"/>
-        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Handler.java"/>
         <folder path="/one-jar/wrap"/>
+        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{Handler.java"/>
         <folder path="/one-jar/main"/>
-        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{JarClassLoader.java"/>
+        <folder path="/one-jar/expand"/>
         <folder path="/one-jar/lib"/>
+        <javaElement handleIdentifier="=one-jar/src&lt;com.simontuffs.onejar{JarClassLoader.java"/>
     </selectedElements>
 </jardesc>

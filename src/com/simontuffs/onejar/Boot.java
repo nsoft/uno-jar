@@ -87,7 +87,7 @@ public class Boot {
 	// Singleton loader.
 	protected static JarClassLoader loader = null;
 	
-	public static ClassLoader getClassLoader() {
+	public static JarClassLoader getClassLoader() {
 		return loader;
 	}
 

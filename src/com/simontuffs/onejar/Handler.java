@@ -31,8 +31,8 @@ public class Handler extends URLStreamHandler {
 			public InputStream getInputStream() {
 				// Use the Boot classloader to get the resource.  There
 				// is only one per one-jar.
-				ClassLoader cl = Boot.getClassLoader();
-				return cl.getResourceAsStream(resource);
+				JarClassLoader cl = Boot.getClassLoader();
+				return cl.getByteStream(resource);
 			}
 		};
 	}

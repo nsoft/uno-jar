@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
@@ -52,6 +53,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -77,6 +79,7 @@ public class JarClassLoader extends ClassLoader {
 	public final static String RECORDING = "recording";
 	public final static String TMP = "tmp";
 	public final static String UNPACK = "unpack";
+	public final static String EXPAND_DIRS = "Expand-Dirs";
 
 	protected String PREFIX() {
 		return "JarClassLoader: ";
@@ -102,7 +105,7 @@ public class JarClassLoader extends ClassLoader {
 	protected boolean verbose = false, info = false;
 	protected String recording = RECORDING;
 	
-	protected String jarName, mainJar, wrap;
+	protected String jarName, mainJar, wrapDir;
 	
 	protected class ByteCode {
 		public ByteCode(String $name, String $original, byte $bytes[], String $codebase) {
@@ -119,11 +122,11 @@ public class JarClassLoader extends ClassLoader {
 	/**
 	 * Create a non-delegating but jar-capable classloader for bootstrap
 	 * purposes.
-	 * @param $wrap  The directory in the archive from which to load a 
+	 * @param $wrapDir  The directory in the archive from which to load a 
 	 * wrapping classloader.
 	 */
 	public JarClassLoader(String $wrap) {
-		wrap = $wrap;
+		wrapDir = $wrap;
 	}
 	
 	/**
@@ -204,12 +207,49 @@ public class JarClassLoader extends ClassLoader {
 			jarName = System.getProperty(JAVA_CLASS_PATH);
 			JarFile jarFile = new JarFile(jarName);
 			Enumeration enum = jarFile.entries();
+			Manifest manifest = jarFile.getManifest();
+			String paths[] = null;
+			String expand = manifest.getMainAttributes().getValue(EXPAND_DIRS);
+			if (expand != null) {
+				VERBOSE(EXPAND_DIRS + "=" + expand);
+				paths = expand.split(",");
+			}
 			while (enum.hasMoreElements()) {
 				JarEntry entry = (JarEntry)enum.nextElement();
 				if (entry.isDirectory()) continue;
+				
+				// The META-INF/MANIFEST.MF file can contain a property which names
+				// directories in the JAR to be expanded (comma separated). For example:
+				// Expand-Dirs: build,tmp,webapps
+				boolean expanded = false;
+				if (paths != null) {
+					String name = entry.getName();
+					// TODO: Can't think of a better way to do this right now.  
+					// This code really doesn't need to be optimized anyway.
+					for (int i=0; i<paths.length; i++) {
+						if (name.startsWith(paths[i])) {
+							File dest = new File(name);
+							if (!dest.exists()) {
+								INFO("Expanding " + name);
+								dest.getParentFile().mkdirs();
+								InputStream is = this.getClass().getResourceAsStream("/" + name);
+								FileOutputStream os = new FileOutputStream(dest); 
+								copy(is, os);
+								is.close();
+								os.close();
+							} else {
+								VERBOSE(name + " already expanded");
+							}
+							expanded = true;
+							break;
+						}
+					}
+				}
+				if (expanded) continue;
+
 				String jar = entry.getName();
-				if (wrap != null && jar.startsWith(wrap) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
-					if (wrap != null && !entry.getName().startsWith(wrap)) continue;
+				if (wrapDir != null && jar.startsWith(wrapDir) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
+					if (wrapDir != null && !entry.getName().startsWith(wrapDir)) continue;
 					// Load it! 
 					INFO("caching " + jar);
 					InputStream is = this.getClass().getResourceAsStream("/" + jar);
@@ -228,7 +268,7 @@ public class JarClassLoader extends ClassLoader {
 							WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
 						}
 					} 
-				} else if (wrap == null && entry.getName().startsWith(UNPACK)) {
+				} else if (wrapDir == null && entry.getName().startsWith(UNPACK)) {
 					// Unpack into a temporary directory which is on the classpath of
 					// the application classloader.  Badly designed code which relies on the
 					// application classloader can be made to work in this way.
@@ -272,11 +312,7 @@ public class JarClassLoader extends ClassLoader {
 			// the size of the entries is.  So we store them dynamically.
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			byte[] buf = new byte[1024];
-			while (true) {
-				int len = jis.read(buf);
-				if (len < 0) break;
-				baos.write(buf, 0, len);
-			}
+			copy(jis, baos);
 
 			if (tmp != null) {
 				// Unpack into a temporary working directory which is on the classpath.
@@ -400,32 +436,25 @@ public class JarClassLoader extends ClassLoader {
 	 * but is consistent with the somewhat limiting design of the resource name mapping
 	 * strategy in Java today.
 	 */
-	public InputStream getResourceAsStream(String $resource) {
-
-		// Can we resolve this resouce?
-		{
-			String resource = resolve($resource);
-			if (resource != null) {
-				ByteCode bytecode = (ByteCode)byteCode.get(resource);
-				VERBOSE("getResourceAsStream(" + $resource + ") -> " + bytecode.codebase);
-				return new ByteArrayInputStream(bytecode.bytes);
-			}
+	public InputStream getByteStream(String resource) {
+		
+		InputStream result = null;
+		// Look up without resolving first.  This allows jar-local 
+		// resolution to take place.
+		ByteCode bytecode = (ByteCode)byteCode.get(resource);
+		if (bytecode == null) {
+			// Try again with a resolved name.
+			bytecode = (ByteCode)byteCode.get(resolve(resource));
 		}
-		InputStream is = null;
-		if (getParent() != null) is = getParent().getResourceAsStream($resource);
-		if (is != null) {
-			VERBOSE("parent.getResourceAsStream(" + $resource + ") -> " + is);
-			return is;
+		if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
+		// Special case: if we are a wrapping classloader, look up to our
+		// parent codebase.  Logic is that the boot JarLoader will have 
+		// wrapDir != null, the wrapping classloader will have wrapDir == null.
+		if (result == null && wrapDir == null) {
+			result = ((JarClassLoader)getParent()).getByteStream(resource);
 		}
-		// If we are the bootstrap loader, then check with our superclass.
-		if (wrap != null) {
-			is = super.getResourceAsStream($resource);
-			VERBOSE("super.getResourceAsStream(" + $resource + ")");
-			return is;
-		}
-		VERBOSE("getResourceAsStream(" + $resource + ") -> " + is);
-		return is;
-		  
+		VERBOSE("getByteStream(" + resource + ") -> " + result);
+		return result;
 	}
 	 
 	/**
@@ -560,6 +589,22 @@ public class JarClassLoader extends ClassLoader {
 		}
     	return null;
     	    	
+    }
+    
+    /**
+     * Utility to assist with copying InputStream to OutputStream.  All
+     * bytes are copied, but both streams are left open.
+     * @param in Source of bytes to copy.
+     * @param out Destination of bytes to copy.
+     * @throws IOException
+     */
+    protected void copy(InputStream in, OutputStream out) throws IOException {
+		byte[] buf = new byte[1024];
+		while (true) {
+			int len = in.read(buf);
+			if (len < 0) break;
+			out.write(buf, 0, len);
+		}
     }
     
 }
