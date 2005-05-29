@@ -49,7 +49,8 @@ public class Boot {
 	public final static String MAIN_JAR = "main/main.jar";
 
 	public final static String WRAP_CLASS_LOADER = "Wrap-Class-Loader";
-	public final static String WRAP_JAR = "/wrap/wraploader.jar";
+    public final static String WRAP_DIR = "wrap";
+	public final static String WRAP_JAR = "/" + WRAP_DIR + "/wraploader.jar";
 
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
@@ -66,6 +67,11 @@ public class Boot {
 	public static JarClassLoader getClassLoader() {
 		return loader;
 	}
+    
+    public static void setClassLoader(JarClassLoader $loader) {
+        if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
+        loader = $loader;
+    }
 
 	protected static void VERBOSE(String message) {
 		if (verbose) System.out.println("Boot: " + message);
@@ -95,9 +101,7 @@ public class Boot {
 	    		System.out.println(key + "=" + props.get(key));
 	    	}
 		}
-		
 	    	
-    	String prefix = "Boot: ";
     	// Is the main class specified on the command line?  If so, boot it.
     	// Othewise, read the main class out of the manifest.
 		String mainClass = null, recording = null;
@@ -153,7 +157,8 @@ public class Boot {
 		// a Boot-Class attribute.
 		if (mainClass == null) {
 	    	// Hack to obtain the name of this jar file.
-	    	String jar = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
+	    	String jar = System.getProperty(PROPERTY_PREFIX + "jarname"); 
+            if (jar == null) jar = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
 	    	JarFile jarFile = new JarFile(jar);
 	    	Manifest manifest = jarFile.getManifest();
 			Attributes attributes = manifest.getMainAttributes();
@@ -180,7 +185,7 @@ public class Boot {
 		
 		if (url != null) {
 			// Wrap class loaders.
-			JarClassLoader bootLoader = new JarClassLoader("wrap");
+			JarClassLoader bootLoader = new JarClassLoader(WRAP_DIR);
 			bootLoader.setRecord(record);
 			bootLoader.setFlatten(!jarnames);
 			bootLoader.setRecording(recording);
@@ -213,13 +218,15 @@ public class Boot {
 		loader.setInfo(info);
 		loader.setVerbose(verbose);
 		mainClass = loader.load(mainClass);
+        
+        if (mainClass == null) throw new Exception("main class was not found (fix: add main/main.jar to onejar, or specify -D" + MAIN_CLASS + ")");
 
 		// Set the context classloader in case any classloaders delegate to it.
 		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
 		// is used to launch the jar application, and attempts to load through
 		// it would fail if that code is encapsulated inside the one-jar.
 		Thread.currentThread().setContextClassLoader(loader);
-		
+        
     	Class cls = loader.loadClass(mainClass);
     	Method main = cls.getMethod("main", new Class[]{String[].class}); 
     	main.invoke(null, new Object[]{args});

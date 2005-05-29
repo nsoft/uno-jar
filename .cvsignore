@@ -7,3 +7,8 @@ main
 lib
 tmp
 publications
+build
+$jarplug.work
+contrib
+bin
+TEST-com.simontuffs.onejar.test.SelfTest.txt

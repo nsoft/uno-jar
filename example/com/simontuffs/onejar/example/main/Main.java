@@ -15,6 +15,9 @@ import java.util.Date;
  * @author simon@simontuffs.com
  */
 public class Main {
+    
+    // Do a test which requires an external jar on the boot classpath?
+    public static boolean TEST_EXTERNAL = false;
 
     public static void main(String[] args) throws Exception {
     	System.out.print("Main: " + Main.class.getName() + ".main(");
@@ -69,13 +72,12 @@ public class Main {
 
 		try {
 			test.classLoader();
+            failures++;
 		} catch (Exception x) {
-			System.out.println("Test.classLoader() failed: " + x);
-			failures++;
+			System.out.println("Test.classLoader() failed (as expected!): " + x);
 		}
 		System.out.println();
 		
-		long end = new Date().getTime();
 		
 		try {
 			test.classURL();
@@ -85,12 +87,25 @@ public class Main {
 			failures++;
 		}
 		System.out.println();
-		
-		failures += test.failures;
+
+        if (TEST_EXTERNAL) {
+            try {
+                test.testExternal();
+            } catch (Exception x) {
+                System.out.println("Test.testExternal() failed: " + x);
+                x.printStackTrace();
+                failures++;
+            }
+            System.out.println();
+        }
+
+        failures += test.failures;
+
+        long end = new Date().getTime();
 		
 		System.out.println("Main: finished in " + (end - start) + " ms");
 		String f = "failure" + (failures==0 || failures>2? "s": "");
-		System.out.println(failures + " " + f + " (TODO: JUnit!)");
+		System.out.println(failures + " " + f);
 		
     }
 }

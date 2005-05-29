@@ -12,10 +12,8 @@ package com.simontuffs.onejar;
 import java.security.ProtectionDomain;
 
 /**
- * @author Owner
+ * @author simon
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class DetectClassLoader extends JarClassLoader {
 

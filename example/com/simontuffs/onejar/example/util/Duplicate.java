@@ -13,5 +13,6 @@ package com.simontuffs.onejar.example.util;
  * @author simon@simontuffs.com
  */
 public class Duplicate {
-
+    // TODO: exercise possible class-cast exceptions when a class is loaded from
+    // two Jar files.
 }

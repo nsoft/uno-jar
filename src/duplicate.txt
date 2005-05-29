@@ -1,0 +1,1 @@
+This is an example of a duplicate resource file named duplicate.txt in the top-level jar.

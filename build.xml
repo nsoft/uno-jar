@@ -1,0 +1,197 @@
+<?xml version="1.0"?>
+
+<project name="one-jar" default="dist" basedir=".">
+    <property name="src.dir" value="${basedir}/src"/>
+    <property name="example.dir" value="${basedir}/example"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="class.dir" value="${build.dir}/classes"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="jar.dir" value="${build.dir}/jars"/>
+ 
+	<!-- version number -->
+	<property name="one-jar.version" value="0.96"/>
+	
+    <!-- jar files -->
+    <property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar"/>   
+    <property name="example.jar" value="${dist.dir}/one-jar-example-${one-jar.version}.jar"/>   
+    <property name="example-ext.jar" value="${dist.dir}/one-jar-example-ext-${one-jar.version}.jar"/>   
+    <property name="main.jar" value="${jar.dir}/main/main.jar"/>   
+    <property name="util.jar" value="${jar.dir}/lib/util.jar"/>   
+    <property name="external.jar" value="${jar.dir}/external.jar"/>   
+    <property name="wraploader.jar" value="${jar.dir}/detect/wrap/wraploader.jar"/>  
+	<property name="extloader.jar" value="${jar.dir}/external/wrap/wraploader.jar"/>
+
+    <target name="init">
+        <tstamp/>
+    </target>
+
+    <!-- Make the build directories -->
+    <target name="mkdirs" depends="init">
+        <mkdir dir="${build.dir}" />
+        <mkdir dir="${class.dir}" />
+        <mkdir dir="${dist.dir}" />
+        <mkdir dir="${jar.dir}" />
+        <mkdir dir="${jar.dir}/main" />
+        <mkdir dir="${jar.dir}/lib" />
+        <mkdir dir="${jar.dir}/detect/wrap" />
+        <mkdir dir="${jar.dir}/external/wrap" />
+    </target>
+
+    <!-- compile the source -->
+    <target name="compile" depends="mkdirs">
+        <javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
+            <src path="${src.dir}"/>
+        </javac>
+        <javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
+            <src path="${example.dir}"/>
+        </javac>
+    </target>
+
+    <!-- Make the jar files -->
+    <target name="jar">
+    	<delete file="${main.jar}"/>
+        <jar destfile="${main.jar}" manifest="${example.dir}/main/main-manifest.mf">
+            <fileset dir="${class.dir}">
+                <include name="**/example/main/**"/>   
+                <include name="**/example/util/Duplicate*"/>   
+            </fileset>
+            <fileset dir="${example.dir}">
+                <include name="**/example/main/**"/>   
+                <include name="**/example/util/Duplicate*"/>   
+            </fileset>
+            <fileset dir="${example.dir}/main">
+                <include name="main-manifest.mf"/>   
+                <include name="duplicate.txt"/>   
+            </fileset>
+        </jar>
+    	<delete file="${util.jar}"/>
+        <jar destfile="${util.jar}" manifest="${example.dir}/util/util-manifest.mf">
+            <fileset dir="${class.dir}">
+                <include name="**/example/util/**"/>   
+            </fileset>
+            <fileset dir="${example.dir}">
+                <include name="**/example/util/**"/>   
+            </fileset>
+            <fileset dir="${example.dir}/util">
+                <include name="util-manifest.mf"/>   
+                <include name="duplicate.txt"/>   
+            </fileset>
+        </jar>
+    	<delete file="${external.jar}"/>
+        <jar destfile="${external.jar}">
+            <fileset dir="${class.dir}">
+                <include name="**/example/external/**"/>   
+            </fileset>
+            <fileset dir="${example.dir}">
+                <include name="**/example/external/**"/>   
+            </fileset>
+        </jar>
+    	<delete file="${wraploader.jar}"/>
+        <jar destfile="${wraploader.jar}" manifest="${src.dir}/detectloader.mf">
+            <fileset dir="${class.dir}">
+                <include name="**/Detect*"/>   
+            </fileset>
+            <fileset dir="${src.dir}">
+                <include name="**/Detect*"/>   
+            </fileset>
+        </jar>
+    	<delete file="${extloader.jar}"/>
+        <jar destfile="${extloader.jar}" manifest="${src.dir}/extloader.mf">
+            <fileset dir="${class.dir}">
+                <include name="**/External*"/>   
+            </fileset>
+            <fileset dir="${src.dir}">
+                <include name="**/External*"/>   
+            </fileset>
+        </jar>
+    	<delete file="${boot.jar}"/>
+        <jar destfile="${boot.jar}" manifest="${src.dir}/boot-manifest.mf">
+            <fileset dir="${class.dir}">
+                <exclude name="**/Detect*"/>   
+                <exclude name="**/example/**"/>   
+            </fileset>
+            <fileset dir="${src.dir}">
+                <include name="boot-manifest.mf"/>   
+                <include name="com/**"/>   
+                <exclude name="**/example/**"/>   
+                <exclude name="**/Detect*"/>   
+            </fileset>
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt"/>   
+            </fileset>
+        </jar>
+    	<delete file="${example.jar}"/>
+        <jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
+            <fileset dir="${class.dir}">
+                <exclude name="**/Detect*"/>   
+                <exclude name="**/External*"/>   
+                <exclude name="**/example/**"/>   
+            </fileset>
+            <fileset dir="${src.dir}">
+                <include name="com/**"/>   
+                <exclude name="**/example/**"/>   
+                <exclude name="**/Detect*"/>   
+                <exclude name="**/External*"/>   
+            </fileset>
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt"/>   
+            </fileset>
+        	<fileset dir="${jar.dir}">
+        		<include name="main/main.jar"/>
+        		<include name="lib/util.jar"/>
+        	</fileset>
+            <fileset dir="${jar.dir}/detect">
+				<include name="wrap/wraploader.jar"/>
+            </fileset>
+        </jar>
+    	<delete file="${example-ext.jar}"/>
+        <jar destfile="${example-ext.jar}" manifest="${src.dir}/boot-manifest.mf">
+            <fileset dir="${class.dir}">
+                <exclude name="**/Detect*"/>   
+                <exclude name="**/External*"/>   
+                <exclude name="**/example/**"/>   
+            </fileset>
+            <fileset dir="${src.dir}">
+                <include name="com/**"/>   
+                <exclude name="**/example/**"/>   
+                <exclude name="**/Detect*"/>   
+                <exclude name="**/External*"/>   
+            </fileset>
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt"/>   
+            </fileset>
+        	<fileset dir="${jar.dir}">
+        		<include name="main/main.jar"/>
+        		<include name="lib/util.jar"/>
+        	</fileset>
+            <fileset dir="${jar.dir}/external">
+				<include name="wrap/wraploader.jar"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <!-- Make the distribution -->
+    <target name="dist" depends="compile,jar">
+    </target>
+	
+	<!-- Test the distribution -->
+	<target name="test" depends="dist">
+		<junit fork="yes" showoutput="no" printsummary="yes">
+			<jvmarg value="-Done-jar.verbose=true"/>
+			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example.jar"/>
+			<classpath>
+				<fileset file="${basedir}/dist/one-jar-example.jar"/>
+				<path location="${basedir}/bin/test"/>
+			</classpath>
+				
+			<test name="com.simontuffs.onejar.test.SelfTest"/>
+			<formatter type="plain"/>
+		</junit>
+	</target>
+
+    <target name="clean" depends="init">
+        <!-- delete everything in the classes dir -->
+        <delete dir="${build.dir}"/>
+    </target>
+
+</project>

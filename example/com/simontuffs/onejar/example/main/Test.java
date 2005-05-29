@@ -17,13 +17,14 @@ import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
+import com.simontuffs.onejar.example.external.External;
 import com.simontuffs.onejar.example.util.Util;
 
 /**
  * @author simon@simontuffs.com
  */
 public class Test {
-	
+    
 	public int failures = 0;
 
 	public Test() {
@@ -53,10 +54,17 @@ public class Test {
 		// Can we load from our own codesource (which is a jar file).
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
+        
+        int count = 0, expected = 16;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("Test: entry=" + entry);
+            count++;
 		}
+        if (count != expected) {
+            System.out.println("Huh? Should find " + expected + " entries in codesource, found " + count);
+            failures++;
+        }
 	
 	}
 	
@@ -147,4 +155,36 @@ public class Test {
 			System.out.println("classURL(): OK.");
 		}
 	}
+    
+    /**
+     * Tests the ability to load classes through a classpath argument passed into
+     * the bootstrap loader, e.g. -Done-jar.cp=external.jar
+     */
+    public void testExternal() {
+        External external = new External();
+        external.external();
+    }
+    
+    /**
+     * Tests the ability to determine the package name for a one-jar loaded class.
+     */
+    public void testPackageName() {
+        Package pkg = this.getClass().getPackage();
+        if (pkg == null) {
+            System.out.println("testPackageName(): Error - package is null for " + this.getClass() + " loaded by " + 
+                this.getClass().getClassLoader());
+            failures++;
+            return;
+        }
+        String packagename = this.getClass().getPackage().getName();
+        String expected = this.getClass().getName();
+        int last = expected.lastIndexOf(".");
+        expected = expected.substring(0, last);
+        if (!packagename.equals(expected)) {
+            System.out.println("Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
+            failures++;
+        } else {
+            System.out.println("Package name ok: " + packagename);
+        }
+    }
 }
