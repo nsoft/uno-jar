@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project default="none">
+	
+	<target name="none"/>
+		
+	<macrodef name="one-jar-macro">
+		<attribute name="destfile" default="one-jar.jar" />
+		<attribute name="boot.manifest" />
+		<attribute name="main.manifest" />
+		<attribute name="one-jar-boot.jar"/>
+		<element name="main" />
+		<element name="lib" optional="true"/>
+		<element name="binlib" optional="true"/>
+		<sequential>
+			<tempfile prefix="one-jar-" property="tmp.dir" />
+			<property name="tmp.jar.dir" value="${tmp.dir}/jars"/>
+			<echo>tmp.jar.dir=${tmp.jar.dir}</echo>
+			<mkdir dir="${tmp.jar.dir}"/>
+			<mkdir dir="${tmp.dir}/main" />
+			<copy todir="${tmp.dir}/main" >
+				<main/>
+			</copy>
+			<mkdir dir="${tmp.jar.dir}/lib" />
+			<copy todir="${tmp.jar.dir}/lib" >
+				<lib/>
+			</copy>
+			<mkdir dir="${tmp.jar.dir}/binlib" />
+			<copy todir="${tmp.jar.dir}/binlib" >
+				<binlib/>
+				<fileset dir="." excludes="**"/>
+			</copy>
+			<unjar dest="${tmp.jar.dir}" src="@{one-jar-boot.jar}" />
+			<mkdir dir="${tmp.jar.dir}/main"/>
+			<jar destfile="${tmp.jar.dir}/main/main.jar" manifest="@{main.manifest}">
+				<fileset dir="${tmp.dir}/main">
+					<include name="**/*"/>
+				</fileset>
+			</jar>
+			<jar destfile="@{destfile}" manifest="@{boot.manifest}">
+				<fileset dir="${tmp.jar.dir}">
+					<include name="**/*" />
+				</fileset>
+			</jar>
+			<delete dir="${tmp.dir}"/>
+			<echo>Created @{destfile}</echo>
+		</sequential>
+	</macrodef>
+
+</project>
