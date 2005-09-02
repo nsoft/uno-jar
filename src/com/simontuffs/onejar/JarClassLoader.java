@@ -294,8 +294,12 @@ public class JarClassLoader extends ClassLoader {
                     if (jar.startsWith(MAIN_PREFIX)) {
                         if (mainClass == null) {
                             JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
-                            mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
-                            mainJar = jar;
+                            Manifest m = jis.getManifest();
+                            // Is this a jar file with a manifest?
+                            if (m != null) {
+                                mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+                                mainJar = jar;
+                            }
                         } else if (mainJar != null) {
                             WARNING("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
                             WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
@@ -849,7 +853,7 @@ public class JarClassLoader extends ClassLoader {
             // See if it's a resource in the JAR that can be extracted
             try {
                 InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
-                File tempNativeLib = File.createTempFile(osPrefixedName, binlibSuffix);
+                File tempNativeLib = File.createTempFile(osPrefixedName + "-", binlibSuffix);
                 FileOutputStream os = new FileOutputStream(tempNativeLib);
                 copy(is, os);
                 os.close();
@@ -859,6 +863,9 @@ public class JarClassLoader extends ClassLoader {
                 binLibPath.put(resourcePath, tempNativeLib.getPath());
                 
                 result = tempNativeLib.getPath();
+                if (result != null) {
+                    VERBOSE("Found " + result + " in native binary library " + resourcePath);
+                }
             } catch(Throwable e)  {
                 // Couldn't load the library
                 // Return null by default to search the java.library.path

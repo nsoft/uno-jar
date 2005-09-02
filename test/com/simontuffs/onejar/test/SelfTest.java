@@ -7,6 +7,7 @@ package com.simontuffs.onejar.test;
 import java.lang.reflect.InvocationTargetException;
 
 import junit.framework.TestCase;
+import junit.framework.TestResult;
 import junit.framework.TestSuite;
 
 import com.simontuffs.onejar.Boot;
@@ -20,6 +21,10 @@ public class SelfTest extends TestCase {
 
     protected static Object test;
     protected static int failures = 0;
+    
+    public static void main(String args[]) {
+        new TestSuite(SelfTest.class).run(new TestResult());
+    }
     
     public SelfTest() throws Exception {
         if (test == null) {

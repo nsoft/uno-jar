@@ -107,8 +107,8 @@
     	<delete file="${boot.jar}"/>
         <jar destfile="${boot.jar}" manifest="${src.dir}/boot-manifest.mf">
             <fileset dir="${class.dir}">
-                <exclude name="**/Detect*"/>   
-                <exclude name="**/example/**"/>   
+            	<include name="com/**"/>
+            	<exclude name="**/example/**"/>
             </fileset>
             <fileset dir="${src.dir}">
                 <include name="boot-manifest.mf"/>   

@@ -55,7 +55,7 @@ public class Test {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 16;
+        int count = 0, expected = 17;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("Test: entry=" + entry);

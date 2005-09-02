@@ -3,7 +3,7 @@
 <stringAttribute key="org.eclipse.debug.core.source_locator_memento" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;sourceLookupDirector&gt;&#10;&lt;sourceContainers duplicates=&quot;false&quot;&gt;&#10;&lt;container typeId=&quot;org.eclipse.jdt.launching.sourceContainer.javaProject&quot; memento=&quot;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;#10;&amp;lt;javaProject name=&amp;quot;one-jar&amp;quot;/&amp;gt;&amp;#10;&quot;/&gt;&#10;&lt;container typeId=&quot;org.eclipse.debug.core.containerType.default&quot; memento=&quot;&amp;lt;?xml version=&amp;quot;1.0&amp;quot; encoding=&amp;quot;UTF-8&amp;quot;?&amp;gt;&amp;#10;&amp;lt;default/&amp;gt;&amp;#10;&quot;/&gt;&#10;&lt;/sourceContainers&gt;&#10;&lt;/sourceLookupDirector&gt;&#10;"/>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.simontuffs.onejar.test.SelfTest"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=true &#10;-Done-jar.jarname=${project_loc}/dist/one-jar-example.jar"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=true &#10;-Done-jar.jarname=${project_loc}/dist/one-jar-example-0.96.jar"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
 <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
@@ -16,8 +16,8 @@
 <listAttribute key="org.eclipse.jdt.launching.CLASSPATH">
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry type=&quot;4&quot; path=&quot;1&quot; containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER&quot; javaProject=&quot;one-jar&quot;/&gt;&#10;"/>
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry type=&quot;2&quot; path=&quot;3&quot; internalArchive=&quot;/one-jar/bin/test&quot;/&gt;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry type=&quot;2&quot; path=&quot;3&quot; internalArchive=&quot;/one-jar/dist/one-jar-example.jar&quot;/&gt;&#10;"/>
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry type=&quot;3&quot; path=&quot;3&quot; containerPath=&quot;JUNIT_HOME/junit.jar&quot;/&gt;&#10;"/>
+<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&#10;&lt;runtimeClasspathEntry type=&quot;2&quot; path=&quot;3&quot; internalArchive=&quot;/one-jar/dist/one-jar-example-0.96.jar&quot;/&gt;&#10;"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.VM_INSTALL_NAME" value="j2re1.4.2_04"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="one-jar"/>
