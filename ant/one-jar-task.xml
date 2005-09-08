@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<project default="none">
+	
+	<target name="none"/>
+		
+	<taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" 
+		classpath="dist/one-jar-ant-${one-jar.version}.jar" onerror="report"/>
+
+</project>

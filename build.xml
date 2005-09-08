@@ -2,6 +2,7 @@
 
 <project name="one-jar" default="dist" basedir=".">
     <property name="src.dir" value="${basedir}/src"/>
+    <property name="ant.dir" value="${basedir}/ant"/>
     <property name="example.dir" value="${basedir}/example"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="class.dir" value="${build.dir}/classes"/>
@@ -131,6 +132,23 @@
 	        </fileset>
 	    </jar>
 	</target>
+	
+	<target name="build.ant.jar">
+		<jar destfile="${dist.dir}/one-jar-ant-${one-jar.version}.jar">
+			<fileset dir="${class.dir}">
+				<include name="**/ant/**"/>
+			</fileset>
+			<fileset dir="${ant.dir}">
+				<include name="**/ant/**"/>
+			</fileset>
+		</jar>
+		<copy todir="${dist.dir}">
+			<fileset dir="${ant.dir}">
+				<include name="one-jar-*.xml"/>
+			</fileset>
+		</copy>
+		
+	</target>
 
 	<target name="build.example.jar">
 	    <jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
@@ -188,11 +206,13 @@
     </target>
 	
 	<!-- Build the example jar using the one-jar-macro -->
-	<import file="ant/one-jar-macro.xml"/>
+	<import file="${dist.dir}/one-jar-macro.xml" optional="true"/>
 	<target name="one-jar-macro" depends="jar">
-		<one-jar-macro destfile="dist/one-jar-example-0.96-macro.jar" boot.manifest="${src.dir}/boot-manifest.mf"
-			main.manifest="${example.dir}/main/main-manifest.mf"
-			one-jar-boot.jar="${boot.jar}">
+		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar"/>
+		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" 
+			manifest="${src.dir}/boot-manifest.mf"
+			mainmanifest="${example.dir}/main/main-manifest.mf"
+			onejarboot="${boot.jar}">
 			<main>
 	            <fileset dir="${class.dir}">
 	                <include name="**/example/main/**"/>   
@@ -212,10 +232,42 @@
 			</lib>
 		</one-jar-macro>
 	</target>
+	
+	<!-- Build the example jar using the one-jar task.  Identical syntax to the 
+	     one-jar-macro, but creates the target jar without using the filesystem
+	     for intermediates.
+	-->
+	<import file="${dist.dir}/one-jar-task.xml" optional="true"/>
+	<target name="one-jar-task" depends="build.ant.jar">
+		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-task.jar"/>
+		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" 
+			manifest="${src.dir}/boot-manifest.mf"
+			onejarboot="${boot.jar}"
+			>
+			<main manifest="${example.dir}/main/main-manifest.mf">
+	            <fileset dir="${class.dir}">
+	                <include name="**/example/main/**"/>   
+	                <include name="**/example/util/Duplicate*"/>   
+	            </fileset>
+	            <fileset dir="${example.dir}">
+	                <include name="**/example/main/**"/>   
+	                <include name="**/example/util/Duplicate*"/>   
+	            </fileset>
+	            <fileset dir="${example.dir}/main">
+	                <include name="main-manifest.mf"/>   
+	                <include name="duplicate.txt"/>   
+	            </fileset>
+			</main>
+			<lib>
+				<fileset file="${jar.dir}/lib/**"/>
+			</lib>
+		</one-jar>
+	</target>
 
 	
     <!-- Make the distribution -->
     <target name="dist" depends="compile,jar">
+    	<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}"/>
     </target>
 	
 	<!-- Test the distribution -->

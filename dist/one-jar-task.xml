@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- 
+  Defines the one-jar taskdef.  Requires the property one-jar.version to specify the
+  version of one-jar to be used to locate the OneJarTask class
+-->
+<project default="none">
+	
+	<target name="none"/>
+		
+	<taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" 
+		classpath="dist/one-jar-ant-${one-jar.version}.jar" onerror="report"/>
+
+</project>
