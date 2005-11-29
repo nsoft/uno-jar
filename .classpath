@@ -5,7 +5,7 @@
 	<classpathentry output="bin/test" kind="src" path="test"/>
 	<classpathentry kind="src" path="example"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="var" path="JUNIT_HOME/junit.jar"/>
-	<classpathentry kind="var" path="ECLIPSE_HOME/plugins/org.apache.ant_1.6.2/lib/ant.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.2.jar"/>
+	<classpathentry kind="lib" path="lib/junit-3.8.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

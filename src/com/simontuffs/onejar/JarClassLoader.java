@@ -228,7 +228,7 @@ public class JarClassLoader extends ClassLoader {
                 jarName = System.getProperty(JAVA_CLASS_PATH);
             }
             JarFile jarFile = new JarFile(jarName);
-            Enumeration enum = jarFile.entries();
+            Enumeration _enum = jarFile.entries();
             Manifest manifest = jarFile.getManifest();
             String expandPaths[] = null;
             // TODO: Allow a destination directory (relative or absolute) to 
@@ -239,8 +239,8 @@ public class JarClassLoader extends ClassLoader {
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
             }
-            while (enum.hasMoreElements()) {
-                JarEntry entry = (JarEntry)enum.nextElement();
+            while (_enum.hasMoreElements()) {
+                JarEntry entry = (JarEntry)_enum.nextElement();
                 if (entry.isDirectory()) continue;
                 
                 // The META-INF/MANIFEST.MF file can contain a property which names

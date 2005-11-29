@@ -268,20 +268,21 @@
     <!-- Make the distribution -->
     <target name="dist" depends="compile,jar">
     	<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}"/>
+    	<copy file="${ant.dir}/one-jar-task.xml" todir="${dist.dir}"/>
     </target>
 	
 	<!-- Test the distribution -->
 	<target name="test" depends="dist">
-		<junit fork="yes" showoutput="no" printsummary="yes">
+		<junit fork="yes" showoutput="yes" printsummary="yes">
 			<jvmarg value="-Done-jar.verbose=true"/>
-			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example.jar"/>
+			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar"/>
 			<classpath>
-				<fileset file="${basedir}/dist/one-jar-example.jar"/>
+				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar"/>
 				<path location="${basedir}/bin/test"/>
 			</classpath>
 				
 			<test name="com.simontuffs.onejar.test.SelfTest"/>
-			<formatter type="plain"/>
+			<formatter type="plain" usefile="no"/>
 		</junit>
 	</target>
 

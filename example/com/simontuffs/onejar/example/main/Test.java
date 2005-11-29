@@ -9,7 +9,6 @@
 
 package com.simontuffs.onejar.example.main;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -46,11 +45,6 @@ public class Test {
 	public void loadCodeSource() throws Exception {
 		URL codesource = this.getClass().getProtectionDomain().getCodeSource().getLocation();
 		System.out.println("Test.loadCodeSource(): dumping entries in " + codesource);
-		// Manual parse the jar separator "/!"
-		String nestedJar = codesource.getFile();
-		int sep = nestedJar.indexOf("!/");
-		String jar = nestedJar.substring(sep+1);
-		String file = new File(codesource.getFile().substring(0, sep)).getName();
 		// Can we load from our own codesource (which is a jar file).
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);

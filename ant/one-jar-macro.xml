@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
-<project default="none">
+<project>
 	
-	<target name="none"/>
-		
 	<macrodef name="one-jar-macro">
 		<attribute name="destfile" default="one-jar.jar" />
 		<attribute name="manifest" />

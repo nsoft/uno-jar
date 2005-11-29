@@ -1,12 +1,6 @@
 <?xml version="1.0"?>
-<!-- 
-  Defines the one-jar-macro taskdef.  This is a simple and easily extensible alternative
-  to the one-jar task.
--->
-<project default="none">
+<project>
 	
-	<target name="none"/>
-		
 	<macrodef name="one-jar-macro">
 		<attribute name="destfile" default="one-jar.jar" />
 		<attribute name="manifest" />

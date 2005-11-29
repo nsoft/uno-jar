@@ -94,10 +94,10 @@ public class Boot {
 		if (false) {
 			// What are the system properties.
 	    	Properties props = System.getProperties();
-	    	Enumeration enum = props.keys();
+	    	Enumeration _enum = props.keys();
 	    	
-	    	while (enum.hasMoreElements()) {
-	    		String key = (String)enum.nextElement();
+	    	while (_enum.hasMoreElements()) {
+	    		String key = (String)_enum.nextElement();
 	    		System.out.println(key + "=" + props.get(key));
 	    	}
 		}
@@ -126,9 +126,9 @@ public class Boot {
 				properties.load(is);
 			} 
 			// Set system properties only if not already specified.
-			Enumeration enum = properties.propertyNames();
-			while (enum.hasMoreElements()) {
-				String name = (String)enum.nextElement();
+			Enumeration _enum = properties.propertyNames();
+			while (_enum.hasMoreElements()) {
+				String name = (String)_enum.nextElement();
 				if (System.getProperty(name) == null) {
 					System.setProperty(name, properties.getProperty(name));
 				}
