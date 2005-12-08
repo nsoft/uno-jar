@@ -19,11 +19,22 @@
 			<fileset dir="${class.dir}">
 				<include name="com/simontuffs/onejar/*.class"/>
 			</fileset>
-			<main dir="${class.dir}" manifest="${example.dir}/main/main-manifest.mf">
-				<include name="**/main/*.class" />
+			<main manifest="${example.dir}/main/main-manifest.mf">
+	            <fileset dir="${class.dir}">
+	                <include name="**/example/main/**"/>   
+	                <include name="**/example/util/Duplicate*"/>   
+	            </fileset>
+	            <fileset dir="${example.dir}">
+	                <include name="**/example/main/**"/>   
+	                <include name="**/example/util/Duplicate*"/>   
+	            </fileset>
+	            <fileset dir="${example.dir}/main">
+	                <include name="main-manifest.mf"/>   
+	                <include name="duplicate.txt"/>   
+	            </fileset>
 			</main>
-			<lib dir="${jar.dir}/lib">
-				<include name="*.jar" />
+			<lib>
+				<fileset file="${jar.dir}/lib/**"/>
 			</lib>
 		</one-jar>
 	</target>

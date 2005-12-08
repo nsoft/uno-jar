@@ -116,10 +116,12 @@
 	</target>
 
 	<target name="build.boot.jar">
+		<delete file="${boot.jar}"/>
 	    <jar destfile="${boot.jar}" manifest="${src.dir}/boot-manifest.mf">
 	        <fileset dir="${class.dir}">
 	        	<include name="com/**"/>
 	        	<exclude name="**/example/**"/>
+	        	<exclude name="**/ant/**"/>
 	        </fileset>
 	        <fileset dir="${src.dir}">
 	            <include name="boot-manifest.mf"/>   
@@ -134,6 +136,7 @@
 	</target>
 	
 	<target name="build.ant.jar">
+		<copy file="${boot.jar}" tofile="${class.dir}/com/simontuffs/onejar/ant/one-jar-boot.jar"/>
 		<jar destfile="${dist.dir}/one-jar-ant-${one-jar.version}.jar">
 			<fileset dir="${class.dir}">
 				<include name="**/ant/**"/>
@@ -239,7 +242,6 @@
 	-->
 	<import file="${dist.dir}/one-jar-task.xml" optional="true"/>
 	<target name="one-jar-task" depends="build.ant.jar">
-		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-task.jar"/>
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" 
 			manifest="${src.dir}/boot-manifest.mf"
 			onejarboot="${boot.jar}"

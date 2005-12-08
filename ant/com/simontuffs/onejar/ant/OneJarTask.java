@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.JarInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -26,6 +27,9 @@ import org.apache.tools.ant.FileScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.taskdefs.Jar;
+import org.apache.tools.ant.taskdefs.Manifest;
+import org.apache.tools.ant.taskdefs.ManifestException;
+import org.apache.tools.ant.taskdefs.Manifest.Attribute;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.types.ZipFileSet;
 import org.apache.tools.zip.ZipOutputStream;
@@ -67,6 +71,14 @@ public class OneJarTask extends Jar {
         }
     }
 
+    public static class Wrap extends Task {
+        protected List filesets = new ArrayList();
+        public void addFileSet(ZipFileSet fileset) {
+            getProject().log("Wrap.addFileSet() ", Project.MSG_VERBOSE);
+            filesets.add(fileset);
+        }
+    }
+    
     public static class BinLib extends Task {
         protected List filesets = new ArrayList();
         public void addFileSet(ZipFileSet fileset) {
@@ -110,6 +122,16 @@ public class OneJarTask extends Jar {
         while (iter.hasNext()) {
             ZipFileSet fileset = (ZipFileSet)iter.next();
             fileset.setPrefix("lib/");
+            super.addFileset(fileset);
+        }
+    }
+    
+    public void addConfiguredWrap(Wrap lib) {
+        getProject().log("addWrap()", Project.MSG_VERBOSE);
+        Iterator iter = lib.filesets.iterator();
+        while (iter.hasNext()) {
+            ZipFileSet fileset = (ZipFileSet)iter.next();
+            fileset.setPrefix("wrap/");
             super.addFileset(fileset);
         }
     }
@@ -232,11 +254,9 @@ public class OneJarTask extends Jar {
     }
     
     protected void initZipOutputStream(ZipOutputStream zOut) throws IOException, BuildException {
-        super.initZipOutputStream(zOut);
         
-        
-        ByteArrayInputStream devnull = new ByteArrayInputStream(new byte[0]);
-        super.zipFile(devnull, zOut, "main", System.currentTimeMillis(), null, ZipFileSet.DEFAULT_DIR_MODE);
+        // ByteArrayInputStream devnull = new ByteArrayInputStream(new byte[0]);
+        // super.zipFile(devnull, zOut, "main", System.currentTimeMillis(), null, ZipFileSet.DEFAULT_DIR_MODE);
 
         // main/main.jar
         FileSetPump pump = new FileSetPump(MAIN_MAIN_JAR);
@@ -244,7 +264,37 @@ public class OneJarTask extends Jar {
         super.zipFile(pump.pin, zOut, MAIN_MAIN_JAR, System.currentTimeMillis(), null, ZipFileSet.DEFAULT_FILE_MODE);
 
         // One-jar bootstrap files
-        includeZip(onejar, zOut);
+        if (onejar != null) {
+        	includeZip(onejar, zOut);
+        } else {
+        	// Pick up default one-jar boot files as a resource relative to
+        	// this class.
+        	String ONE_JAR_BOOT = "one-jar-boot.jar";
+        	InputStream is = this.getClass().getResourceAsStream(ONE_JAR_BOOT);
+        	if (is == null) 
+        		throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
+        	copy(is, zOut);
+        	// Pull the manifest out and use it.
+        	is = this.getClass().getResourceAsStream(ONE_JAR_BOOT);
+        	JarInputStream jis = new JarInputStream(is);
+        	Manifest manifest = new Manifest();
+            java.util.jar.Manifest jmanifest = jis.getManifest();
+            java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
+            Iterator iter = jattributes.keySet().iterator();
+        	try {
+                while (iter.hasNext()) {
+                    String key = ((java.util.jar.Attributes.Name)iter.next()).toString();
+                    String value = jattributes.getValue(key);
+                    System.out.println("manifest: " + key + "=" + value);
+                    manifest.addConfiguredAttribute(new Attribute(key, value));
+                }
+        		super.addConfiguredManifest(manifest);
+        	} catch (ManifestException mx) {
+        		throw new BuildException(mx);
+        	}
+        }
+        // Write manifest.
+        super.initZipOutputStream(zOut);
         
     }
     
