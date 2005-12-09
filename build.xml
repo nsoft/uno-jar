@@ -205,12 +205,12 @@
         </jar>
 	</target>
 	
-	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.external.jar,build.wraploader.jar,build.extloader.jar,build.example.jar,build.example-ext.jar">
+	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.extloader.jar,build.example.jar,build.example-ext.jar">
     </target>
 	
 	<!-- Build the example jar using the one-jar-macro -->
 	<import file="${dist.dir}/one-jar-macro.xml" optional="true"/>
-	<target name="one-jar-macro" depends="jar">
+	<target name="one-jar-example-macro" depends="jar">
 		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar"/>
 		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" 
 			manifest="${src.dir}/boot-manifest.mf"
@@ -241,10 +241,10 @@
 	     for intermediates.
 	-->
 	<import file="${dist.dir}/one-jar-task.xml" optional="true"/>
-	<target name="one-jar-task" depends="build.ant.jar">
+	<target name="one-jar-example-task" depends="build.ant.jar">
+		<delete file="dist/one-jar-example-${one-jar.version}-task.jar"/>
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" 
 			manifest="${src.dir}/boot-manifest.mf"
-			onejarboot="${boot.jar}"
 			>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 	            <fileset dir="${class.dir}">

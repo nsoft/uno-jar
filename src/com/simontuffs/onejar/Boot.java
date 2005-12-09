@@ -219,7 +219,7 @@ public class Boot {
 		loader.setVerbose(verbose);
 		mainClass = loader.load(mainClass);
         
-        if (mainClass == null) throw new Exception("main class was not found (fix: add main/main.jar to onejar, or specify -D" + MAIN_CLASS + ")");
+        if (mainClass == null) throw new Exception("main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + ")");
 
 		// Set the context classloader in case any classloaders delegate to it.
 		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which

@@ -46,6 +46,7 @@ public class OneJarTask extends Jar {
     public static final int BUFFER_SIZE = 8192;
     public static final String META_INF_MANIFEST = "META-INF/MANIFEST.MF";
     public static final String MAIN_MAIN_JAR = "main/main.jar";
+    public static final String CLASS = ".class";
     
     protected Main main;
     protected ZipFile onejar;
@@ -273,9 +274,7 @@ public class OneJarTask extends Jar {
         	InputStream is = this.getClass().getResourceAsStream(ONE_JAR_BOOT);
         	if (is == null) 
         		throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
-        	copy(is, zOut);
         	// Pull the manifest out and use it.
-        	is = this.getClass().getResourceAsStream(ONE_JAR_BOOT);
         	JarInputStream jis = new JarInputStream(is);
         	Manifest manifest = new Manifest();
             java.util.jar.Manifest jmanifest = jis.getManifest();
@@ -285,13 +284,23 @@ public class OneJarTask extends Jar {
                 while (iter.hasNext()) {
                     String key = ((java.util.jar.Attributes.Name)iter.next()).toString();
                     String value = jattributes.getValue(key);
-                    System.out.println("manifest: " + key + "=" + value);
+                    getProject().log("manifest: " + key + "=" + value, Project.MSG_DEBUG);
                     manifest.addConfiguredAttribute(new Attribute(key, value));
                 }
         		super.addConfiguredManifest(manifest);
         	} catch (ManifestException mx) {
         		throw new BuildException(mx);
         	}
+        	ZipEntry entry = jis.getNextEntry();
+        	while (entry != null) {
+        		if (entry.getName().endsWith(CLASS)) {
+                    getProject().log("entry=" + entry.getName(), Project.MSG_DEBUG);
+        			zOut.putNextEntry(new org.apache.tools.zip.ZipEntry(entry));
+                    copy(jis, zOut);
+        		}
+        		entry = jis.getNextJarEntry();
+        	}
+        	
         }
         // Write manifest.
         super.initZipOutputStream(zOut);

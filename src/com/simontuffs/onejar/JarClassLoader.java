@@ -325,10 +325,12 @@ public class JarClassLoader extends ClassLoader {
 					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
                     
                 }
+                /*
                 if (mainClass == null) {
                 	// One last try to determine a main class.
                 	mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
                 }
+                */
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
             // for determining a main class.
