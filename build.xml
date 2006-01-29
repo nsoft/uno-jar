@@ -155,12 +155,15 @@
 	</target>
 
 	<target name="build.example.jar" depends="build.main.jar,build.util.jar">
+		<delete file="${example.jar}"/>
 		<jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${class.dir}">
 				<exclude name="**/Detect*" />
 				<exclude name="**/External*" />
 				<exclude name="**/example/**" />
 				<exclude name="**/main/**" />
+				<exclude name="**/util/**" />
+				<exclude name="**/ant/**" />
 			</fileset>
 			<fileset dir="${src.dir}">
 				<include name="com/**" />
