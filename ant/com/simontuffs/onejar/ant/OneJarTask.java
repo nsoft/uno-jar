@@ -181,50 +181,52 @@ public class OneJarTask extends Jar {
             // Create the main/main.jar entry in the output file, and suck in
             // all <filesets> from <main>.  
             // TODO: Ignore duplicates (first takes precedence).
-            Iterator iter = main.filesets.iterator();
-            java.util.zip.ZipOutputStream zout = new java.util.zip.ZipOutputStream(pout);
-            
-            
-            try {
-                // Write the manifest file.
-                ZipEntry m = new ZipEntry(META_INF_MANIFEST);
-                zout.putNextEntry(m);
-                copy("Created-By: One-Jar 0.96 Ant taskdef\n", zout);
-                if (main.manifest != null) {
-                    copy(new FileInputStream(main.manifest), zout);
-                } else if (mainManifest != null) {
-                    copy(new FileInputStream(mainManifest), zout);
-                }
-                zout.closeEntry();
-                // Now the rest of the main.jar entries
-                while (iter.hasNext()) {
-                    FileSet fileset = (FileSet)iter.next();
-                    FileScanner scanner = fileset.getDirectoryScanner(getProject());
-                    String[] files = scanner.getIncludedFiles();
-                    File basedir = scanner.getBasedir();
-                    for (int i=0; i<files.length; i++) {
-                        String file = files[i].replace('\\', '/');
-                        if (entries.contains(file)) {
-                            getProject().log("Duplicate entry " + target + " (ignored): " + file, Project.MSG_WARN);
-                            continue;
-                        }
-                        entries.add(file);
-                        ZipEntry ze = new ZipEntry(file);
-                        zout.putNextEntry(ze);
-                        getProject().log("processing " + file, Project.MSG_DEBUG);
-                        FileInputStream fis = new FileInputStream(new File(basedir, file));
-                        copy(fis, zout);
-                        zout.closeEntry();
-                    }
-                }
-                zout.close();
-                synchronized(this) {
-                    done = true;
-                    notify();
-                }
-            } catch (IOException iox) {
-                throw new BuildException(iox);
-            }
+        	if (main != null) {
+	            Iterator iter = main.filesets.iterator();
+	            java.util.zip.ZipOutputStream zout = new java.util.zip.ZipOutputStream(pout);
+	            
+	            
+	            try {
+	                // Write the manifest file.
+	                ZipEntry m = new ZipEntry(META_INF_MANIFEST);
+	                zout.putNextEntry(m);
+	                copy("Created-By: One-Jar 0.96 Ant taskdef\n", zout);
+	                if (main.manifest != null) {
+	                    copy(new FileInputStream(main.manifest), zout);
+	                } else if (mainManifest != null) {
+	                    copy(new FileInputStream(mainManifest), zout);
+	                }
+	                zout.closeEntry();
+	                // Now the rest of the main.jar entries
+	                while (iter.hasNext()) {
+	                    FileSet fileset = (FileSet)iter.next();
+	                    FileScanner scanner = fileset.getDirectoryScanner(getProject());
+	                    String[] files = scanner.getIncludedFiles();
+	                    File basedir = scanner.getBasedir();
+	                    for (int i=0; i<files.length; i++) {
+	                        String file = files[i].replace('\\', '/');
+	                        if (entries.contains(file)) {
+	                            getProject().log("Duplicate entry " + target + " (ignored): " + file, Project.MSG_WARN);
+	                            continue;
+	                        }
+	                        entries.add(file);
+	                        ZipEntry ze = new ZipEntry(file);
+	                        zout.putNextEntry(ze);
+	                        getProject().log("processing " + file, Project.MSG_DEBUG);
+	                        FileInputStream fis = new FileInputStream(new File(basedir, file));
+	                        copy(fis, zout);
+	                        zout.closeEntry();
+	                    }
+	                }
+	                zout.close();
+	                synchronized(this) {
+	                    done = true;
+	                    notify();
+	                }
+	            } catch (IOException iox) {
+	                throw new BuildException(iox);
+	            }
+        	}
         }
     }
     

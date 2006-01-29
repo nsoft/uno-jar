@@ -49,7 +49,7 @@ public class Test {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 17;
+        int count = 0, expected = 19;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("Test: entry=" + entry);
@@ -141,6 +141,7 @@ public class Test {
 		// Now do it using getResource().
 		System.out.println("classURL(): opening using getResource(" + className + ")");
 		url = this.getClass().getResource(className);
+        System.out.println("classURL(): Opened: " + url);
 		is = url.openStream();
 		if (is == null) {
 			System.out.println("Huh? Should find " + resource + " as a resource");
@@ -149,6 +150,37 @@ public class Test {
 			System.out.println("classURL(): OK.");
 		}
 	}
+    
+    public void resourceURL() throws IOException, MalformedURLException {
+        String image = "/images/button.mail.gif";
+        String resource = "onejar:" + image;
+        System.out.println("resourceURL(): Opening onejar resource using new URL(" + resource + ")");
+        URL url = new URL(resource);
+        InputStream is = url.openStream();
+        System.out.println("resourceURL(): Opened: " + url);
+        if (is == null) {
+            System.out.println("Huh? Should find " + resource + " as a resource");
+            failures++;
+        } else {
+            System.out.println("resourceURL(): OK.");
+        }
+        
+        // Now do it using getResource().
+        System.out.println("resourceURL(): opening using getResource(" + image + ")");
+        url = this.getClass().getResource(image);
+        System.out.println("resourceURL(): Opened: " + url);
+        if (url == null) {
+            System.out.println("Huh? Should find " + resource + " using getResource()");
+        } else {
+            is = url.openStream();
+            if (is == null) {
+                System.out.println("Huh? Should find " + resource + " as a resource");
+                failures++;
+            } else {
+                System.out.println("resourceURL(): OK.");
+            }
+        }
+    }
     
     /**
      * Tests the ability to load classes through a classpath argument passed into

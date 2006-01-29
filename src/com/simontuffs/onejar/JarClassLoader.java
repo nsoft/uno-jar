@@ -239,6 +239,7 @@ public class JarClassLoader extends ClassLoader {
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
             }
+            boolean mainfound = false;
             while (_enum.hasMoreElements()) {
                 JarEntry entry = (JarEntry)_enum.nextElement();
                 if (entry.isDirectory()) continue;
@@ -292,6 +293,7 @@ public class JarClassLoader extends ClassLoader {
                     
                     // Do we need to look for a main class?
                     if (jar.startsWith(MAIN_PREFIX)) {
+                    	mainfound = true;
                         if (mainClass == null) {
                             JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
                             Manifest m = jis.getManifest();
@@ -325,12 +327,10 @@ public class JarClassLoader extends ClassLoader {
 					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
                     
                 }
-                /*
-                if (mainClass == null) {
+                if (!mainfound && mainClass == null) {
                 	// One last try to determine a main class.
                 	mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
                 }
-                */
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
             // for determining a main class.

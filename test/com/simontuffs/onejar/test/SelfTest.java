@@ -87,6 +87,11 @@ public class SelfTest extends TestCase {
         checkFailures();
     }
 
+    public void testResourceURL() throws Exception {
+        Invoker.invoke(test, "resourceURL");
+        checkFailures();
+    }
+
     public void testLoadCodeSource() throws Exception {
         Invoker.invoke(test, "loadCodeSource");
         checkFailures();
