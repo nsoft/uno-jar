@@ -32,26 +32,26 @@ public class Main {
     	int failures = 0;
     	
     	try {
-			test.useUtil();
+			test.testUseUtil();
     	} catch (Exception x) {
-    		System.out.println("test.useUtil() failed: " + x);
+    		System.out.println("test.testUseUtil() failed: " + x);
     		x.printStackTrace();
 			failures++;
     	}
     	
     	System.out.println();
     	try {
-			test.dumpResource("/main-manifest.mf");
+			test.testDumpResource("/main-manifest.mf");
     	} catch (Exception x) {
-    		System.out.println("test.useResource() failed: " + x);
+    		System.out.println("test.testDumpResource() failed: " + x);
     		x.printStackTrace();
     	}
 		System.out.println();
 		try {
 			// Dump a resource relative to this jar file.
-			test.dumpResource("/duplicate.txt");
+			test.testDumpResource("/duplicate.txt");
 		} catch (Exception x) {
-			System.out.println("test.useResource() failed: " + x);
+			System.out.println("test.testDumpResource() failed: " + x);
 			x.printStackTrace();
 			failures++;
 		}
@@ -59,48 +59,48 @@ public class Main {
 		
 		try {
 			// Dump a resource relative to this class file.
-			test.dumpResource("main.txt");
+			test.testDumpResource("main.txt");
 		} catch (Exception x) {
-			System.out.println("test.useResource() failed: " + x);
+			System.out.println("test.testDumpResource() failed: " + x);
 			x.printStackTrace();
 			failures++;
 		}
 		System.out.println();
 
-		test.loadCodeSource();
+		test.testLoadCodeSource();
 		System.out.println();
 
 		try {
-			test.classLoader();
+			test.testClassLoader();
             failures++;
 		} catch (Exception x) {
-			System.out.println("Test.classLoader() failed (as expected!): " + x);
+			System.out.println("Test.testClassLoader() failed (as expected!): " + x);
 		}
 		System.out.println();
 		
 		
 		try {
-			test.classURL();
+			test.testClassURL();
 		} catch (Exception x) {
-			System.out.println("Test.classURL() failed: " + x);
+			System.out.println("Test.testClassURL() failed: " + x);
 			x.printStackTrace();
 			failures++;
 		}
 		System.out.println();
 
 		try {
-			test.resourceURL();
+			test.testResourceURL();
 		} catch (Exception x) {
-			System.out.println("Test.resourceURL() failed: " + x);
+			System.out.println("Test.testResourceURL() failed: " + x);
 			x.printStackTrace();
 			failures++;
 		}
 		System.out.println();
 
 		try {
-			test.resourceRelativeURL();
+			test.testResourceRelativeURL();
 		} catch (Exception x) {
-			System.out.println("Test.resourceRelativeURL() failed: " + x);
+			System.out.println("Test.testResourceRelativeURL() failed: " + x);
 			x.printStackTrace();
 			failures++;
 		}

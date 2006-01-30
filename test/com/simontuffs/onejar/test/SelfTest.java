@@ -52,48 +52,48 @@ public class SelfTest extends TestCase {
     }
     
     public void testUseUtil() throws Exception {
-        Invoker.invoke(test, "useUtil");
+        Invoker.invoke(test, "testUseUtil");
         checkFailures();
     }
     
     public void testDumpResource() throws Exception {
-        Invoker.invoke(test, "dumpResource", new Class[]{String.class}, new String[]{"/main-manifest.mf"});
+        Invoker.invoke(test, "testDumpResource", new Class[]{String.class}, new String[]{"/main-manifest.mf"});
         checkFailures();
     }
     
     public void testDumpDuplicateResource() throws Exception {
-        Invoker.invoke(test, "dumpResource", new Class[]{String.class}, new String[]{"/duplicate.txt"});
+        Invoker.invoke(test, "testDumpResource", new Class[]{String.class}, new String[]{"/duplicate.txt"});
         checkFailures();
     }
     
     public void testDumpRelativeResource() throws Exception {
-        Invoker.invoke(test, "dumpResource", new Class[]{String.class}, new String[]{"main.txt"});
+        Invoker.invoke(test, "testDumpResource", new Class[]{String.class}, new String[]{"main.txt"});
         checkFailures();
     }
 
     public void testClassLoader() throws Exception {
         try {
-            Invoker.invoke(test, "classLoader");
-            fail("test.classLoader() should throw ClassNotFoundException");
+            Invoker.invoke(test, "testClassLoader");
+            fail("test.testClassLoader() should throw ClassNotFoundException");
         } catch (InvocationTargetException ix) {
             assertTrue(ix.getTargetException() instanceof ClassNotFoundException);
             return;
         }
-        fail("test.classLoader() should throw ClassNotFoundException");
+        fail("test.testClassLoader() should throw ClassNotFoundException");
     }
     
     public void testClassURL() throws Exception {
-        Invoker.invoke(test, "classURL");
+        Invoker.invoke(test, "testClassURL");
         checkFailures();
     }
 
     public void testResourceURL() throws Exception {
-        Invoker.invoke(test, "resourceURL");
+        Invoker.invoke(test, "testResourceURL");
         checkFailures();
     }
 
     public void testResourceRelativeURL() throws Exception {
-        Invoker.invoke(test, "resourceRelativeURL");
+        Invoker.invoke(test, "testResourceRelativeURL");
         checkFailures();
     }
 
@@ -103,7 +103,7 @@ public class SelfTest extends TestCase {
     }
 
     public void testLoadCodeSource() throws Exception {
-        Invoker.invoke(test, "loadCodeSource");
+        Invoker.invoke(test, "testLoadCodeSource");
         checkFailures();
     }
     

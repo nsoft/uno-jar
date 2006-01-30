@@ -158,6 +158,7 @@
 		<delete file="${example.jar}"/>
 		<jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${class.dir}">
+				<exclude name="*"/>
 				<exclude name="**/Detect*" />
 				<exclude name="**/External*" />
 				<exclude name="**/example/**" />
