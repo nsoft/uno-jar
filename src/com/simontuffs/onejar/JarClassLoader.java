@@ -28,8 +28,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
+import java.security.cert.Certificate;
 import java.util.Arrays;
-import java.util.Collections;		
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -431,7 +432,7 @@ public class JarClassLoader extends ClassLoader {
                     mux.printStackTrace(System.out);    			
                 }
                 
-                CodeSource source = new CodeSource(url, null);
+                CodeSource source = new CodeSource(url, (Certificate[])null);
                 pd = new ProtectionDomain(source, null, this, null);
                 pdCache.put(bytecode.codebase, pd);
             }

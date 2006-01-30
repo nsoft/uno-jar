@@ -88,7 +88,34 @@ public class Main {
 		}
 		System.out.println();
 
-        if (TEST_EXTERNAL) {
+		try {
+			test.resourceURL();
+		} catch (Exception x) {
+			System.out.println("Test.resourceURL() failed: " + x);
+			x.printStackTrace();
+			failures++;
+		}
+		System.out.println();
+
+		try {
+			test.resourceRelativeURL();
+		} catch (Exception x) {
+			System.out.println("Test.resourceRelativeURL() failed: " + x);
+			x.printStackTrace();
+			failures++;
+		}
+		System.out.println();
+
+		try {
+			test.testImageIcon();
+		} catch (Exception x) {
+			System.out.println("Test.testImageIcon() failed: " + x);
+			x.printStackTrace();
+			failures++;
+		}
+		System.out.println();
+
+		if (TEST_EXTERNAL) {
             try {
                 test.testExternal();
             } catch (Exception x) {

@@ -7,6 +7,12 @@
  * under doc/one-jar-license.txt
  */
 
+
+/**
+ * Note: this class has no dependencies on JUnit, but can be
+ * wrapped using a JUnit wrapper to enable it.  See 
+ * com.simontuffs.onejar.test.SelfTest for an example of this.
+ */
 package com.simontuffs.onejar.example.main;
 
 import java.io.IOException;
@@ -15,6 +21,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+
+import javax.swing.ImageIcon;
 
 import com.simontuffs.onejar.example.external.External;
 import com.simontuffs.onejar.example.util.Util;
@@ -44,19 +52,19 @@ public class Test {
 	// intercept and parse references to nested jars.  For example,  
 	public void loadCodeSource() throws Exception {
 		URL codesource = this.getClass().getProtectionDomain().getCodeSource().getLocation();
-		System.out.println("Test.loadCodeSource(): dumping entries in " + codesource);
+		System.out.println("loadCodeSource(): dumping entries in " + codesource);
 		// Can we load from our own codesource (which is a jar file).
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 19;
+        int count = 0, expected = 21;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
-			System.out.println("Test: entry=" + entry);
+			System.out.println("loadCodeSource(): entry=" + entry);
             count++;
 		}
         if (count != expected) {
-            System.out.println("Huh? Should find " + expected + " entries in codesource, found " + count);
+            System.err.println("loadCodeSource(): Huh? Should find " + expected + " entries in codesource, found " + count);
             failures++;
         }
 	
@@ -97,28 +105,28 @@ public class Test {
 	}
 	
 	public void classLoader() throws ClassNotFoundException {
-		System.out.println("Creating new TestLoader()");
+		System.out.println("classLoader(): Creating new TestLoader()");
 		TestLoader testLoader = new TestLoader();
 		// Try it. If wrapped, it should succeed!
 		String name = "com.simontuffs.onejar.example.util.Util";
-		System.out.println("loading " + name);
+		System.out.println("classLoader(): loading " + name);
 		testLoader.loadClass(name);
-		System.out.println("loaded " + name + " OK!");
+		System.out.println("classLoader(): loaded " + name + " OK!");
 		try {
 			name = "com.simontuffs.onejar.example.util.NonExistant";
-			System.out.println("loading " + name);
+			System.out.println("classLoader(): loading " + name);
 			testLoader.loadClass(name);
-			System.out.println("Huh?  Should not find " + name);
+			System.err.println("classLoader(): Huh?  Should not find " + name);
 			failures++;
 		} catch (ClassNotFoundException cnfx) {
-			System.out.println("not found " + name + " OK!");
+			System.out.println("classLoader(): not found " + name + " OK!");
 		}
 
 		// Pick up a class as a resource.
 		name = "/com/simontuffs/onejar/example/util/Util.class";
 		InputStream is = testLoader.getResourceAsStream(name);
 		if (is == null) {
-			System.out.println("Huh? Should find " + name + " as a resource");
+			System.err.println("Huh? Should find " + name + " as a resource");
 			failures++;
 		}
 			
@@ -132,7 +140,7 @@ public class Test {
 		InputStream is = url.openStream();
 		System.out.println("classURL(): Opened: " + url);
 		if (is == null) {
-			System.out.println("Huh? Should find " + resource + " as a resource");
+			System.err.println("classURL(): Huh? Should find " + resource + " as a resource");
 			failures++;
 		} else {
 			System.out.println("classURL(): OK.");
@@ -144,13 +152,19 @@ public class Test {
         System.out.println("classURL(): Opened: " + url);
 		is = url.openStream();
 		if (is == null) {
-			System.out.println("Huh? Should find " + resource + " as a resource");
+			System.err.println("classURL(): Huh? Should find " + resource + " as a resource");
 			failures++;
 		} else {
 			System.out.println("classURL(): OK.");
 		}
 	}
     
+	/**
+	 * Tests the ability to load a resource from an absolute path
+	 * URL, and also relative to this class as an absolute path.
+	 * @throws IOException
+	 * @throws MalformedURLException
+	 */
     public void resourceURL() throws IOException, MalformedURLException {
         String image = "/images/button.mail.gif";
         String resource = "onejar:" + image;
@@ -159,7 +173,7 @@ public class Test {
         InputStream is = url.openStream();
         System.out.println("resourceURL(): Opened: " + url);
         if (is == null) {
-            System.out.println("Huh? Should find " + resource + " as a resource");
+            System.err.println("resourceURL(): Huh? Should find " + resource + " as a resource");
             failures++;
         } else {
             System.out.println("resourceURL(): OK.");
@@ -170,16 +184,62 @@ public class Test {
         url = this.getClass().getResource(image);
         System.out.println("resourceURL(): Opened: " + url);
         if (url == null) {
-            System.out.println("Huh? Should find " + resource + " using getResource()");
+            System.err.println("resourceURL(): Huh? Should find " + resource + " using getResource()");
+            failures++;
         } else {
             is = url.openStream();
             if (is == null) {
-                System.out.println("Huh? Should find " + resource + " as a resource");
+                System.err.println("resourceURL(): Huh? Should find " + resource + " as a resource");
                 failures++;
             } else {
                 System.out.println("resourceURL(): OK.");
             }
         }
+    }
+    
+	/**
+	 * Tests the ability to load a resource from a relative path 
+	 * (relative to this class).
+	 * @throws IOException
+	 * @throws MalformedURLException
+	 */
+    public void resourceRelativeURL() throws IOException, MalformedURLException {
+        String image = "button.mail.1.gif";
+        
+        // Now do it using getResource().
+        System.out.println("resourceRelativeURL(): opening using getResource(" + image + ")");
+        URL url = this.getClass().getResource(image);
+        System.out.println("resourceRelativeURL(): Opened: " + url);
+        if (url == null) {
+            System.err.println("resourceRelativeURL(): Huh? Should find " + image + " using getResource()");
+            failures++;
+        } else {
+            InputStream is = url.openStream();
+            if (is == null) {
+                System.err.println("resourceRelativeURL(): Huh? Should find " + image + " as a resource");
+                failures++;
+            } else {
+                System.out.println("resourceRelativeURL(): OK.");
+            }
+        }
+    }
+    
+    public void testImageIcon() {
+        String image = "button.mail.1.gif";
+        URL url = this.getClass().getResource(image);
+        if (url == null) {
+        	System.err.println("testImageIcon(): unable to resolve url for image " + image + ": " + url);
+        	failures++;
+        	return;
+        }
+        System.out.println("testImageIcon(): loaded image url OK: " + url);
+    	ImageIcon icon = new ImageIcon(url);
+    	if (icon == null) {
+    		System.err.println("testImageIcon(): unable to load icon from " + url);
+    		failures++;
+    		return;
+    	}
+    	System.out.println("testImageIcon(): loaded image OK: " + icon);
     }
     
     /**
@@ -197,7 +257,7 @@ public class Test {
     public void testPackageName() {
         Package pkg = this.getClass().getPackage();
         if (pkg == null) {
-            System.out.println("testPackageName(): Error - package is null for " + this.getClass() + " loaded by " + 
+            System.err.println("testPackageName(): Error - package is null for " + this.getClass() + " loaded by " + 
                 this.getClass().getClassLoader());
             failures++;
             return;
@@ -207,7 +267,7 @@ public class Test {
         int last = expected.lastIndexOf(".");
         expected = expected.substring(0, last);
         if (!packagename.equals(expected)) {
-            System.out.println("Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
+            System.err.println("Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
             failures++;
         } else {
             System.out.println("Package name ok: " + packagename);
