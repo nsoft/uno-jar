@@ -221,6 +221,12 @@ public class Boot {
         
         if (mainClass == null) throw new Exception("main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + ")");
 
+    	// Guard against the main.jar pointing back to this
+    	// class, and causing an infinite recursion.
+        String bootClass = Boot.class.getName();
+    	if (mainClass.equals(Boot.class.getName()))
+    		throw new Exception("main class would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
+    	
 		// Set the context classloader in case any classloaders delegate to it.
 		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
 		// is used to launch the jar application, and attempts to load through
@@ -228,6 +234,7 @@ public class Boot {
 		Thread.currentThread().setContextClassLoader(loader);
         
     	Class cls = loader.loadClass(mainClass);
+    	
     	Method main = cls.getMethod("main", new Class[]{String[].class}); 
     	main.invoke(null, new Object[]{args});
     }
