@@ -9,6 +9,7 @@
 		<element name="main" />
 		<element name="lib" optional="true"/>
 		<element name="binlib" optional="true"/>
+		<element name="wrap" optional="true"/>
 		<sequential>
 			<tempfile prefix="one-jar-" property="tmp.dir" />
 			<property name="tmp.jar.dir" value="${tmp.dir}/jars"/>
@@ -26,6 +27,10 @@
 			<copy todir="${tmp.jar.dir}/binlib" >
 				<binlib/>
 				<fileset dir="." excludes="**"/>
+			</copy>
+			<mkdir dir="${tmp.jar.dir}/wrap" />
+			<copy todir="${tmp.jar.dir}/wrap" >
+				<wrap/>
 			</copy>
 			<unjar dest="${tmp.jar.dir}" src="@{onejarboot}" />
 			<mkdir dir="${tmp.jar.dir}/main"/>

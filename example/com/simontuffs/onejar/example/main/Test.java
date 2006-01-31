@@ -57,7 +57,7 @@ public class Test {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 21;
+        int count = 0, expected = 19;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("testLoadCodeSource(): entry=" + entry);

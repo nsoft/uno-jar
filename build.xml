@@ -46,6 +46,9 @@
 		<javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
 			<src path="${example.dir}" />
 		</javac>
+		<javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
+			<src path="${ant.dir}" />
+		</javac>
 	</target>
 
 	<!-- Make the jar files -->
@@ -58,7 +61,7 @@
 			</fileset>
 			<fileset dir="${example.dir}">
 				<include name="**/example/main/**" />
-				<include name="**/example/util/Duplicate*" />
+				<include name="**/example/util/Duplicate*.java" />
 			</fileset>
 			<fileset dir="${example.dir}/main">
 				<include name="main-manifest.mf" />
@@ -123,12 +126,15 @@
 				<include name="com/**" />
 				<exclude name="**/example/**" />
 				<exclude name="**/ant/**" />
+				<exclude name="**/Detect*"/>
+				<exclude name="**/External*"/>
 			</fileset>
 			<fileset dir="${src.dir}">
 				<include name="boot-manifest.mf" />
 				<include name="com/**" />
 				<exclude name="**/example/**" />
 				<exclude name="**/Detect*" />
+				<exclude name="**/External*"/>
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="doc/*license.txt" />
@@ -231,11 +237,15 @@
 				<fileset dir="${example.dir}/main">
 					<include name="main-manifest.mf" />
 					<include name="duplicate.txt" />
+					<include name="images/*" />
 				</fileset>
 			</main>
 			<lib>
 				<fileset file="${jar.dir}/lib/**" />
 			</lib>
+			<wrap>
+				<fileset file="${jar.dir}/detect/wrap/**" />
+			</wrap>
 		</one-jar-macro>
 	</target>
 
@@ -244,7 +254,7 @@
 	     for intermediates.
 	-->
 	<import file="${dist.dir}/one-jar-task.xml" optional="true" />
-	<target name="one-jar-example-task" depends="build.ant.jar">
+	<target name="one-jar-example-task" depends="build.boot.jar,build.ant.jar">
 		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/boot-manifest.mf">
 			<main manifest="${example.dir}/main/main-manifest.mf">
@@ -259,17 +269,21 @@
 				<fileset dir="${example.dir}/main">
 					<include name="main-manifest.mf" />
 					<include name="duplicate.txt" />
+					<include name="images/*" />
 				</fileset>
 			</main>
 			<lib>
 				<fileset file="${jar.dir}/lib/**" />
 			</lib>
+			<wrap>
+				<fileset file="${jar.dir}/detect/wrap/**" />
+			</wrap>
 		</one-jar>
 	</target>
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar">
+	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-task.xml" todir="${dist.dir}" />
 	</target>

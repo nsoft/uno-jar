@@ -210,6 +210,27 @@ public class OneJarTask extends Jar {
 	                            continue;
 	                        }
 	                        entries.add(file);
+	                        // Add any directory entries that have not already been added.
+	                        String p = new File(file).getParent();
+	                        if (p != null) {
+		                        String dirs = p.replace('\\', '/');
+		                        if (!entries.contains(dirs)) {
+			                        String toks[] = dirs.split("/");
+			                        String dir = "";
+			                        for (int d=0; d<toks.length; d++) {
+			                        	dir += toks[d] + "/";
+			                        	if (!entries.contains(dir)) {
+			                        		ZipEntry ze = new ZipEntry(dir);
+			                        		zout.putNextEntry(ze);
+			                        		zout.closeEntry();
+			                        		System.out.println("added dir=" + dir);
+			                        		entries.add(dir);
+			                        	}
+			                        }
+		                        	entries.add(dir);
+		                        }
+	                        }
+	                        
 	                        ZipEntry ze = new ZipEntry(file);
 	                        zout.putNextEntry(ze);
 	                        getProject().log("processing " + file, Project.MSG_DEBUG);
