@@ -106,10 +106,11 @@ public class JarClassLoader extends ClassLoader {
         if (info) System.out.println(PREFIX() + "Info: " + NAME() + message);
     }
     
-    
-    protected Map byteCode = new HashMap();
+    // Synchronize for thread safety.  This is less important until we
+    // start to do lazy loading, but it's a good idea anyway.
+    protected Map byteCode = Collections.synchronizedMap(new HashMap());
     protected Map pdCache = Collections.synchronizedMap(new HashMap());
-    protected Map binLibPath = new HashMap();
+    protected Map binLibPath = Collections.synchronizedMap(new HashMap());
     
     protected boolean record = false, flatten = false, unpackFindResource = false;
     protected boolean verbose = false, info = false;

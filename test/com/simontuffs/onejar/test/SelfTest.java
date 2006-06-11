@@ -112,6 +112,11 @@ public class SelfTest extends TestCase {
         checkFailures();
     }
     
+    public void testGetResourceAsStream() throws Exception {
+        Invoker.invoke(test, "testGetResourceAsStream");
+        checkFailures();
+    }
+    
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.
 

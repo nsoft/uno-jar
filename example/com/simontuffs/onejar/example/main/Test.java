@@ -64,7 +64,7 @@ public class Test {
             count++;
 		}
         if (count != expected) {
-            System.err.println("testLoadCodeSource(): Huh? Should find " + expected + " entries in codesource, found " + count);
+            System.out.println("testLoadCodeSource(): Error: Huh? Should find " + expected + " entries in codesource, found " + count);
             failures++;
         }
 	
@@ -116,7 +116,7 @@ public class Test {
 			name = "com.simontuffs.onejar.example.util.NonExistant";
 			System.out.println("testClassLoader(): loading " + name);
 			testLoader.loadClass(name);
-			System.err.println("testClassLoader(): Huh?  Should not find " + name);
+			System.out.println("testClassLoader(): Error: Huh?  Should not find " + name);
 			failures++;
 		} catch (ClassNotFoundException cnfx) {
 			System.out.println("testClassLoader(): not found " + name + " OK!");
@@ -126,7 +126,7 @@ public class Test {
 		name = "/com/simontuffs/onejar/example/util/Util.class";
 		InputStream is = testLoader.getResourceAsStream(name);
 		if (is == null) {
-			System.err.println("Huh? Should find " + name + " as a resource");
+			System.out.println("testClassLoader(): Error: Huh? Should find " + name + " as a resource");
 			failures++;
 		}
 			
@@ -140,7 +140,7 @@ public class Test {
 		InputStream is = url.openStream();
 		System.out.println("testClassURL(): Opened: " + url);
 		if (is == null) {
-			System.err.println("testClassURL(): Huh? Should find " + resource + " as a resource");
+			System.out.println("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
 			failures++;
 		} else {
 			System.out.println("testClassURL(): OK.");
@@ -152,7 +152,7 @@ public class Test {
         System.out.println("testClassURL(): Opened: " + url);
 		is = url.openStream();
 		if (is == null) {
-			System.err.println("testClassURL(): Huh? Should find " + resource + " as a resource");
+			System.out.println("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
 			failures++;
 		} else {
 			System.out.println("testClassURL(): OK.");
@@ -173,7 +173,7 @@ public class Test {
         InputStream is = url.openStream();
         System.out.println("testResourceURL(): Opened: " + url);
         if (is == null) {
-            System.err.println("testResourceURL(): Huh? Should find " + resource + " as a resource");
+            System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
             failures++;
         } else {
             System.out.println("testResourceURL(): OK.");
@@ -184,12 +184,12 @@ public class Test {
         url = this.getClass().getResource(image);
         System.out.println("testResourceURL(): Opened: " + url);
         if (url == null) {
-            System.err.println("testResourceURL(): Huh? Should find " + resource + " using getResource()");
+            System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " using getResource()");
             failures++;
         } else {
             is = url.openStream();
             if (is == null) {
-                System.err.println("testResourceURL(): Huh? Should find " + resource + " as a resource");
+                System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
                 failures++;
             } else {
                 System.out.println("testResourceURL(): OK.");
@@ -211,12 +211,12 @@ public class Test {
         URL url = this.getClass().getResource(image);
         System.out.println("testResourceRelativeURL(): Opened: " + url);
         if (url == null) {
-            System.err.println("testResourceRelativeURL(): Huh? Should find " + image + " using getResource()");
+            System.out.println("testResourceRelativeURL(): Error: Huh? Should find " + image + " using getResource()");
             failures++;
         } else {
             InputStream is = url.openStream();
             if (is == null) {
-                System.err.println("testResourceRelativeURL(): Huh? Should find " + image + " as a resource");
+                System.out.println("testResourceRelativeURL(): Error: Huh? Should find " + image + " as a resource");
                 failures++;
             } else {
                 System.out.println("testResourceRelativeURL(): OK.");
@@ -228,14 +228,14 @@ public class Test {
         String image = "button.mail.1.gif";
         URL url = this.getClass().getResource(image);
         if (url == null) {
-        	System.err.println("testImageIcon(): unable to resolve url for image " + image + ": " + url);
+        	System.out.println("testImageIcon(): Error: unable to resolve url for image " + image + ": " + url);
         	failures++;
         	return;
         }
         System.out.println("testImageIcon(): loaded image url OK: " + url);
     	ImageIcon icon = new ImageIcon(url);
     	if (icon == null) {
-    		System.err.println("testImageIcon(): unable to load icon from " + url);
+    		System.out.println("testImageIcon(): Error: unable to load icon from " + url);
     		failures++;
     		return;
     	}
@@ -257,7 +257,7 @@ public class Test {
     public void testPackageName() {
         Package pkg = this.getClass().getPackage();
         if (pkg == null) {
-            System.err.println("testPackageName(): Error - package is null for " + this.getClass() + " loaded by " + 
+            System.out.println("testPackageName(): Error: package is null for " + this.getClass() + " loaded by " + 
                 this.getClass().getClassLoader());
             failures++;
             return;
@@ -267,10 +267,43 @@ public class Test {
         int last = expected.lastIndexOf(".");
         expected = expected.substring(0, last);
         if (!packagename.equals(expected)) {
-            System.err.println("Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
+            System.out.println("testPackageName(): Error: Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
             failures++;
         } else {
-            System.out.println("Package name ok: " + packagename);
+            System.out.println("testPackageName() ok: " + packagename);
+        }
+    }
+    
+    /**
+     * Tests the ability to load a resource using getResourceAsStream based
+     * on the class of this object.  A number of users have reported problems
+     * with doing this, resolved by using the thread context classloader (
+     * which should not be necessary).
+     */
+    public void testGetResourceAsStream() {
+        InputStream stream = Test.class.getResourceAsStream("/main-manifest.mf");
+        if (stream == null) {
+            System.out.println("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getResourceAsStream()");
+            failures++;
+        } else {
+            System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getResourceAsStream()");
+        }
+        stream = Test.class.getClassLoader().getResourceAsStream("/main-manifest.mf");
+        if (stream == null) {
+            System.out.println("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getClassloader().getResourceAsStream()");
+            failures++;
+        } else {
+            System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getClassLoader().getResourceAsStream()");
+        }
+        // The following is expected to fail, since the ClassLoader class is
+        // part of the Java bootstrap classloader, and should not be able to
+        // see into this codebase.
+        stream = ClassLoader.class.getResourceAsStream("/main-manifest.mf");
+        if (stream != null) {
+            System.out.println("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
+            failures++;
+        } else {
+            System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
         }
     }
 }
