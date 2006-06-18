@@ -106,7 +106,6 @@ public class Boot {
     	// Othewise, read the main class out of the manifest.
 		String mainClass = null, recording = null;
 		boolean record = false, jarnames = false;
-		boolean verbose = false;
 
 		{
 			// Default properties are in resource 'one-jar.properties'.
@@ -148,6 +147,7 @@ public class Boot {
 		
 		if (System.getProperties().containsKey(VERBOSE)) {
 			verbose = true;
+            info = true;
 		} 
 		if (System.getProperties().containsKey(INFO)) {
 			info = true;
@@ -189,10 +189,8 @@ public class Boot {
 			bootLoader.setRecord(record);
 			bootLoader.setFlatten(!jarnames);
 			bootLoader.setRecording(recording);
-			// Note: order of setInfo & setVerbose is significant, since verbose => info
-			// but not vice-versa.
 			bootLoader.setInfo(info);
-			bootLoader.setVerbose(verbose);
+            bootLoader.setVerbose(verbose);
 			bootLoader.load(null);
 			
 			// Read the "Wrap-Class-Loader" property from the wraploader jar file.
@@ -215,7 +213,7 @@ public class Boot {
 		loader.setRecord(record);
 		loader.setFlatten(!jarnames);
 		loader.setRecording(recording);
-		loader.setInfo(info);
+        loader.setInfo(info);
 		loader.setVerbose(verbose);
 		mainClass = loader.load(mainClass);
         

@@ -115,6 +115,15 @@ public class Main {
 		}
 		System.out.println();
 
+        try {
+            test.testServices();
+        } catch (Exception x) {
+            System.out.println("Test.testServices() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+
 		if (TEST_EXTERNAL) {
             try {
                 test.testExternal();

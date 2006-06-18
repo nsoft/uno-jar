@@ -4,6 +4,7 @@
 	<property name="src.dir" value="${basedir}/src" />
 	<property name="ant.dir" value="${basedir}/ant" />
 	<property name="example.dir" value="${basedir}/example" />
+	<property name="services.dir" value="${basedir}/services" />
 	<property name="build.dir" value="${basedir}/build" />
 	<property name="class.dir" value="${build.dir}/classes" />
 	<property name="dist.dir" value="${basedir}/dist" />
@@ -48,6 +49,9 @@
 		</javac>
 		<javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
 			<src path="${ant.dir}" />
+		</javac>
+		<javac destdir="${class.dir}" debug="on" deprecation="off" optimize="off">
+			<src path="${services.dir}" />
 		</javac>
 	</target>
 
@@ -183,7 +187,7 @@
 			</fileset>
 			<fileset dir="${jar.dir}">
 				<include name="main/main.jar" />
-				<include name="lib/util.jar" />
+				<include name="lib/*.jar" />
 			</fileset>
 			<fileset dir="${jar.dir}/detect">
 				<include name="wrap/wraploader.jar" />
@@ -216,8 +220,35 @@
 			</fileset>
 		</jar>
 	</target>
+	
+	<target name="build.services" depends="mkdirs">
+		<jar destfile="${jar.dir}/lib/english.jar">
+			<fileset dir="${class.dir}">
+				<include name="**/services/english/**"/>
+			</fileset>
+			<fileset dir="${services.dir}/english">
+				<include name="META-INF/**"/>
+			</fileset>
+		</jar>
+		<jar destfile="${jar.dir}/lib/french.jar">
+			<fileset dir="${class.dir}">
+				<include name="**/services/french/**"/>
+			</fileset>
+			<fileset dir="${services.dir}/french">
+				<include name="META-INF/**"/>
+			</fileset>
+		</jar>
+		<jar destfile="${jar.dir}/lib/german.jar">
+			<fileset dir="${class.dir}">
+				<include name="**/services/german/**"/>
+			</fileset>
+			<fileset dir="${services.dir}/german">
+				<include name="META-INF/**"/>
+			</fileset>
+		</jar>
+	</target>
 
-	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.extloader.jar,build.example.jar,build.example-ext.jar">
+	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.extloader.jar,build.example.jar,build.example-ext.jar,build.services">
 	</target>
 
 	<!-- Build the example jar using the one-jar-macro -->

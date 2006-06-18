@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -306,4 +307,23 @@ public class Test {
             System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
         }
     }
+    
+    public void testServices() throws IOException {
+        ClassLoader loader = getClass().getClassLoader();
+        Enumeration services = loader.getResources("META-INF/services/com.simontuffs.onejar.services.IHelloService");
+        int count = 0;
+        while (services.hasMoreElements()) {
+            System.out.println("testServices(): found " + services.nextElement());
+            count++;
+        }
+        if (count != 3) {
+            System.out.println("testServices(): incorrect number of services found: should be 3, was " + count);
+            System.out.println("testServices(): loader=" + loader);
+            failures++;
+        } else {
+            System.out.println("testServices(): OK: found 3 services");
+        }
+        
+    }
+    
 }

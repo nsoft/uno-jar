@@ -29,12 +29,17 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -111,6 +116,7 @@ public class JarClassLoader extends ClassLoader {
     protected Map byteCode = Collections.synchronizedMap(new HashMap());
     protected Map pdCache = Collections.synchronizedMap(new HashMap());
     protected Map binLibPath = Collections.synchronizedMap(new HashMap());
+    protected Set jarNames = Collections.synchronizedSet(new HashSet());
     
     protected boolean record = false, flatten = false, unpackFindResource = false;
     protected boolean verbose = false, info = false;
@@ -327,7 +333,9 @@ public class JarClassLoader extends ClassLoader {
                 } else if (name.endsWith(CLASS)) {
                     // A plain vanilla class file rooted at the top of the jar file.
 					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
-                    
+                } else {
+                    // A resource? 
+                   INFO("resource: " + jarFile.getName() + "!" + entry.getName());
                 }
                 if (!mainfound && mainClass == null) {
                 	// One last try to determine a main class.
@@ -391,9 +399,15 @@ public class JarClassLoader extends ClassLoader {
                 // to map resource lookups to either jar-local, or globally defined.
                 String localname = jar + "/" + entryName;
 				byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar, man));
+                // Keep a set of jar names so we can do multiple-resource lookup by name
+                // as in findResources().
+                jarNames.add(jar);
                 VERBOSE("cached bytes for local name " + localname);
+                // Only keep the first non-local entry: this is like classpath where the first
+                // to define wins.  
                 if (alreadyCached(entryName, jar, bytes)) return;
-				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar, man));
+
+                byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar, man));
                 VERBOSE("cached bytes for entry name " + entryName);
                 
             }
@@ -721,7 +735,7 @@ public class JarClassLoader extends ClassLoader {
     
     public void setVerbose(boolean $verbose) {
         verbose = $verbose;
-        info = verbose;
+        if (verbose) info = true;
     }
     
     public boolean getVerbose() {
@@ -758,6 +772,31 @@ public class JarClassLoader extends ClassLoader {
         }
         return null;
         
+    }
+    
+    public Enumeration findResources(String name) throws IOException {
+        INFO("findResources(" + name + ")");
+        INFO("findResources: looking in " + jarNames);
+        Iterator iter = jarNames.iterator();
+        final List resources = new ArrayList();
+        // Mangle name to match our dot separated format.  This still 
+        // seems a bit flakey to me.  TODO: revisit.
+        name = name.replace('/', '.');
+        while (iter.hasNext()) {
+            String resource = iter.next().toString() + "/" + name;
+            if (byteCode.containsKey(resource)) {
+                resources.add(new URL(Handler.PROTOCOL + ":" + resource));
+            }
+        }
+        final Iterator ri = resources.iterator();
+        return new Enumeration() {
+            public boolean hasMoreElements() {
+                return ri.hasNext();
+            }
+            public Object nextElement() {
+                return ri.next();
+            }
+        };
     }
     
     /**
