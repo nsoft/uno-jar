@@ -213,7 +213,7 @@
 			</fileset>
 			<fileset dir="${jar.dir}">
 				<include name="main/main.jar" />
-				<include name="lib/util.jar" />
+				<include name="lib/*.jar" />
 			</fileset>
 			<fileset dir="${jar.dir}/external">
 				<include name="wrap/wraploader.jar" />
