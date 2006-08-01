@@ -234,6 +234,12 @@ public class JarClassLoader extends ClassLoader {
                 // loaded out of a jar file, so there is only one jar-file on the
                 // classpath: ours!  So we open it.
                 jarName = System.getProperty(JAVA_CLASS_PATH);
+
+                // Fix from 'eleeptg' for OS-X problems: extract first entry from classpath 
+                // 'test.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar' 
+                if ((jarName!=null) && (jarName.indexOf(System.getProperty("path.separator")) > 0)) 
+                    jarName = jarName.substring(0, jarName.indexOf(System.getProperty("path.separator"))); 
+                
             }
             JarFile jarFile = new JarFile(jarName);
             Enumeration _enum = jarFile.entries();

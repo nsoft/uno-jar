@@ -159,6 +159,12 @@ public class Boot {
 	    	// Hack to obtain the name of this jar file.
 	    	String jar = System.getProperty(PROPERTY_PREFIX + "jarname"); 
             if (jar == null) jar = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
+
+            // Fix from 'eleeptg' for OS-X problems: extract first entry from classpath 
+            // 'test.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar' 
+            if ((jar!=null) && (jar.indexOf(System.getProperty("path.separator")) > 0)) 
+                jar = jar.substring(0, jar.indexOf(System.getProperty("path.separator"))); 
+            
 	    	JarFile jarFile = new JarFile(jar);
 	    	Manifest manifest = jarFile.getManifest();
 			Attributes attributes = manifest.getMainAttributes();
