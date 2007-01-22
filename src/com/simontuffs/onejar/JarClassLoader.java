@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2004, P. Simon Tuffs (simon@simontuffs.com)
+ * Copyright (c) 2004-2006, P. Simon Tuffs (simon@simontuffs.com)
  * All rights reserved.
  *
- * See full license at http://one-jar.sourceforge.net/one-jar-license.txt
+ * See the full license at http://www.simontuffs.com/one-jar/one-jar-license.html
  * This license is also included in the distributions of this software
  * under doc/one-jar-license.txt
  */
@@ -220,7 +220,7 @@ public class JarClassLoader extends ClassLoader {
     
     public String load(String mainClass) {
         // Hack: if there is a one-jar.jarname property, use it.
-        String jarname = System.getProperty(Boot.PROPERTY_PREFIX + "jarname");
+        String jarname = Boot.getMyJarName();
         return load(mainClass, jarname);
     }
     
@@ -230,16 +230,7 @@ public class JarClassLoader extends ClassLoader {
         }
         try {
             if (jarName == null) {
-                // Hack to get the lib directory entries.   We know we are being
-                // loaded out of a jar file, so there is only one jar-file on the
-                // classpath: ours!  So we open it.
-                jarName = System.getProperty(JAVA_CLASS_PATH);
-
-                // Fix from 'eleeptg' for OS-X problems: extract first entry from classpath 
-                // 'test.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar' 
-                if ((jarName!=null) && (jarName.indexOf(System.getProperty("path.separator")) > 0)) 
-                    jarName = jarName.substring(0, jarName.indexOf(System.getProperty("path.separator"))); 
-                
+                jarName = Boot.getMyJarName();
             }
             JarFile jarFile = new JarFile(jarName);
             Enumeration _enum = jarFile.entries();

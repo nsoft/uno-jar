@@ -2,20 +2,24 @@
  * Copyright (c) 2004, P. Simon Tuffs (simon@simontuffs.com)
  * All rights reserved.
  *
- * See full license at http://one-jar.sourceforge.net/one-jar-license.txt
+ * See the full license at http://www.simontuffs.com/one-jar/one-jar-license.html
  * This license is also included in the distributions of this software
  * under doc/one-jar-license.txt
  */	 
 
 package com.simontuffs.onejar;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
@@ -60,6 +64,7 @@ public class Boot {
 	public final static String INFO = PROPERTY_PREFIX + "info";
 	
 	protected static boolean info, verbose;
+    protected static String myJarName;
 
 	// Singleton loader.
 	protected static JarClassLoader loader = null;
@@ -156,19 +161,11 @@ public class Boot {
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
 		if (mainClass == null) {
-	    	// Hack to obtain the name of this jar file.
-	    	String jar = System.getProperty(PROPERTY_PREFIX + "jarname"); 
-            if (jar == null) jar = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
-
-            // Fix from 'eleeptg' for OS-X problems: extract first entry from classpath 
-            // 'test.jar:/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Classes/.compatibility/14compatibility.jar' 
-            if ((jar!=null) && (jar.indexOf(System.getProperty("path.separator")) > 0)) 
-                jar = jar.substring(0, jar.indexOf(System.getProperty("path.separator"))); 
-            
-	    	JarFile jarFile = new JarFile(jar);
-	    	Manifest manifest = jarFile.getManifest();
-			Attributes attributes = manifest.getMainAttributes();
-			mainClass = attributes.getValue(BOOT_CLASS);
+            String jar = getMyJarName();
+            JarFile jarFile = new JarFile(jar);
+            Manifest manifest = jarFile.getManifest();
+            Attributes attributes = manifest.getMainAttributes();
+            mainClass = attributes.getValue(BOOT_CLASS);
 		}
 		
 		if (mainClass == null) {
@@ -241,5 +238,56 @@ public class Boot {
     	
     	Method main = cls.getMethod("main", new Class[]{String[].class}); 
     	main.invoke(null, new Object[]{args});
+    }
+    
+    public static String getMyJarName() {
+        if (myJarName != null) {
+            return myJarName;
+        }
+        myJarName = System.getProperty(PROPERTY_PREFIX + "jarname"); 
+        if (myJarName == null) {
+            try {
+                // Hack to obtain the name of this jar file.
+                String jarname = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
+                // Open each Jar file looking for this class name.  This allows for
+                // JVM's that place more than the jar file on the classpath.
+                String jars[] =jarname.split(System.getProperty("path.separator"));
+                for (int i=0; i<jars.length; i++) {
+                    jarname = jars[i];
+                    // Allow for URL based paths, as well as file-based paths.  File
+                    InputStream is = null;
+                    try {
+                        is = new URL(jarname).openStream();
+                    } catch (MalformedURLException mux) {
+                        // Try a local file.
+                        try {
+                            is = new FileInputStream(jarname);
+                        } catch (IOException iox) {
+                            // Ignore...
+                            continue;
+                        }
+                    }
+                    JarEntry entry = findJarEntry(new JarInputStream(is), Boot.class.getName().replace('.', '/') + ".class");
+                    if (entry != null) {
+                        myJarName = jarname;
+                        break;
+                    }
+                }
+            } catch (Exception x) {
+                x.printStackTrace();
+                WARNING("jar=" + myJarName + " loaded from " + JarClassLoader.JAVA_CLASS_PATH + " (" + System.getProperty(JarClassLoader.JAVA_CLASS_PATH) + ")");
+            }
+        }
+        return myJarName;
+    }
+    
+    public static JarEntry findJarEntry(JarInputStream jis, String name) throws IOException {
+        JarEntry entry; ;
+        while ((entry = jis.getNextJarEntry()) != null) {
+            if (entry.getName().equals(name)) {
+                return entry;
+            }
+        }
+        return null;
     }
 }

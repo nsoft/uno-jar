@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <project>
-
+    <echo>Defining one-jar task</echo>
 	<taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" 
 		classpath="dist/one-jar-ant-${one-jar.version}.jar" onerror="report"/>
 

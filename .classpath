@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="ant"/>
-	<classpathentry output="bin/test" kind="src" path="test"/>
-	<classpathentry excluding="main/|util/" kind="src" path="example"/>
-	<classpathentry sourcepath="/apache-ant-1.6.2" kind="lib" path="lib/ant-1.6.2.jar"/>
+	<classpathentry kind="src" output="build/classes/src" path="src"/>
+	<classpathentry kind="src" output="build/classes/ant" path="ant"/>
+	<classpathentry kind="src" output="build/classes/test" path="test"/>
+	<classpathentry excluding="main/|util/" kind="src" output="build/classes/example" path="example"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.2.jar" sourcepath="/apache-ant-1.6.2"/>
 	<classpathentry kind="lib" path="lib/junit-3.8.1.jar"/>
-	<classpathentry excluding="META-INF/**" kind="src" path="services/english"/>
-	<classpathentry excluding="META-INF/**" kind="src" path="services/french"/>
-	<classpathentry excluding="META-INF/**" kind="src" path="services/german"/>
+	<classpathentry excluding="META-INF/**" kind="src" output="build/classes/services" path="services/english"/>
+	<classpathentry excluding="META-INF/**" kind="src" output="build/classes/services" path="services/french"/>
+	<classpathentry excluding="META-INF/**" kind="src" output="build/classes/services" path="services/german"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.4.2_04"/>
-	<classpathentry kind="output" path="build/classes"/>
+	<classpathentry kind="output" path="build/classes/test"/>
 </classpath>

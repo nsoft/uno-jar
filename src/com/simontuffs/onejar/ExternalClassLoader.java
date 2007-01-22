@@ -1,6 +1,10 @@
 /*
- * Created on May 22, 2005
+ * Copyright (c) 2004-2007, P. Simon Tuffs (simon@simontuffs.com)
+ * All rights reserved.
  *
+ * See the full license at http://www.simontuffs.com/one-jar/one-jar-license.html
+ * This license is also included in the distributions of this software
+ * under doc/one-jar-license.txt
  */
 package com.simontuffs.onejar;
 
