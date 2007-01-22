@@ -223,7 +223,6 @@ public class OneJarTask extends Jar {
 			                        		ZipEntry ze = new ZipEntry(dir);
 			                        		zout.putNextEntry(ze);
 			                        		zout.closeEntry();
-			                        		System.out.println("added dir=" + dir);
 			                        		entries.add(dir);
 			                        	}
 			                        }
