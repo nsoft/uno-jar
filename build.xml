@@ -287,8 +287,13 @@
 	<target name="one-jar-example-task" depends="build.boot.jar,build.ant.jar,build.example.jar">
 		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/boot-manifest.mf">
+			<fileset dir="${src.dir}">
+				<exclude name="**/Detect*" />
+				<exclude name="**/External*" />
+			</fileset>
 			<main manifest="${example.dir}/main/main-manifest.mf">
-				<fileset dir="${classes.dir}">
+				<!-- Construct main.jar from classes and source code -->
+				<fileset dir="${classes.dir}/example">
 					<include name="**/example/main/**" />
 					<include name="**/example/util/Duplicate*" />
 				</fileset>
@@ -303,9 +308,11 @@
 				</fileset>
 			</main>
 			<lib>
+				<!-- Pre-built library jars -->
 				<fileset file="${jar.dir}/lib/**" />
 			</lib>
 			<wrap>
+				<!-- Class-loader wrapper -->
 				<fileset file="${jar.dir}/detect/wrap/**" />
 			</wrap>
 		</one-jar>
