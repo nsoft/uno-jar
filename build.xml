@@ -256,7 +256,7 @@
 		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" />
 		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" manifest="${src.dir}/boot-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
 			<main>
-				<fileset dir="${classes.dir}">
+				<fileset dir="${classes.dir}/example">
 					<include name="**/example/main/**" />
 					<include name="**/example/util/Duplicate*" />
 				</fileset>
@@ -327,7 +327,8 @@
 
 	<!-- Test the distribution -->
 	<target name="test" depends="dist">
-		<junit fork="yes" showoutput="yes" printsummary="yes">
+		<echo>********** one-jar-example-${one-jar.version}.jar</echo>
+		<junit fork="yes" showoutput="no" printsummary="yes">
 			<jvmarg value="-Done-jar.verbose=true" />
 			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
 			<classpath>
@@ -335,8 +336,32 @@
 				<path location="${basedir}/bin/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest" />
-			<formatter type="plain" usefile="no" />
+			<test name="com.simontuffs.onejar.test.SelfTest" outfile="one-jar-SelfTest.txt" />
+			<formatter type="plain" usefile="yes" />
+		</junit>
+		<echo>********** one-jar-example-${one-jar.version}-task.jar</echo>
+		<junit fork="yes" showoutput="no" printsummary="yes">
+			<jvmarg value="-Done-jar.verbose=true" />
+			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}-task.jar" />
+			<classpath>
+				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+				<path location="${basedir}/bin/test" />
+			</classpath>
+
+			<test name="com.simontuffs.onejar.test.SelfTest" outfile="one-jar-SelfTest-task.txt"/>
+			<formatter type="plain" usefile="yes"/>
+		</junit>
+		<echo>********** one-jar-example-${one-jar.version}-macro.jar</echo>
+		<junit fork="yes" showoutput="no" printsummary="yes">
+			<jvmarg value="-Done-jar.verbose=true" />
+			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+			<classpath>
+				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}-macro.jar" />
+				<path location="${basedir}/bin/test" />
+			</classpath>
+
+			<test name="com.simontuffs.onejar.test.SelfTest" outfile="one-jar-SelfTest-macro.txt"/>
+			<formatter type="plain" usefile="yes"/>
 		</junit>
 	</target>
 
