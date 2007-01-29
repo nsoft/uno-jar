@@ -1,0 +1,3 @@
+Automatic File Expansion (file.txt)
+----------------------------------
+This file shows that top-level file in the One-Jar Archive can be expanded.

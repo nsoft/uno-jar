@@ -48,6 +48,7 @@ public class Boot {
 	 * be in any of the contained jar files.
 	 */
 	public final static String BOOT_CLASS = "Boot-Class";
+    public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
 	
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
 	public final static String MAIN_JAR = "main/main.jar";
@@ -165,7 +166,13 @@ public class Boot {
             JarFile jarFile = new JarFile(jar);
             Manifest manifest = jarFile.getManifest();
             Attributes attributes = manifest.getMainAttributes();
-            mainClass = attributes.getValue(BOOT_CLASS);
+            mainClass = attributes.getValue(ONE_JAR_MAIN_CLASS);
+            if (mainClass == null) {
+                mainClass = attributes.getValue(BOOT_CLASS);
+                if (mainClass != null) {
+                    WARNING("The manifest attribute " + BOOT_CLASS + " is deprecated in favor of the attribute " + ONE_JAR_MAIN_CLASS);
+                }
+            } 
 		}
 		
 		if (mainClass == null) {
@@ -179,7 +186,10 @@ public class Boot {
 				Manifest manifest = jis.getManifest();
 				Attributes attributes = manifest.getMainAttributes();
 				mainClass = attributes.getValue(Attributes.Name.MAIN_CLASS);
-			}
+			} else {
+			    // There is no main jar. Warning.
+                WARNING("Unable to locate " + MAIN_JAR + " in the JAR file " + getMyJarName());
+            }
 		}
 	
 		// Do we need to create a wrapping classloader?  Check for the
@@ -220,13 +230,13 @@ public class Boot {
 		loader.setVerbose(verbose);
 		mainClass = loader.load(mainClass);
         
-        if (mainClass == null) throw new Exception("main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + ")");
+        if (mainClass == null) throw new Exception("main class (" + mainClass + ") was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + "=<your.class.name>)");
 
     	// Guard against the main.jar pointing back to this
     	// class, and causing an infinite recursion.
         String bootClass = Boot.class.getName();
     	if (mainClass.equals(Boot.class.getName()))
-    		throw new Exception("main class would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
+    		throw new Exception("main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
     	
 		// Set the context classloader in case any classloaders delegate to it.
 		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which

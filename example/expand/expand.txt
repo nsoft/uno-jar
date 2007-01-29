@@ -1,0 +1,5 @@
+Automatic File Expansion (expand/expand.txt)
+--------------------------------------------
+This file was automatically expanded into the filesystem the first time that a One-Jar Archive
+is executed.
+

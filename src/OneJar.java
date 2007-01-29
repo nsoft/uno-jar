@@ -25,6 +25,10 @@ import com.simontuffs.onejar.Boot;
  * Its main role is in testing the behaviour of OneJar on platforms which mangle the classpath
  * when running with the first kind of command, but it can also be a useful alternative
  * execution mechanism.
+ * <p>Note: the same effect can be obtained by using the Boot class, albeit with more
+ * typing:
+ * <pre>
+ *   java -cp <one-jar.jar> com.simontuffs.onejar.Boot [args]
  * @author simon
  *
  */
@@ -40,12 +44,7 @@ public class OneJar {
     }
     
     public void run(String[] args) throws Exception {
-        // Scan the list of jar files for the jar file containing Boot.class.
-        System.out.println("classpath=" + System.getProperty("java.class.path"));
-        String jarname = Boot.getMyJarName();
-        System.out.println("jarname=" + jarname);
+        Boot.run(args);
     }
-    
-    
 
 }

@@ -15,16 +15,23 @@
  */
 package com.simontuffs.onejar.example.main;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 
 import javax.swing.ImageIcon;
 
+import com.simontuffs.onejar.Boot;
+import com.simontuffs.onejar.JarClassLoader;
 import com.simontuffs.onejar.example.external.External;
 import com.simontuffs.onejar.example.util.Util;
 
@@ -33,8 +40,9 @@ import com.simontuffs.onejar.example.util.Util;
  */
 public class Test {
     
-	public int failures = 0;
-
+    public Error cause;
+    public int failures;
+    
 	public Test() {
 		System.out.println("Test: loaded by " + this.getClass().getClassLoader());
 		System.out.println("Test: codesource is " + this.getClass().getProtectionDomain().getCodeSource().getLocation());
@@ -58,18 +66,25 @@ public class Test {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 19;
+        int count = 0, expected = 20;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("testLoadCodeSource(): entry=" + entry);
             count++;
 		}
         if (count != expected) {
-            System.out.println("testLoadCodeSource(): Error: Huh? Should find " + expected + " entries in codesource, found " + count);
-            failures++;
+            fail("testLoadCodeSource(): Error: Huh? Should find " + expected + " entries in codesource, found " + count);
         }
 	
 	}
+    
+    public void fail(String reason) throws Error {
+        cause = new Error(reason);
+        System.out.println("******************************************************************************************************************");
+        System.out.println("* fail: " + reason);
+        System.out.println("******************************************************************************************************************");
+        failures++;
+    }
 	
 	public void testDumpResource(String resource) throws Exception {
 		InputStream is = this.getClass().getResourceAsStream(resource);
@@ -117,8 +132,7 @@ public class Test {
 			name = "com.simontuffs.onejar.example.util.NonExistant";
 			System.out.println("testClassLoader(): loading " + name);
 			testLoader.loadClass(name);
-			System.out.println("testClassLoader(): Error: Huh?  Should not find " + name);
-			failures++;
+			fail("testClassLoader(): Error: Huh?  Should not find " + name);
 		} catch (ClassNotFoundException cnfx) {
 			System.out.println("testClassLoader(): not found " + name + " OK!");
 		}
@@ -127,8 +141,7 @@ public class Test {
 		name = "/com/simontuffs/onejar/example/util/Util.class";
 		InputStream is = testLoader.getResourceAsStream(name);
 		if (is == null) {
-			System.out.println("testClassLoader(): Error: Huh? Should find " + name + " as a resource");
-			failures++;
+			fail("testClassLoader(): Error: Huh? Should find " + name + " as a resource");
 		}
 			
 	}
@@ -141,8 +154,7 @@ public class Test {
 		InputStream is = url.openStream();
 		System.out.println("testClassURL(): Opened: " + url);
 		if (is == null) {
-			System.out.println("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
-			failures++;
+			fail("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
 		} else {
 			System.out.println("testClassURL(): OK.");
 		}
@@ -153,8 +165,7 @@ public class Test {
         System.out.println("testClassURL(): Opened: " + url);
 		is = url.openStream();
 		if (is == null) {
-			System.out.println("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
-			failures++;
+			fail("testClassURL(): Error: Huh? Should find " + resource + " as a resource");
 		} else {
 			System.out.println("testClassURL(): OK.");
 		}
@@ -174,8 +185,7 @@ public class Test {
         InputStream is = url.openStream();
         System.out.println("testResourceURL(): Opened: " + url);
         if (is == null) {
-            System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
-            failures++;
+            fail("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
         } else {
             System.out.println("testResourceURL(): OK.");
         }
@@ -185,13 +195,11 @@ public class Test {
         url = this.getClass().getResource(image);
         System.out.println("testResourceURL(): Opened: " + url);
         if (url == null) {
-            System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " using getResource()");
-            failures++;
+            fail("testResourceURL(): Error: Huh? Should find " + resource + " using getResource()");
         } else {
             is = url.openStream();
             if (is == null) {
-                System.out.println("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
-                failures++;
+                fail("testResourceURL(): Error: Huh? Should find " + resource + " as a resource");
             } else {
                 System.out.println("testResourceURL(): OK.");
             }
@@ -212,13 +220,11 @@ public class Test {
         URL url = this.getClass().getResource(image);
         System.out.println("testResourceRelativeURL(): Opened: " + url);
         if (url == null) {
-            System.out.println("testResourceRelativeURL(): Error: Huh? Should find " + image + " using getResource()");
-            failures++;
+            fail("testResourceRelativeURL(): Error: Huh? Should find " + image + " using getResource()");
         } else {
             InputStream is = url.openStream();
             if (is == null) {
-                System.out.println("testResourceRelativeURL(): Error: Huh? Should find " + image + " as a resource");
-                failures++;
+                fail("testResourceRelativeURL(): Error: Huh? Should find " + image + " as a resource");
             } else {
                 System.out.println("testResourceRelativeURL(): OK.");
             }
@@ -229,15 +235,13 @@ public class Test {
         String image = "button.mail.1.gif";
         URL url = this.getClass().getResource(image);
         if (url == null) {
-        	System.out.println("testImageIcon(): Error: unable to resolve url for image " + image + ": " + url);
-        	failures++;
+        	fail("testImageIcon(): Error: unable to resolve url for image " + image + ": " + url);
         	return;
         }
         System.out.println("testImageIcon(): loaded image url OK: " + url);
     	ImageIcon icon = new ImageIcon(url);
     	if (icon == null) {
-    		System.out.println("testImageIcon(): Error: unable to load icon from " + url);
-    		failures++;
+    		fail("testImageIcon(): Error: unable to load icon from " + url);
     		return;
     	}
     	System.out.println("testImageIcon(): loaded image OK: " + icon);
@@ -258,9 +262,8 @@ public class Test {
     public void testPackageName() {
         Package pkg = this.getClass().getPackage();
         if (pkg == null) {
-            System.out.println("testPackageName(): Error: package is null for " + this.getClass() + " loaded by " + 
+            fail("testPackageName(): Error: package is null for " + this.getClass() + " loaded by " + 
                 this.getClass().getClassLoader());
-            failures++;
             return;
         }
         String packagename = this.getClass().getPackage().getName();
@@ -268,8 +271,7 @@ public class Test {
         int last = expected.lastIndexOf(".");
         expected = expected.substring(0, last);
         if (!packagename.equals(expected)) {
-            System.out.println("testPackageName(): Error: Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
-            failures++;
+            fail("testPackageName(): Error: Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
         } else {
             System.out.println("testPackageName() ok: " + packagename);
         }
@@ -284,15 +286,13 @@ public class Test {
     public void testGetResourceAsStream() {
         InputStream stream = Test.class.getResourceAsStream("/main-manifest.mf");
         if (stream == null) {
-            System.out.println("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getResourceAsStream()");
-            failures++;
+            fail("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getResourceAsStream()");
         } else {
             System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getResourceAsStream()");
         }
         stream = Test.class.getClassLoader().getResourceAsStream("/main-manifest.mf");
         if (stream == null) {
-            System.out.println("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getClassloader().getResourceAsStream()");
-            failures++;
+            fail("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getClassloader().getResourceAsStream()");
         } else {
             System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getClassLoader().getResourceAsStream()");
         }
@@ -301,8 +301,7 @@ public class Test {
         // see into this codebase.
         stream = ClassLoader.class.getResourceAsStream("/main-manifest.mf");
         if (stream != null) {
-            System.out.println("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
-            failures++;
+            fail("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
         } else {
             System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
         }
@@ -317,12 +316,56 @@ public class Test {
             count++;
         }
         if (count != 3) {
-            System.out.println("testServices(): incorrect number of services found: should be 3, was " + count);
-            System.out.println("testServices(): loader=" + loader);
-            failures++;
+            fail("testServices(): incorrect number of services found: should be 3, was " + count + "\nloader=" + loader);
         } else {
             System.out.println("testServices(): OK: found 3 services");
         }
+        
+    }
+    
+    public void testExpanded() throws IOException {
+        // By the time we get here, the contents of the expand directory in the One-Jar file 
+        // should be present in the filesystem.  Verify this.
+        String jarName = Boot.getMyJarName();
+        JarFile jarFile = new JarFile(jarName);
+        Enumeration _enum = jarFile.entries();
+        Manifest manifest = jarFile.getManifest();
+        String paths[] = manifest.getMainAttributes().getValue(JarClassLoader.EXPAND).split(",");
+
+        System.out.println("testExpanded(): checking expanded files");
+        boolean missing = false;
+        while (_enum.hasMoreElements()) {
+            JarEntry entry = (JarEntry)_enum.nextElement();
+            String name = entry.getName();
+            if (JarClassLoader.shouldExpand(paths, entry.getName())) {
+                if (!new File(name).exists()) {
+                    System.out.println("testExpanded(): Unable to locate expanded file: " + name);
+                    missing = true;
+                } else {
+                    System.out.println("testExpanded(): Found: " + name);
+                }
+            }
+        }
+        // Test the reverse, for each entry in expandedPaths, there should be a file in the
+        // filesystem.
+        for (int i=0; i<paths.length; i++) {
+            String name = paths[i];
+            if (! new File(name).exists()) {
+                System.out.println("testExpanded(): Unable to locate expansion path: " + name);
+                missing = true;
+            }
+        }
+        
+        if (missing) {
+            fail("testExpanded(): missing expanded file");
+        }
+
+    }
+    
+    public void testHtmlAnchor() throws Exception {
+        URL url = new URL("/index.html#anchor");
+        InputStream is = url.openStream();
+        BufferedReader br = new BufferedReader(new InputStreamReader(is));
         
     }
     

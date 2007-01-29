@@ -38,5 +38,13 @@
 			</lib>
 		</one-jar>
 	</target>
+	
+	<target name="javahelp">
+		<jar destfile="${top.dir}/test/javahelp/browser-one-jar.jar">
+			<fileset dir="${top.dir}/test/javahelp/browser">
+				<include name="**"/>
+			</fileset>
+		</jar>
+	</target>
 
 </project>

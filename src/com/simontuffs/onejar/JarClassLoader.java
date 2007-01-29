@@ -257,26 +257,26 @@ public class JarClassLoader extends ClassLoader {
                 if (expandPaths != null) {
                     // TODO: Can't think of a better way to do this right now.  
                     // This code really doesn't need to be optimized anyway.
-                    for (int i=0; i<expandPaths.length; i++) {
-                        if (name.startsWith(expandPaths[i])) {
-                            File dest = new File(name);
-                            // Override if ZIP file is newer than existing.
-                            if (!dest.exists() || dest.lastModified() < entry.getTime()) {
-                                INFO("Expanding " + name);
-                                if (dest.exists()) INFO("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
-                                dest.getParentFile().mkdirs();
-                                VERBOSE("using jarFile.getInputStream(" + entry + ")");
-                                InputStream is = jarFile.getInputStream(entry);
-                                FileOutputStream os = new FileOutputStream(dest); 
-                                copy(is, os);
-                                is.close();
-                                os.close();
-                            } else {
-                                VERBOSE(name + " already expanded");
+                    if (shouldExpand(expandPaths, name)) {
+                        File dest = new File(name);
+                        // Override if ZIP file is newer than existing.
+                        if (!dest.exists() || dest.lastModified() < entry.getTime()) {
+                            INFO("Expanding " + name);
+                            if (dest.exists()) INFO("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
+                            File parent = dest.getParentFile();
+                            if (parent != null) {
+                                parent.mkdirs();
                             }
-                            expanded = true;
-                            break;
+                            VERBOSE("using jarFile.getInputStream(" + entry + ")");
+                            InputStream is = jarFile.getInputStream(entry);
+                            FileOutputStream os = new FileOutputStream(dest); 
+                            copy(is, os);
+                            is.close();
+                            os.close();
+                        } else {
+                            VERBOSE(name + " already expanded");
                         }
+                        expanded = true;
                     }
                 }
                 if (expanded) continue;
@@ -334,10 +334,6 @@ public class JarClassLoader extends ClassLoader {
                     // A resource? 
                    INFO("resource: " + jarFile.getName() + "!" + entry.getName());
                 }
-                if (!mainfound && mainClass == null) {
-                	// One last try to determine a main class.
-                	mainClass = manifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
-                }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
             // for determining a main class.
@@ -348,7 +344,14 @@ public class JarClassLoader extends ClassLoader {
         }
         return mainClass;
     }
-    
+
+    public static boolean shouldExpand(String expandPaths[], String name) {
+        for (int i=0; i<expandPaths.length; i++) {
+            if (name.startsWith(expandPaths[i])) return true;
+        }
+        return false;
+    }        
+
 	protected void loadByteCode(InputStream is, String jar, Manifest man) throws IOException {
 		loadByteCode(is, jar, null, man);
     }

@@ -15,6 +15,8 @@ TEST-com.simontuffs.onejar.test.SelfTest.txt
 .fatjar
 one-jar_fat.jar
 test.exe4j
-one-jar-SelfTest.txt.txt
-one-jar-SelfTest-macro.txt.txt
-one-jar-SelfTest-task.txt.txt
+file.txt
+one-jar-SelfTest-task.txt
+one-jar-SelfTest-macro.txt
+one-jar-SelfTest.txt
+one-jar-SelfTest-commandline.txt

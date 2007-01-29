@@ -136,7 +136,7 @@ public class Main {
         }
 
         failures += test.failures;
-
+        
         long end = new Date().getTime();
 		
 		System.out.println("Main: finished in " + (end - start) + " ms");
