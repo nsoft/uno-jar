@@ -106,6 +106,14 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testExpanded");
     }
     
+    public void testContentType() throws Exception {
+        Invoker.invoke(test, "testContentType");
+    }
+    
+    public void testHtmlAnchor() throws Exception {
+        Invoker.invoke(test, "testHtmlAnchor");
+    }
+    
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.
 

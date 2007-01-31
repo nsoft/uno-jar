@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -362,11 +363,23 @@ public class Test {
 
     }
     
+    public void testContentType() throws Exception {
+        String uri = "onejar:index.html";
+        URL url = new URL(uri);
+        URLConnection connection = url.openConnection();
+        String contenttype = connection.getContentType();
+        if (!contenttype.equals("text/html")) {
+            fail("Unexpected content type for " + uri + ": " + contenttype);
+        }
+    }
+    
     public void testHtmlAnchor() throws Exception {
-        URL url = new URL("/index.html#anchor");
+        String uri = "onejar:index.html#anchor";
+        URL url = new URL(uri);
         InputStream is = url.openStream();
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-        
+        if (is == null) {
+            fail("Unable to load anchored URL: " + uri);
+        }
     }
     
 }

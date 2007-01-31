@@ -11,6 +11,7 @@ package com.simontuffs.onejar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.FileNameMap;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
@@ -33,10 +34,18 @@ public class Handler extends URLStreamHandler {
 	 * @see java.net.URLStreamHandler#openConnection(java.net.URL)
 	 */
 	protected URLConnection openConnection(URL u) throws IOException {
-		final String resource = u.toString().substring(len);
+        System.out.println("openConnection(" + u + ")");
+		final String resource = u.getPath();
 		return new URLConnection(u) {
 			public void connect() {
 			}
+            public String getContentType() {
+                FileNameMap fileNameMap = java.net.URLConnection.getFileNameMap();
+                String contentType = fileNameMap.getContentTypeFor(resource);
+                if (contentType == null) 
+                    contentType = "text/plain";
+                return contentType;
+            }
 			public InputStream getInputStream() {
 				// Use the Boot classloader to get the resource.  There
 				// is only one per one-jar.

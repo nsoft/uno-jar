@@ -16,8 +16,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -57,13 +60,31 @@ public class Boot {
     public final static String WRAP_DIR = "wrap";
 	public final static String WRAP_JAR = "/" + WRAP_DIR + "/wraploader.jar";
 
+    // System properties.
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
 	public final static String RECORD = PROPERTY_PREFIX + "record";
 	public final static String JARNAMES = PROPERTY_PREFIX + "jar-names";
 	public final static String VERBOSE = PROPERTY_PREFIX + "verbose";
 	public final static String INFO = PROPERTY_PREFIX + "info";
+    
+    // Command-line arguments
+    public final static String HELP = "--help";
+    
+    public final static String[] HELP_PROPERTIES = {
+        MAIN_CLASS, "Specifies the name of the class which should be executed (via public static void main(String[])", 
+        RECORD,     "true:  Enables recording of the classes loaded by the application",
+        JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
+                    "false: Recorded classes are flattened into a single directory.  Duplicates are ignored (first wins)",
+        VERBOSE,    "true:  Print verbose classloading information", 
+        INFO,       "true:  Print informative classloading information"
+    };
 	
+    public final static String[] HELP_ARGUMENTS = {
+        HELP,       "Shows this message, then continues on to the actual application with this argument present",
+    };
+    
+    
 	protected static boolean info, verbose;
     protected static String myJarName;
 
@@ -107,7 +128,9 @@ public class Boot {
 	    		System.out.println(key + "=" + props.get(key));
 	    	}
 		}
-	    	
+        
+        help(args);
+        
     	// Is the main class specified on the command line?  If so, boot it.
     	// Othewise, read the main class out of the manifest.
 		String mainClass = null, recording = null;
@@ -141,21 +164,21 @@ public class Boot {
 		}		
 		// Process developer properties:
 		mainClass = System.getProperty(MAIN_CLASS);
-		if (System.getProperties().containsKey(RECORD)) {
+		if (getProperty(RECORD)) {
 			record = true;
 			recording = System.getProperty(RECORD);
 			if (recording.length() == 0) recording = null;
     	} 
-		if (System.getProperties().containsKey(JARNAMES)) {
+		if (getProperty(JARNAMES)) {
 			record = true;
 			jarnames = true;
 		}
 		
-		if (System.getProperties().containsKey(VERBOSE)) {
+		if (getProperty(VERBOSE)) {
 			verbose = true;
             info = true;
 		} 
-		if (System.getProperties().containsKey(INFO)) {
+		if (getProperty(INFO)) {
 			info = true;
 		} 
 
@@ -250,6 +273,10 @@ public class Boot {
     	main.invoke(null, new Object[]{args});
     }
     
+    public static boolean getProperty(String key) {
+        return new Boolean(System.getProperty(key)).booleanValue();
+    }
+    
     public static String getMyJarName() {
         if (myJarName != null) {
             return myJarName;
@@ -300,4 +327,54 @@ public class Boot {
         }
         return null;
     }
+    
+    public static int firstWidth(String[] table) {
+        int width = 0;
+        for (int i=0; i<table.length; i+=2) {
+            if (table[i].length() > width) width = table[i].length();
+        }
+        return width;
+    }
+    
+    public static String pad(String indent, String string, int width) {
+        StringBuffer buf = new StringBuffer();
+        buf.append(indent);
+        buf.append(string);
+        for (int i=0; i<width-string.length(); i++) {
+            buf.append(" ");
+        }
+        return buf.toString();
+    }
+    
+    public static String wrap(String indent, String string, int width) {
+        String padding = pad(indent, "", width);
+        string = string.replaceAll("\n", "\n" + padding);
+        return string;
+    }
+
+    public static void help(String args[]) {
+        // Check for arguments which matter to us.  Process them, but pass them through to the
+        // application too. (TODO: maybe make this passthrough optional).
+        Set arguments = new HashSet(Arrays.asList(args));
+        if (arguments.contains(HELP)) {
+            // Width of first column
+            
+            int width = firstWidth(HELP_ARGUMENTS);
+            System.out.println("One-Jar uses the following command-line arguments");
+            for (int i=0; i<HELP_ARGUMENTS.length; i++) {
+                System.out.print(pad("    ", HELP_ARGUMENTS[i++], width+1));
+                System.out.println(wrap("    ", HELP_ARGUMENTS[i], width+1));
+            }
+            System.out.println();
+            
+            width = firstWidth(HELP_PROPERTIES);
+            System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false>)");
+            for (int i=0; i<HELP_PROPERTIES.length; i++) {
+                System.out.print(pad("    ", HELP_PROPERTIES[i++], width+1));
+                System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));
+            }
+            System.out.println();
+        }
+    }
+    
 }

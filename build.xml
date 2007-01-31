@@ -23,6 +23,10 @@
     <property name="external.jar" value="${jar.dir}/external.jar" />
     <property name="wraploader.jar" value="${jar.dir}/detect/wrap/wraploader.jar" />
     <property name="extloader.jar" value="${jar.dir}/external/wrap/wraploader.jar" />
+ 
+    <!-- Build Control -->   
+    <property name="optimize" value="off"/>   
+    <property name="debug" value="on"/>   
 
     <target name="init">
         <tstamp />
@@ -42,22 +46,22 @@
 
     <!-- compile the source -->
     <target name="compile" depends="mkdirs">
-        <javac destdir="${classes.dir}/src" debug="on" deprecation="off" optimize="on">
+        <javac destdir="${classes.dir}/src" deprecation="off" optimize="${optimize}" debug="${debug}">
             <src path="${src.dir}" />
         </javac>
-        <javac destdir="${classes.dir}/example" debug="on" deprecation="off" optimize="on">
+        <javac destdir="${classes.dir}/example" deprecation="off" optimize="${optimize}" debug="${debug}">
             <src path="${example.dir}" />
             <classpath>
                 <path location="${classes.dir}/src"/>
             </classpath>
         </javac>
-        <javac destdir="${classes.dir}/ant" debug="on" deprecation="off" optimize="on">
+        <javac destdir="${classes.dir}/ant" deprecation="off" optimize="${optimize}" debug="${debug}">
             <src path="${ant.dir}" />
             <classpath>
                 <path location="${classes.dir}/src"/>
             </classpath>
         </javac>
-        <javac destdir="${classes.dir}/services" debug="on" deprecation="off" optimize="on">
+        <javac destdir="${classes.dir}/services" deprecation="off" optimize="${optimize}" debug="${debug}">
             <src path="${services.dir}" />
             <classpath>
                 <path location="${classes.dir}/example"/>
@@ -80,6 +84,7 @@
             <fileset dir="${example.dir}/main">
                 <include name="main-manifest.mf" />
                 <include name="duplicate.txt" />
+                <include name="index.html" />   
                 <include name="images/*" />
             </fileset>
         </jar>
