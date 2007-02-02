@@ -37,6 +37,19 @@ public class SelfTest extends TestCase {
         }
     }
     
+    // Renaming classes to help with JUnit test reporting.
+    public static class Task extends SelfTest {
+        public Task() throws Exception {
+            super();
+        }
+    }
+    
+    public static class Macro extends SelfTest {
+        public Macro() throws Exception {
+            super();
+        }
+    }
+    
     public static TestSuite suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(SelfTest.class);
@@ -112,6 +125,10 @@ public class SelfTest extends TestCase {
     
     public void testHtmlAnchor() throws Exception {
         Invoker.invoke(test, "testHtmlAnchor");
+    }
+    
+    public void testExpand() throws Exception {
+        Invoker.invoke(test, "testExpand");
     }
     
     // TODO: add self-test for loading native library.

@@ -15,13 +15,12 @@
  */
 package com.simontuffs.onejar.example.main;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -43,13 +42,16 @@ public class Test {
     
     public Error cause;
     public int failures;
+    public int count;
     
 	public Test() {
 		System.out.println("Test: loaded by " + this.getClass().getClassLoader());
 		System.out.println("Test: codesource is " + this.getClass().getProtectionDomain().getCodeSource().getLocation());
+        System.out.println("Test: java.class.path=" + System.getProperty("java.class.path"));
 	}
 	
 	public void testUseUtil() throws Exception {
+        count++;
 		Util util = new Util();
 		util.sayHello();
 		System.out.println();
@@ -61,13 +63,14 @@ public class Test {
 	// TODO: Hack the protection domains to use a custom protocol so we can 
 	// intercept and parse references to nested jars.  For example,  
 	public void testLoadCodeSource() throws Exception {
+        count++;
 		URL codesource = this.getClass().getProtectionDomain().getCodeSource().getLocation();
 		System.out.println("testLoadCodeSource(): dumping entries in " + codesource);
 		// Can we load from our own codesource (which is a jar file).
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 20;
+        int count = 0, expected = 21;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("testLoadCodeSource(): entry=" + entry);
@@ -88,6 +91,7 @@ public class Test {
     }
 	
 	public void testDumpResource(String resource) throws Exception {
+        count++;
 		InputStream is = this.getClass().getResourceAsStream(resource);
 		if (is == null) throw new Exception("testDumpResource: Unable to load resource " + resource);
 		System.out.println("Test.useResource(" + resource + ") OK");
@@ -122,6 +126,7 @@ public class Test {
 	}
 	
 	public void testClassLoader() throws ClassNotFoundException {
+        count++;
 		System.out.println("testClassLoader(): Creating new TestLoader()");
 		TestLoader testLoader = new TestLoader();
 		// Try it. If wrapped, it should succeed!
@@ -148,6 +153,7 @@ public class Test {
 	}
 	
 	public void testClassURL() throws IOException, MalformedURLException {
+        count++;
 		String className = "/com/simontuffs/onejar/example/main/Main.class";
 		String resource = "onejar:" + className;
 		System.out.println("testClassURL(): Opening onejar resource using new URL(" + resource + ")");
@@ -179,6 +185,7 @@ public class Test {
 	 * @throws MalformedURLException
 	 */
     public void testResourceURL() throws IOException, MalformedURLException {
+        count++;
         String image = "/images/button.mail.gif";
         String resource = "onejar:" + image;
         System.out.println("testResourceURL(): Opening onejar resource using new URL(" + resource + ")");
@@ -214,6 +221,7 @@ public class Test {
 	 * @throws MalformedURLException
 	 */
     public void testResourceRelativeURL() throws IOException, MalformedURLException {
+        count++;
         String image = "button.mail.1.gif";
         
         // Now do it using getResource().
@@ -233,6 +241,7 @@ public class Test {
     }
     
     public void testImageIcon() {
+        count++;
         String image = "button.mail.1.gif";
         URL url = this.getClass().getResource(image);
         if (url == null) {
@@ -253,7 +262,11 @@ public class Test {
      * the bootstrap loader, e.g. -Done-jar.cp=external.jar
      */
     public void testExternal() {
+        count++;
         External external = new External();
+        ClassLoader cl = external.getClass().getClassLoader();
+        System.out.println("testExternal(): " + "External: loaded by: " + cl);
+        System.out.println("testExternal(): " + "Codebase: " + external.getClass().getProtectionDomain().getCodeSource());
         external.external();
     }
     
@@ -261,6 +274,7 @@ public class Test {
      * Tests the ability to determine the package name for a one-jar loaded class.
      */
     public void testPackageName() {
+        count++;
         Package pkg = this.getClass().getPackage();
         if (pkg == null) {
             fail("testPackageName(): Error: package is null for " + this.getClass() + " loaded by " + 
@@ -285,6 +299,7 @@ public class Test {
      * which should not be necessary).
      */
     public void testGetResourceAsStream() {
+        count++;
         InputStream stream = Test.class.getResourceAsStream("/main-manifest.mf");
         if (stream == null) {
             fail("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getResourceAsStream()");
@@ -309,6 +324,7 @@ public class Test {
     }
     
     public void testServices() throws IOException {
+        count++;
         ClassLoader loader = getClass().getClassLoader();
         Enumeration services = loader.getResources("META-INF/services/com.simontuffs.onejar.services.IHelloService");
         int count = 0;
@@ -317,7 +333,7 @@ public class Test {
             count++;
         }
         if (count != 3) {
-            fail("testServices(): incorrect number of services found: should be 3, was " + count + "\nloader=" + loader);
+            fail("testServices(): incorrect number of services found: should be 3, was " + count + " loader=" + loader);
         } else {
             System.out.println("testServices(): OK: found 3 services");
         }
@@ -325,6 +341,7 @@ public class Test {
     }
     
     public void testExpanded() throws IOException {
+        count++;
         // By the time we get here, the contents of the expand directory in the One-Jar file 
         // should be present in the filesystem.  Verify this.
         String jarName = Boot.getMyJarName();
@@ -334,14 +351,16 @@ public class Test {
         String paths[] = manifest.getMainAttributes().getValue(JarClassLoader.EXPAND).split(",");
 
         System.out.println("testExpanded(): checking expanded files");
-        boolean missing = false;
+        String missing = "";
         while (_enum.hasMoreElements()) {
             JarEntry entry = (JarEntry)_enum.nextElement();
             String name = entry.getName();
             if (JarClassLoader.shouldExpand(paths, entry.getName())) {
                 if (!new File(name).exists()) {
                     System.out.println("testExpanded(): Unable to locate expanded file: " + name);
-                    missing = true;
+                    if (missing.length() > 0) 
+                        missing +=",";
+                    missing += name;
                 } else {
                     System.out.println("testExpanded(): Found: " + name);
                 }
@@ -353,17 +372,20 @@ public class Test {
             String name = paths[i];
             if (! new File(name).exists()) {
                 System.out.println("testExpanded(): Unable to locate expansion path: " + name);
-                missing = true;
+                if (missing.length() > 0) 
+                    missing +=",";
+                missing += name;
             }
         }
         
-        if (missing) {
-            fail("testExpanded(): missing expanded file");
+        if (missing.length() > 0) {
+            fail("testExpanded(): missing expanded file(s): " + missing);
         }
 
     }
     
     public void testContentType() throws Exception {
+        count++;
         String uri = "onejar:index.html";
         URL url = new URL(uri);
         URLConnection connection = url.openConnection();
@@ -374,11 +396,19 @@ public class Test {
     }
     
     public void testHtmlAnchor() throws Exception {
+        count++;
         String uri = "onejar:index.html#anchor";
         URL url = new URL(uri);
         InputStream is = url.openStream();
         if (is == null) {
             fail("Unable to load anchored URL: " + uri);
+        }
+    }
+    
+    public void testExpand() throws Exception {
+        count++;
+        if (!new File("expand").exists()) {
+            fail("expand directory does not exist");
         }
     }
     

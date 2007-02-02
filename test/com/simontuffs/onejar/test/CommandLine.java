@@ -30,4 +30,10 @@ public class CommandLine extends TestCase {
         Result result = Invoker.run("java -classpath dist/one-jar-example-0.96.jar OneJar");
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }
+    
+    public void testOneJarExt() throws Exception {
+        Result result = Invoker.run("java -classpath dist/one-jar-example-ext-0.96.jar OneJar");
+        assertTrue("Expected pass did not occur: " + result, result.status == 0);
+    }
+    
 }

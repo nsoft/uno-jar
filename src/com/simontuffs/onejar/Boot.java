@@ -98,6 +98,7 @@ public class Boot {
     public static void setClassLoader(JarClassLoader $loader) {
         if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
         loader = $loader;
+        setProperties(loader);
     }
 
 	protected static void VERBOSE(String message) {
@@ -133,9 +134,8 @@ public class Boot {
         
     	// Is the main class specified on the command line?  If so, boot it.
     	// Othewise, read the main class out of the manifest.
-		String mainClass = null, recording = null;
-		boolean record = false, jarnames = false;
-
+		String mainClass = null;
+		
 		{
 			// Default properties are in resource 'one-jar.properties'.
 			Properties properties = new Properties();
@@ -164,23 +164,6 @@ public class Boot {
 		}		
 		// Process developer properties:
 		mainClass = System.getProperty(MAIN_CLASS);
-		if (getProperty(RECORD)) {
-			record = true;
-			recording = System.getProperty(RECORD);
-			if (recording.length() == 0) recording = null;
-    	} 
-		if (getProperty(JARNAMES)) {
-			record = true;
-			jarnames = true;
-		}
-		
-		if (getProperty(VERBOSE)) {
-			verbose = true;
-            info = true;
-		} 
-		if (getProperty(INFO)) {
-			info = true;
-		} 
 
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
@@ -222,11 +205,7 @@ public class Boot {
 		if (url != null) {
 			// Wrap class loaders.
 			JarClassLoader bootLoader = new JarClassLoader(WRAP_DIR);
-			bootLoader.setRecord(record);
-			bootLoader.setFlatten(!jarnames);
-			bootLoader.setRecording(recording);
-			bootLoader.setInfo(info);
-            bootLoader.setVerbose(verbose);
+            setProperties(bootLoader);
 			bootLoader.load(null);
 			
 			// Read the "Wrap-Class-Loader" property from the wraploader jar file.
@@ -246,11 +225,7 @@ public class Boot {
 			INFO("using JarClassLoader");
 			loader = new JarClassLoader(Boot.class.getClassLoader());
 		}
-		loader.setRecord(record);
-		loader.setFlatten(!jarnames);
-		loader.setRecording(recording);
-        loader.setInfo(info);
-		loader.setVerbose(verbose);
+        setProperties(loader);
 		mainClass = loader.load(mainClass);
         
         if (mainClass == null) throw new Exception("main class (" + mainClass + ") was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + "=<your.class.name>)");
@@ -258,7 +233,7 @@ public class Boot {
     	// Guard against the main.jar pointing back to this
     	// class, and causing an infinite recursion.
         String bootClass = Boot.class.getName();
-    	if (mainClass.equals(Boot.class.getName()))
+    	if (mainClass.equals(bootClass))
     		throw new Exception("main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
     	
 		// Set the context classloader in case any classloaders delegate to it.
@@ -273,8 +248,27 @@ public class Boot {
     	main.invoke(null, new Object[]{args});
     }
     
+    public static void setProperties(IProperties jarloader) {
+        System.out.println("setProperties(" + jarloader + ")");
+        if (getProperty(RECORD)) {
+            jarloader.setRecord(true);
+            jarloader.setRecording(System.getProperty(RECORD));
+        } 
+        if (getProperty(JARNAMES)) {
+            jarloader.setRecord(true);
+            jarloader.setFlatten(false);
+        }
+        if (getProperty(VERBOSE)) {
+            jarloader.setVerbose(true);
+            jarloader.setInfo(true);
+        } 
+        if (getProperty(INFO)) {
+            jarloader.setInfo(true);
+        } 
+    }
+    
     public static boolean getProperty(String key) {
-        return new Boolean(System.getProperty(key)).booleanValue();
+        return new Boolean(System.getProperty(key, "false")).booleanValue();
     }
     
     public static String getMyJarName() {

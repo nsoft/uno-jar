@@ -63,7 +63,7 @@ import java.util.jar.Attributes.Name;
  * </ul> 
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
-public class JarClassLoader extends ClassLoader {
+public class JarClassLoader extends ClassLoader implements IProperties {
     
     public final static String JAVA_CLASS_PATH = "java.class.path";
     public final static String LIB_PREFIX = "lib/";
@@ -244,7 +244,6 @@ public class JarClassLoader extends ClassLoader {
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
             }
-            boolean mainfound = false;
             while (_enum.hasMoreElements()) {
                 JarEntry entry = (JarEntry)_enum.nextElement();
                 if (entry.isDirectory()) continue;
@@ -298,7 +297,6 @@ public class JarClassLoader extends ClassLoader {
                     
                     // Do we need to look for a main class?
                     if (jar.startsWith(MAIN_PREFIX)) {
-                    	mainfound = true;
                         if (mainClass == null) {
                             JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
                             Manifest m = jis.getManifest();

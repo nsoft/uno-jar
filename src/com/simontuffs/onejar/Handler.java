@@ -28,13 +28,10 @@ public class Handler extends URLStreamHandler {
 	 */
 	public static String PROTOCOL = "onejar";
 
-	protected int len = PROTOCOL.length()+1;
-	
 	/** 
 	 * @see java.net.URLStreamHandler#openConnection(java.net.URL)
 	 */
 	protected URLConnection openConnection(URL u) throws IOException {
-        System.out.println("openConnection(" + u + ")");
 		final String resource = u.getPath();
 		return new URLConnection(u) {
 			public void connect() {

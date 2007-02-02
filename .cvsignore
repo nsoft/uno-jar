@@ -11,12 +11,9 @@ build
 $jarplug.work
 contrib
 bin
-TEST-com.simontuffs.onejar.test.SelfTest.txt
 .fatjar
 one-jar_fat.jar
 test.exe4j
 file.txt
-one-jar-SelfTest-task.txt
-one-jar-SelfTest-macro.txt
-one-jar-SelfTest.txt
-one-jar-SelfTest-commandline.txt
+test-reports
+test-results

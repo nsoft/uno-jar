@@ -16,10 +16,13 @@ import java.util.Date;
  */
 public class Main {
     
-    // Do a test which requires an external jar on the boot classpath?
+    // Do a test     which requires an external jar on the boot classpath?
     public static boolean TEST_EXTERNAL = false;
 
     public static void main(String[] args) throws Exception {
+        
+        TEST_EXTERNAL = new Boolean(System.getProperty("one-jar.test.external", "false")).booleanValue();
+        
     	System.out.print("Main: " + Main.class.getName() + ".main(");
     	for (int i=0; i<args.length; i++) {
 			if (i > 0) System.out.print(" ");
@@ -124,7 +127,25 @@ public class Main {
         }
         System.out.println();
 
-		if (TEST_EXTERNAL) {
+        try {
+            test.testContentType();
+        } catch (Exception x) {
+            System.out.println("Test.testContentType() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+
+        try {
+            test.testHtmlAnchor();
+        } catch (Exception x) {
+            System.out.println("Test.testHtmlAnchor() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+
+        if (TEST_EXTERNAL) {
             try {
                 test.testExternal();
             } catch (Exception x) {
@@ -140,8 +161,8 @@ public class Main {
         long end = new Date().getTime();
 		
 		System.out.println("Main: finished in " + (end - start) + " ms");
-		String f = "failure" + (failures==0 || failures>2? "s": "");
-		System.out.println(failures + " " + f);
+		String f = "count=" + test.count + " failure" + (failures==0 || failures>2? "s": "") + "=" + failures;
+		System.out.println(f);
 		
     }
 }
