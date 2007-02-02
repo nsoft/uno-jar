@@ -22,7 +22,6 @@
 	<property name="util.jar" value="${jar.dir}/lib/util.jar" />
 	<property name="external.jar" value="${jar.dir}/expand/external.jar" />
 	<property name="wraploader.jar" value="${jar.dir}/detect/wrap/wraploader.jar" />
-	<property name="extloader.jar" value="${jar.dir}/external/wrap/wraploader.jar" />
 
 	<!-- Build Control -->
 	<property name="optimize" value="off" />
@@ -136,17 +135,6 @@
 		</jar>
 	</target>
 
-	<target name="build.extloader.jar">
-		<jar destfile="${extloader.jar}" manifest="${src.dir}/extloader.mf">
-			<fileset dir="${classes.dir}/src">
-				<include name="**/External*" />
-			</fileset>
-			<fileset dir="${src.dir}">
-				<include name="**/External*" />
-			</fileset>
-		</jar>
-	</target>
-
 	<target name="build.boot.jar" depends="compile">
 		<delete file="${boot.jar}" />
 		<jar destfile="${boot.jar}" manifest="${src.dir}/boot-manifest.mf">
@@ -154,7 +142,6 @@
 				<include name="com/**" />
 				<include name="OneJar.*" />
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<fileset dir="${src.dir}">
 				<include name="boot-manifest.mf" />
@@ -162,7 +149,6 @@
 				<include name="com/**" />
 				<exclude name="**/example/**" />
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="doc/*license.txt" />
@@ -193,11 +179,9 @@
 		<jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${classes.dir}/src">
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<fileset dir="${src.dir}">
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="doc/*license.txt" />
@@ -221,14 +205,12 @@
 		<jar destfile="${example-ext.jar}" manifest="${src.dir}/boot-manifest-external.mf">
 			<fileset dir="${classes.dir}/src">
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 				<exclude name="**/example/**" />
 			</fileset>
 			<fileset dir="${src.dir}">
 				<include name="com/**" />
 				<exclude name="**/example/**" />
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="doc/*license.txt" />
@@ -275,7 +257,7 @@
 		</jar>
 	</target>
 
-	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.extloader.jar,build.example.jar,build.example-ext.jar,build.services">
+	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.example.jar,build.example-ext.jar,build.services">
 	</target>
 
 	<!-- Build the example jar using the one-jar-macro -->
@@ -318,7 +300,6 @@
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${src.dir}">
 				<exclude name="**/Detect*" />
-				<exclude name="**/External*" />
 			</fileset>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 				<!-- Construct main.jar from classes and source code -->
