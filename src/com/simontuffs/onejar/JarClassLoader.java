@@ -861,43 +861,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected String findLibrary(String name) {
         String result = null; // By default, search the java.library.path for it
         
-        String binlibPrefix = "";
-        String binlibSuffix = "";
-        
-        String osName = System.getProperties().getProperty("os.name");
-        
-        /* Possible values 
-         AIX
-         Digital Unix
-         FreeBSD
-         HP UX
-         Irix
-         Linux
-         Mac OS
-         MPE/iX
-         Netware 4.11
-         OS/2
-         Solaris
-         Windows 2000
-         Windows 95
-         Windows 98
-         Windows NT
-         Windows XP
-         */
-        
-        if (osName.toLowerCase().startsWith("windows")) {
-            binlibPrefix = "";
-            binlibSuffix = ".dll";
-        } else if (osName.toLowerCase().startsWith("mac")) {
-            binlibPrefix = "lib";
-            binlibSuffix = ".jnilib";
-        } else { // Assume Linux/Unix
-            binlibPrefix = "lib";
-            binlibSuffix = ".so";
-        }
-        String osPrefixedName = binlibPrefix + name;
-        
-        String resourcePath = BINLIB_PREFIX + osPrefixedName + binlibSuffix;
+        String resourcePath = BINLIB_PREFIX + System.mapLibraryName(name);
         
         // If it isn't in the map, try to expand to temp and return the full path
         // otherwise, remain null so the java.library.path is searched.
@@ -908,9 +872,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         } else {
             
             // See if it's a resource in the JAR that can be extracted
+            String path = null;
             try {
+                int lastdot = resourcePath.lastIndexOf('.');
+                String suffix = null;
+                if (lastdot >= 0) {
+                    suffix = resourcePath.substring(lastdot);
+                }
                 InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
-                File tempNativeLib = File.createTempFile(osPrefixedName + "-", binlibSuffix);
+                File tempNativeLib = File.createTempFile(name + "-", suffix);
+                path = tempNativeLib.getAbsolutePath();
                 FileOutputStream os = new FileOutputStream(tempNativeLib);
                 copy(is, os);
                 os.close();
@@ -926,6 +897,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             } catch(Throwable e)  {
                 // Couldn't load the library
                 // Return null by default to search the java.library.path
+                WARNING("Unable to load native library: " + e);
             }
             
         }
