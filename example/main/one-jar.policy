@@ -1,0 +1,4 @@
+// Simple security policy: everything that comes out of our one-jar, is trusted.
+grant {
+	permission java.security.AllPermission;
+};

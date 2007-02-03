@@ -90,6 +90,7 @@
 				<include name="main-manifest.mf" />
 				<include name="duplicate.txt" />
 				<include name="index.html" />
+                <include name="one-jar.policy"/>            
 				<include name="images/*" />
 			</fileset>
 		</jar>
@@ -278,6 +279,7 @@
 					<include name="main-manifest.mf" />
 					<include name="duplicate.txt" />
 					<include name="index.html" />
+                    <include name="one-jar.policy"/>   
 					<include name="images/*" />
 				</fileset>
 			</main>
@@ -315,6 +317,7 @@
 					<include name="main-manifest.mf" />
 					<include name="duplicate.txt" />
 					<include name="index.html" />
+                    <include name="one-jar.policy"/>   
 					<include name="images/*" />
 				</fileset>
 			</main>
@@ -354,6 +357,8 @@
 		<antcall target="test.one-jar-example" />
 		<antcall target="test.one-jar-example-task" />
 		<antcall target="test.one-jar-example-macro" />
+        <antcall target="test.one-jar-example-ext" />
+        <antcall target="test.one-jar-example-secure" />
 		<antcall target="test.command-line" />
 		<antcall target="report" />
 	</target>
@@ -410,6 +415,20 @@
             </classpath>
 
             <test name="com.simontuffs.onejar.test.SelfTestExternal" outfile="test-results/one-jar-SelfTestExt" />
+            <formatter type="${formatter}" usefile="yes" />
+        </junit>
+    </target>
+    <target name="test.one-jar-example-secure" depends="dist,compile.tests">
+        <echo>********** one-jar-example-secure-${one-jar.version}.jar</echo>
+        <junit dir="dist" fork="yes" showoutput="no" printsummary="yes">
+            <jvmarg value="-Done-jar.verbose=true" />
+            <jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+            <classpath>
+                <fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+                <path location="${classes.dir}/test" />
+            </classpath>
+
+            <test name="com.simontuffs.onejar.test.SelfTestSecure" outfile="test-results/one-jar-SelfTestSecure" />
             <formatter type="${formatter}" usefile="yes" />
         </junit>
     </target>

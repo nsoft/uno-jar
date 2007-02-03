@@ -369,6 +369,18 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         int index = entryName.lastIndexOf('.');
         String type = entryName.substring(index+1);
         
+        // agattung: patch (for one-jar 0.95)
+        // add package handling to avoid NullPointer exceptions
+        // after calls to getPackage method of this ClassLoader
+        int index2 = entryName.lastIndexOf('.', index-1);
+        if (index2 > -1) {
+            String packageName = entryName.substring(0, index2);
+            if (getPackage(packageName) == null) {
+                definePackage(packageName, "", "", "", "", "", "", null);
+            }
+        }
+        // end patch
+        
         // Because we are doing stream processing, we don't know what
         // the size of the entries is.  So we store them dynamically.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

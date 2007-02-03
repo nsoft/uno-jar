@@ -44,10 +44,23 @@ public class Test {
     public int failures;
     public int count;
     
+    public final static String JAVA_SECURITY_POLICY = "java.security.policy";
+    
 	public Test() {
 		System.out.println("Test: loaded by " + this.getClass().getClassLoader());
 		System.out.println("Test: codesource is " + this.getClass().getProtectionDomain().getCodeSource().getLocation());
         System.out.println("Test: java.class.path=" + System.getProperty("java.class.path"));
+        boolean security = new Boolean(System.getProperty("one-jar.test.security", "false")).booleanValue();
+        if (security && System.getSecurityManager() == null) {
+            String policy = System.getProperty(JAVA_SECURITY_POLICY);
+            if (policy == null) {
+                // Allow invoker of the JVM to set policy file.
+                System.setProperty(JAVA_SECURITY_POLICY, "onejar:/one-jar.policy");
+            }
+            System.out.println("Test: java.security.policy=" + System.getProperty("java.security.policy"));
+            System.setSecurityManager(new SecurityManager());
+            System.out.println("Test: security manager installed: " + System.getSecurityManager());
+        }
 	}
 	
 	public void testUseUtil() throws Exception {
@@ -70,7 +83,7 @@ public class Test {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 21;
+        int count = 0, expected = 22;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("testLoadCodeSource(): entry=" + entry);

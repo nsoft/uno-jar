@@ -15,6 +15,7 @@ import java.net.FileNameMap;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.Permission;
 
 /**
  * @author simon@simontuffs.com
@@ -31,7 +32,7 @@ public class Handler extends URLStreamHandler {
 	/** 
 	 * @see java.net.URLStreamHandler#openConnection(java.net.URL)
 	 */
-	protected URLConnection openConnection(URL u) throws IOException {
+	protected URLConnection openConnection(final URL u) throws IOException {
 		final String resource = u.getPath();
 		return new URLConnection(u) {
 			public void connect() {
@@ -51,5 +52,5 @@ public class Handler extends URLStreamHandler {
 			}
 		};
 	}
-
+    
 }

@@ -77,7 +77,8 @@ public class SelfTest extends TestCase {
             Invoker.invoke(test, "testClassLoader");
             fail("test.testClassLoader() should throw ClassNotFoundException");
         } catch (InvocationTargetException ix) {
-            assertTrue(ix.getTargetException() instanceof ClassNotFoundException);
+            Throwable t = ix.getTargetException();
+            assertTrue("Exception " + t + " is not a ClassNotFoundException (expected)", t instanceof ClassNotFoundException);
             return;
         }
         fail("test.testClassLoader() should throw ClassNotFoundException");
