@@ -38,11 +38,7 @@ import com.simontuffs.onejar.example.util.Util;
 /**
  * @author simon@simontuffs.com
  */
-public class Test {
-    
-    public Error cause;
-    public int failures;
-    public int count;
+public class Test extends Testable {
     
     public final static String JAVA_SECURITY_POLICY = "java.security.policy";
     
@@ -95,15 +91,7 @@ public class Test {
 	
 	}
     
-    public void fail(String reason) throws Error {
-        cause = new Error(reason);
-        System.out.println("******************************************************************************************************************");
-        System.out.println("* fail: " + reason);
-        System.out.println("******************************************************************************************************************");
-        failures++;
-    }
-	
-	public void testDumpResource(String resource) throws Exception {
+    public void testDumpResource(String resource) throws Exception {
         count++;
 		InputStream is = this.getClass().getResourceAsStream(resource);
 		if (is == null) throw new Exception("testDumpResource: Unable to load resource " + resource);

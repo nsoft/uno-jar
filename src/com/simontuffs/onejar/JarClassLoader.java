@@ -886,6 +886,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 copy(is, os);
                 os.close();
                 
+                VERBOSE("Stored native library " + name + " at " + tempNativeLib);
+                
                 tempNativeLib.deleteOnExit();
                 
                 binLibPath.put(resourcePath, tempNativeLib.getPath());
