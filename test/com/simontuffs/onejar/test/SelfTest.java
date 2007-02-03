@@ -131,6 +131,10 @@ public class SelfTest extends TestCase {
     public void testExpand() throws Exception {
         Invoker.invoke(test, "testExpand");
     }
+
+    public void testLogging() throws Exception {
+        Invoker.invoke(test, "testLogging");
+    }
     
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.

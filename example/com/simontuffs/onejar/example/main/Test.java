@@ -27,6 +27,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.logging.Logger;
 
 import javax.swing.ImageIcon;
 
@@ -39,6 +40,9 @@ import com.simontuffs.onejar.example.util.Util;
  * @author simon@simontuffs.com
  */
 public class Test extends Testable {
+
+    // Make sure Java Logging works.
+    protected static Logger logger = Logger.getLogger(Test.class.getPackage().getName());
     
     public final static String JAVA_SECURITY_POLICY = "java.security.policy";
     
@@ -79,7 +83,7 @@ public class Test extends Testable {
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
 		JarInputStream jis = new JarInputStream(is);
         
-        int count = 0, expected = 22;
+        int count = 0, expected = 24;
 		JarEntry entry = null;
 		while ((entry = jis.getNextJarEntry()) != null) {
 			System.out.println("testLoadCodeSource(): entry=" + entry);
@@ -411,6 +415,11 @@ public class Test extends Testable {
         if (!new File("expand").exists()) {
             fail("expand directory does not exist");
         }
+    }
+    
+    public void testLogging() throws Exception {
+        count++;
+        logger.info("testLogging(): Logging is working");
     }
     
 }

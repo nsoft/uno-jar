@@ -10,12 +10,13 @@
 package com.simontuffs.onejar.example.util;
 
 import java.io.InputStream;
+import java.util.logging.Logger;
 
 /**
  * @author simon@simontuffs.com
  */
 public class Util {
-
+    
 	public Util() {
 		System.out.println("Util: loaded by " + this.getClass().getClassLoader());
 	}

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project>
-
+    <property name="one-jar.dir" value="."/>   
 	<taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" 
-		classpath="dist/one-jar-ant-${one-jar.version}.jar" onerror="report"/>
+		classpath="${one-jar.dir}/dist/one-jar-ant-${one-jar.version}.jar" onerror="report"/>
 
 </project>
