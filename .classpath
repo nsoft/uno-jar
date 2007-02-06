@@ -5,8 +5,11 @@
 	<classpathentry excluding="ant/|lib/|javahelp/|javahelp/classviewer/|javahelp/classviewer/" kind="src" output="build/eclipse/test" path="test"/>
 	<classpathentry excluding="main/|util/" kind="src" output="build/eclipse/example" path="example"/>
 	<classpathentry kind="src" path="sunw"/>
-	<classpathentry kind="lib" path="lib/ant-1.6.2.jar" sourcepath="/apache-ant-1.6.2"/>
+	<classpathentry kind="src" path="sdk/lib"/>
+	<classpathentry kind="src" path="sdk/sdk"/>
+	<classpathentry kind="src" path="sdk/src"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar" sourcepath="/org.junit"/>
+	<classpathentry kind="lib" path="lib/ant-1.6.5.jar" sourcepath="/org.apache.ant/lib/antsrc.zip"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/english"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/french"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/german"/>

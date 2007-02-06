@@ -15,7 +15,6 @@ import java.net.FileNameMap;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.security.Permission;
 
 /**
  * @author simon@simontuffs.com

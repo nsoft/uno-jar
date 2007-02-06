@@ -7,7 +7,9 @@
 	<property name="test.dir" value="${basedir}/test" />
 	<property name="services.dir" value="${basedir}/services" />
 	<property name="build.dir" value="${basedir}/build" />
-	<property name="classes.dir" value="${build.dir}/ant" />
+    <property name="sdk.dir" value="${basedir}/sdk" />   
+
+    <property name="classes.dir" value="${build.dir}/ant" />
 	<property name="dist.dir" value="${basedir}/dist" />
 	<property name="jar.dir" value="${build.dir}/jars" />
 
@@ -53,6 +55,7 @@
 		<javac destdir="${classes.dir}/src" deprecation="off" optimize="${optimize}" debug="${debug}">
 			<src path="${src.dir}" />
 		</javac>
+        <echo file="${classes.dir}/src/.version">${one-jar.version}</echo>
 		<javac destdir="${classes.dir}/example" deprecation="off" optimize="${optimize}" debug="${debug}">
 			<src path="${example.dir}" />
 			<classpath>
@@ -140,6 +143,7 @@
 		<delete file="${boot.jar}" />
 		<jar destfile="${boot.jar}" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${classes.dir}/src">
+                <include name=".version"/>            
 				<include name="com/**" />
 				<include name="OneJar.*" />
 				<exclude name="**/Detect*" />
@@ -159,7 +163,7 @@
 
 	<target name="build.ant.jar" depends="compile">
 		<copy file="${boot.jar}" tofile="${classes.dir}/ant/com/simontuffs/onejar/ant/one-jar-boot.jar" />
-		<jar destfile="${dist.dir}/one-jar-ant-${one-jar.version}.jar">
+		<jar destfile="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar">
 			<fileset dir="${classes.dir}/ant">
 				<include name="**" />
 			</fileset>
@@ -296,9 +300,14 @@
          one-jar-macro, but creates the target jar without using the filesystem
          for intermediates.
     -->
-	<import file="${dist.dir}/one-jar-task.xml" optional="true" />
+	<import file="${dist.dir}/one-jar-ant-task.xml" optional="true" />
 	<target name="one-jar-example-task" depends="build.boot.jar,build.ant.jar,build.example.jar">
 		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
+        <echo>
+          If this task fails, it is probably because the OneJarTask class has changed underneath us.
+          Re-execute the Ant command.
+        </echo>   
+    
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/boot-manifest.mf">
 			<fileset dir="${src.dir}">
 				<exclude name="**/Detect*" />
@@ -334,10 +343,15 @@
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task">
+	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
-		<copy file="${ant.dir}/one-jar-task.xml" todir="${dist.dir}" />
+		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
 	</target>
+ 
+    <target name="build.sdk">
+        <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
+        <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
+    </target>   
 
 	<property name="formatter" value="xml" />
 

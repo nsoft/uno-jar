@@ -47,10 +47,13 @@ public class OneJarTask extends Jar {
     public static final String META_INF_MANIFEST = "META-INF/MANIFEST.MF";
     public static final String MAIN_MAIN_JAR = "main/main.jar";
     public static final String CLASS = ".class";
+    public static final String NL = "\n";
     
     protected Main main;
     protected ZipFile onejar;
     protected File mainManifest;
+    protected String oneJarMainClass;
+    protected boolean manifestSet;
     
     public static class Main extends Task {
         protected List filesets = new ArrayList();
@@ -101,6 +104,10 @@ public class OneJarTask extends Jar {
     public void setMainManifest(File manifest) {
         mainManifest = manifest;
         getProject().log("setMainManifest(" + manifest + ")", Project.MSG_VERBOSE);
+    }
+    
+    public void setOneJarMainClass(String main) {
+        oneJarMainClass = main;
     }
 
     public void setOneJarBoot(ZipFile jar) {
@@ -190,12 +197,11 @@ public class OneJarTask extends Jar {
 	                // Write the manifest file.
 	                ZipEntry m = new ZipEntry(META_INF_MANIFEST);
 	                zout.putNextEntry(m);
-	                copy("Created-By: One-Jar 0.96 Ant taskdef\n", zout);
 	                if (main.manifest != null) {
 	                    copy(new FileInputStream(main.manifest), zout);
 	                } else if (mainManifest != null) {
 	                    copy(new FileInputStream(mainManifest), zout);
-	                }
+                    }
 	                zout.closeEntry();
 	                // Now the rest of the main.jar entries
 	                while (iter.hasNext()) {
@@ -239,10 +245,10 @@ public class OneJarTask extends Jar {
 	                    }
 	                }
 	                zout.close();
-	                synchronized(this) {
-	                    done = true;
-	                    notify();
-	                }
+                    synchronized(this) {
+                        done = true;
+                        notify();
+                    }
 	            } catch (IOException iox) {
 	                throw new BuildException(iox);
 	            }
@@ -276,11 +282,22 @@ public class OneJarTask extends Jar {
         copy(bais, os);
     }
     
+    public void setManifest(File manifestFile) {
+        super.setManifest(manifestFile);
+        manifestSet = true;
+    }
+    
     protected void initZipOutputStream(ZipOutputStream zOut) throws IOException, BuildException {
         
         // ByteArrayInputStream devnull = new ByteArrayInputStream(new byte[0]);
         // super.zipFile(devnull, zOut, "main", System.currentTimeMillis(), null, ZipFileSet.DEFAULT_DIR_MODE);
 
+        if (main == null) 
+            throw new BuildException("No <main> element found in the <one-jar> task!");
+        
+        if (!manifestSet) 
+            throw new BuildException("No 'manifest' attribute was specified for the <one-jar> task");
+        
         // main/main.jar
         FileSetPump pump = new FileSetPump(MAIN_MAIN_JAR);
         pump.start();
@@ -303,11 +320,14 @@ public class OneJarTask extends Jar {
             java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
             Iterator iter = jattributes.keySet().iterator();
         	try {
+                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.96 Ant taskdef"));
                 while (iter.hasNext()) {
                     String key = ((java.util.jar.Attributes.Name)iter.next()).toString();
                     String value = jattributes.getValue(key);
-                    getProject().log("manifest: " + key + "=" + value, Project.MSG_DEBUG);
-                    manifest.addConfiguredAttribute(new Attribute(key, value));
+                    if (!key.equals("Created-By")) {
+                        getProject().log("manifest: " + key + "=" + value, Project.MSG_DEBUG);
+                        manifest.addConfiguredAttribute(new Attribute(key, value));
+                    }
                 }
         		super.addConfiguredManifest(manifest);
         	} catch (ManifestException mx) {
@@ -315,7 +335,7 @@ public class OneJarTask extends Jar {
         	}
         	ZipEntry entry = jis.getNextEntry();
         	while (entry != null) {
-        		if (entry.getName().endsWith(CLASS)) {
+        		if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version")) {
                     getProject().log("entry=" + entry.getName(), Project.MSG_DEBUG);
         			zOut.putNextEntry(new org.apache.tools.zip.ZipEntry(entry));
                     copy(jis, zOut);

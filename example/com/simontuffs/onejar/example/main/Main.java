@@ -70,7 +70,13 @@ public class Main {
 		}
 		System.out.println();
 
-		test.testLoadCodeSource();
+        try {
+    		test.testLoadCodeSource();
+        } catch (Exception x) {
+            System.out.println("test.testLoadCoadSource() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
 		System.out.println();
 
 		try {
@@ -156,6 +162,51 @@ public class Main {
             System.out.println();
         }
 
+        try {
+            test.testExpand();
+        } catch (Exception x) {
+            System.out.println("Test.testExpand() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+        
+        try {
+            test.testExpanded();
+        } catch (Exception x) {
+            System.out.println("Test.testExpanded() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+        
+        try {
+            test.testGetResourceAsStream();
+        } catch (Exception x) {
+            System.out.println("Test.testGetResourceAsStream() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+
+        try {
+            test.testLogging();
+        } catch (Exception x) {
+            System.out.println("Test.testLogging() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+        
+        try {
+            test.testPackageName();
+        } catch (Exception x) {
+            System.out.println("Test.testPackageName() failed: " + x);
+            x.printStackTrace();
+            failures++;
+        }
+        System.out.println();
+        
         failures += test.failures;
         
         long end = new Date().getTime();

@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
@@ -408,6 +407,7 @@ public class Test extends Testable {
         if (is == null) {
             fail("Unable to load anchored URL: " + uri);
         }
+        System.out.println("testHtmlAnchor(): found URL with anchor OK: " + uri);
     }
     
     public void testExpand() throws Exception {
@@ -415,6 +415,7 @@ public class Test extends Testable {
         if (!new File("expand").exists()) {
             fail("expand directory does not exist");
         }
+        System.out.println("testExpand(): found 'expand' OK");
     }
     
     public void testLogging() throws Exception {

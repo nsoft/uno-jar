@@ -10,7 +10,6 @@
 package com.simontuffs.onejar.example.util;
 
 import java.io.InputStream;
-import java.util.logging.Logger;
 
 /**
  * @author simon@simontuffs.com

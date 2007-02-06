@@ -73,6 +73,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String TMP = "tmp";
     public final static String UNPACK = "unpack";
     public final static String EXPAND = "One-Jar-Expand";
+    public final static String SHOW_EXPAND = "One-Jar-Show-Expand";
     public final static String CLASS = ".class";
     
     public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
@@ -109,6 +110,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     protected void INFO(String message) {
         if (info) System.out.println(PREFIX() + "Info: " + NAME() + message);
+    }
+    
+    protected void PRINTLN(String message) {
+        System.out.println(message);
     }
     
     // Synchronize for thread safety.  This is less important until we
@@ -244,6 +249,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
             }
+            boolean showexpand = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(SHOW_EXPAND));
             while (_enum.hasMoreElements()) {
                 JarEntry entry = (JarEntry)_enum.nextElement();
                 if (entry.isDirectory()) continue;
@@ -251,7 +257,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // The META-INF/MANIFEST.MF file can contain a property which names
                 // directories in the JAR to be expanded (comma separated). For example:
                 // One-Jar-Expand: build,tmp,webapps
-                boolean expanded = false;
                 String name = entry.getName();
                 if (expandPaths != null) {
                     // TODO: Can't think of a better way to do this right now.  
@@ -260,7 +265,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                         File dest = new File(name);
                         // Override if ZIP file is newer than existing.
                         if (!dest.exists() || dest.lastModified() < entry.getTime()) {
-                            INFO("Expanding " + name);
+                            String msg = "Expanding:  " + name;
+                            if (showexpand) {
+                                PRINTLN(msg);
+                            } else {
+                                INFO(msg);
+                            }
                             if (dest.exists()) INFO("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
                             File parent = dest.getParentFile();
                             if (parent != null) {
@@ -273,12 +283,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             is.close();
                             os.close();
                         } else {
-                            VERBOSE(name + " already expanded");
+                            String msg = "Up-to-date: " + name;
+                            if (showexpand) {
+                                PRINTLN(msg);
+                            } else {
+                                VERBOSE(msg);
+                            }
                         }
-                        expanded = true;
                     }
                 }
-                if (expanded) continue;
                 
                 String jar = entry.getName();
                 if (wrapDir != null && jar.startsWith(wrapDir) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
@@ -872,7 +885,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         } else {
             
             // See if it's a resource in the JAR that can be extracted
-            String path = null;
             try {
                 int lastdot = resourcePath.lastIndexOf('.');
                 String suffix = null;
@@ -881,7 +893,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 }
                 InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
                 File tempNativeLib = File.createTempFile(name + "-", suffix);
-                path = tempNativeLib.getAbsolutePath();
                 FileOutputStream os = new FileOutputStream(tempNativeLib);
                 copy(is, os);
                 os.close();

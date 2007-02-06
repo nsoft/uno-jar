@@ -1,0 +1,82 @@
+<project name="one-jar-sdk" default="sdk">
+
+    <property name="one-jar.version" value="0.96"/>
+    <property name="one-jar.dist.dir" value="${basedir}"/>   
+    
+    <property name="src.dir" location="${basedir}/src"/>
+    <property name="lib.dir" location="${basedir}/lib"/>
+    <property name="sdk.dir" location="${basedir}/sdk"/>
+    <property name="build.dir" location="${basedir}/build"/>   
+    
+    <property name="classes.dir" location="${basedir}/classes"/>   
+ 
+    <target name="init">
+        <mkdir dir="${src.dir}"/>   
+        <mkdir dir="${lib.dir}"/>   
+        <mkdir dir="${classes.dir}/lib"/>   
+        <mkdir dir="${classes.dir}/src"/>   
+        <mkdir dir="${build.dir}"/>   
+    </target>   
+    
+    <import file="one-jar-ant-task.xml"/>   
+ 
+    <target name="hello" depends="init">
+        <!-- Build lib.jar -->   
+        <javac destdir="${classes.dir}/lib">
+            <src path="${lib.dir}" />
+        </javac>
+        <jar destfile="${build.dir}/lib.jar" >
+            <fileset dir="${classes.dir}/lib"/>
+        </jar>   
+        <!-- Build classes for main.jar -->   
+        <javac destdir="${classes.dir}/src">
+            <src path="${src.dir}" />
+            <classpath path="${build.dir}/lib.jar"/>   
+        </javac>
+        <!-- Construct the One-JAR file -->   
+        <one-jar destfile="hello.jar" manifest="hello.mf">
+            <main>
+                <!-- Construct main.jar from classes and source code -->
+                <fileset dir="${classes.dir}/src"/>
+            </main>
+            <lib>
+                <fileset file="${build.dir}/lib.jar" />
+            </lib>
+        </one-jar>
+        <echo>
+          Now you can run the Hello One-JAR example using 
+          $ java -jar hello.jar
+        </echo>   
+           
+    </target>
+ 
+    <target name="sdk">
+        <!-- Rebuild this SDK using the One-JAR task. -->   
+        <mkdir dir="${classes.dir}/sdk"/>   
+        <javac destdir="${classes.dir}/sdk">
+            <src path="${sdk.dir}" />
+        </javac>
+        <delete file="one-jar-sdk-${one-jar.version}.jar"/>
+        <one-jar destfile="one-jar-sdk-${one-jar.version}.jar" manifest="one-jar-sdk.mf">
+            <fileset dir=".">
+                <include name="one-jar-ant-${one-jar.version}.jar"/>   
+                <include name="src/**"/>   
+                <include name="lib/**"/>   
+                <include name="sdk/**"/>   
+                <include name="build.xml"/>   
+                <include name="one-jar-ant-task*"/>   
+                <include name="*.mf"/>   
+                <include name=".*"/>   
+            </fileset>
+            <main>
+                <fileset dir="${classes.dir}/sdk"/>
+            </main>
+        </one-jar> 
+    </target>   
+ 
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${build.dir}"/>
+    </target>   
+    
+</project>

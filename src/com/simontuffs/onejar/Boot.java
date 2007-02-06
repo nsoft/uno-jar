@@ -9,9 +9,11 @@
 
 package com.simontuffs.onejar;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -69,7 +71,8 @@ public class Boot {
 	public final static String INFO = PROPERTY_PREFIX + "info";
     
     // Command-line arguments
-    public final static String HELP = "--help";
+    public final static String HELP = "--one-jar-help";
+    public final static String VERSION = "--one-jar-version";
     
     public final static String[] HELP_PROPERTIES = {
         MAIN_CLASS, "Specifies the name of the class which should be executed (via public static void main(String[])", 
@@ -81,7 +84,8 @@ public class Boot {
     };
 	
     public final static String[] HELP_ARGUMENTS = {
-        HELP,       "Shows this message, then continues on to the actual application with this argument present",
+        HELP,       "Shows this message, then exits.",
+        VERSION,    "Shows the version of One-JAR, then exits."
     };
     
     
@@ -130,7 +134,7 @@ public class Boot {
 	    	}
 		}
         
-        help(args);
+        processArgs(args);
         
     	// Is the main class specified on the command line?  If so, boot it.
     	// Othewise, read the main class out of the manifest.
@@ -249,7 +253,7 @@ public class Boot {
     }
     
     public static void setProperties(IProperties jarloader) {
-        System.out.println("setProperties(" + jarloader + ")");
+        INFO("setProperties(" + jarloader + ")");
         if (getProperty(RECORD)) {
             jarloader.setRecord(true);
             jarloader.setRecording(System.getProperty(RECORD));
@@ -346,14 +350,14 @@ public class Boot {
         return string;
     }
 
-    public static void help(String args[]) {
+    public static void processArgs(String args[]) throws Exception {
         // Check for arguments which matter to us.  Process them, but pass them through to the
         // application too. (TODO: maybe make this passthrough optional).
         Set arguments = new HashSet(Arrays.asList(args));
         if (arguments.contains(HELP)) {
+            int width = firstWidth(HELP_ARGUMENTS);
             // Width of first column
             
-            int width = firstWidth(HELP_ARGUMENTS);
             System.out.println("One-Jar uses the following command-line arguments");
             for (int i=0; i<HELP_ARGUMENTS.length; i++) {
                 System.out.print(pad("    ", HELP_ARGUMENTS[i++], width+1));
@@ -368,6 +372,12 @@ public class Boot {
                 System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));
             }
             System.out.println();
+            System.exit(0);
+        } else if (arguments.contains(VERSION)) {
+            InputStream is = Boot.class.getResourceAsStream("/.version");
+            String version = new BufferedReader(new InputStreamReader(is)).readLine();
+            System.out.println("One-JAR version " + version);
+            System.exit(0);
         }
     }
     
