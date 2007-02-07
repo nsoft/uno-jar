@@ -366,7 +366,7 @@ public class Boot {
             System.out.println();
             
             width = firstWidth(HELP_PROPERTIES);
-            System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false>)");
+            System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false|string>)");
             for (int i=0; i<HELP_PROPERTIES.length; i++) {
                 System.out.print(pad("    ", HELP_PROPERTIES[i++], width+1));
                 System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));

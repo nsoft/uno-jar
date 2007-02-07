@@ -7,11 +7,11 @@
 <table align="center" cellpadding="20">
 	<tr>
 		<td><a
-			href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.95.jar?download">
-		<img src="download-examples.jpg" border="0"
-			alt="download one-jar examples" /></a></td>
+			href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">
+		<img src="download-sdk.gif" border="0"
+			alt="download one-jar SDK" /></a></td>
 		<td><a href="http://www.sourceforge.net/projects/one-jar"
-			target="_blank"> <img src="one-jar.jpg" border="0"
+			target="_blank"> <img src="one-jar.gif" border="0"
 			alt="one-jar at sourceforge.net" /> </a></td>
 		<td><a href="http://www.simontuffs.com" target="_blank"> <img
 			src="simontuffs.com.jpg" border="0" alt="simontuffs.com" /> </a></td>
@@ -44,8 +44,8 @@ following syntax:
 java -jar <i>jarname.jar</i>
 </pre>
 The only requirement of the <i>jarname.jar</i> file is that it contains a manifest attribute
-with the key <code>Main-Class</code>.  Suppose your application entry point is the class
-<code>com.mydomain.mypackage.Main</code>.  You would add the following line to the <code>META-INF/MANIFEST.MF</code>
+with the key <code>Main-Class</code> a main class to run.  Suppose the application entry point is the class
+<code>com.mydomain.mypackage.Main</code>.  Add the following line to the <code>META-INF/MANIFEST.MF</code>
 file:
 
 <pre>
@@ -53,8 +53,8 @@ Main-Class: com.mydomain.mypackage.Main
 </pre>
 
 So far so good.  But, here's where the problems usually start.  Any non-trivial Java application 
-is going to rely on any number of supporting Jar files.  For example, if you are using the Apache
-Commons Logging capabilty to do logging your application will need to have the <code>commons-logging.jar</code>
+is going to rely on any number of supporting Jar files.  For example, using the Apache
+Commons Logging capabilty to do logging an application will need to have the <code>commons-logging.jar</code>
 file on its classpath.
 <p>
 Most developers reasonably assume that putting such a Jar file into their own Jar file, and adding a <code>Class-Path</code>
@@ -78,7 +78,7 @@ delivering an application in a single Jar file.
 One-Jar uses a classloader which knows how to load classes and resources from Jar files inside a Jar file.  To help provide some
 structure to the classloading process, the One-Jar <code>JarClassLoader</code> looks for a main program inside
 a <code>main</code> directory in the Jar file, and looks for supporting Jar files inside a <code>lib</code> directory.
-Here is what our candidate Jar file would look like set up to run under One-Jar:
+Here is what a candidate Jar file would look like set up to run under One-Jar:
 
 <pre>
 jarname.jar
@@ -96,17 +96,17 @@ jarname.jar
 | | etc.
 | 
 </pre>
-That's pretty much all there is to it.  You wrap your main class in a file called <code>main.jar</code>, put it in an entry
-called <code>main</code>, likewise you put your supporting Jar files under a directory called <code>lib</code>, 
+That's pretty much all there is to it.  Wrap the main class in a file called <code>main.jar</code>, put it in a JAR folder
+called <code>main</code>, likewise put supporting Jar files under a folder called <code>lib</code>, 
 change the top-level <code>Main-Class</code> to point to the bootstrap classloader from the One-Jar package, 
-and then point to your main class with a new attributes <code>One-Jar-Main-Class</code>.   Don't worry, there's
-an Ant task that will do this for you which I'll get to in a moment.  But first you may be interested in running
-an application build with One-Jar <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.96.jar?download">here</a>
+and then point to main class with a new attributes <code>One-Jar-Main-Class</code>.   Don't worry, there's
+an Ant task that will do this, which I'll get to in a moment.  But first try running
+an application build with One-Jar <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.96.jar?download">here</a>.
 Download this application and run it using <code>java -jar one-jar-example-0.96.jar</code>.  Then try it with 
 verbose mode: <code>java -Done-jar.verbose=true -jar one-jar-example-0.96.jar</code> to get a detailed look at what's
 going on in the classloader.
 
-<p>This is roughly what you will see when you run the demo:
+<p>The demo will produce an output similar to this:
 <pre>
 $ java -jar one-jar-example-0.96.jar
 Main: com.simontuffs.onejar.example.main.Main.main()
@@ -122,9 +122,10 @@ Util.sayHello()
 <pre>
 $ java -jar one-jar-example-0.96.jar --one-jar-help
 One-Jar uses the following command-line arguments
-    --one-jar-help Shows this message, then exits.
-
-One-Jar uses the following VM properties (-D<property>=<true|false>)
+    --one-jar-help    Shows this message, then exits.
+    --one-jar-version Shows the version of One-JAR, then exits.
+    
+One-Jar uses the following VM properties (-D&lt;property&gt;=&lt;true|false|string&gt;)
     one-jar.main-class Specifies the name of the class which should be executed (via public static void main(String[])
     one-jar.record     true:  Enables recording of the classes loaded by the application
     one-jar.jar-names  true:  Recorded classes are kept in directories corresponding to their jar names.
@@ -154,9 +155,9 @@ JarClassLoader: Info: resource: one-jar-example-0.96.jar!boot-manifest-external.
 This diagnostic output can prove useful when trying to debug class-loading issues.
 
 <h2>Getting Started</h2>
-If you want to build your application using One-Jar, download the <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">One-Jar Software Developers Kit</a>.
-The kit is a One-Jar executable, which contains all the pieces needed to assemble One-Jar applications (and can also re-assemble itself).  When you 
-run it you should see the following output:
+To get started building an application using One-Jar, download the <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">One-Jar Software Developers Kit</a>.
+The kit is a One-Jar executable, which contains all the pieces needed to assemble One-Jar applications (and can also re-assemble itself).  When 
+run, should see the following output:
 <pre>
 $ java -jar one-jar-sdk-0.96.jar
 Extracting SDK... done.  
@@ -166,16 +167,16 @@ To rebuild the SDK:                   $ ant sdk
 </pre>
 This extracts a development project (also an Eclipse JDT project) which contains a directory
 tree suitable for building a One-Jar application.  
-<p>Note: you will need to download an Ant distribution in order to be able to rebuild the <code>hello.jar</code>
+<p>Note: make sure to download an Ant distribution in order to be able to rebuild the <code>hello.jar</code>
 or the <code>sdk</code>.  You can obtain the latest version of ant here:
 <a href="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</a>.  Alternatively
-you can run Ant from within an IDE such as Eclipse.  You will also need a Java Runtime JRE 1.4 or later.
+run Ant from within an IDE such as Eclipse.  You will also need a Java Runtime JRE 1.4 or later.
 
 <p><code>$ ant hello</code> builds a simple One-Jar Jar file containing a single Main class, and a single Hello
 class.  The Main class is bundled into <i>main.jar</i>, the Hello class is bundled into <i>hello.jar</i>, 
 and the requisite One-Jar jar-file is constructed.  Main invokes Hello(), which prints "Hello One-Jar".
 
-<p>You can use this project as a starting point for your own development, by editing the <code>hello/build.xml</code> file.
+<p>Use this project as a starting point for your own development, by editing the <code>hello/build.xml</code> file.
 
 <hr>
 If you like <i>One-JAR</i> then you might want to check out some of the other Open-Source projects
