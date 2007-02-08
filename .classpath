@@ -12,6 +12,6 @@
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/english"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/french"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/german"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.4.2_04"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>
