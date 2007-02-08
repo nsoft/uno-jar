@@ -4,7 +4,6 @@
 	<classpathentry kind="src" output="build/eclipse/ant" path="ant"/>
 	<classpathentry excluding="ant/|lib/|javahelp/|javahelp/classviewer/|javahelp/classviewer/" kind="src" output="build/eclipse/test" path="test"/>
 	<classpathentry excluding="main/|util/" kind="src" output="build/eclipse/example" path="example"/>
-	<classpathentry kind="src" path="sunw"/>
 	<classpathentry kind="src" path="sdk/lib"/>
 	<classpathentry kind="src" path="sdk/sdk"/>
 	<classpathentry kind="src" path="sdk/src"/>
