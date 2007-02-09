@@ -1,41 +1,4 @@
-<html>
-<head>
-<title>Deliver Your Java Application in One-JAR!</title>
-<link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-<table align="center" cellpadding="20">
-	<tr>
-		<td><a
-			href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">
-		<img src="download-sdk.gif" border="0"
-			alt="download one-jar SDK" /></a></td>
-		<td><a href="http://www.sourceforge.net/projects/one-jar"
-			target="_blank"> <img src="one-jar.gif" border="0"
-			alt="one-jar at sourceforge.net" /> </a></td>
-		<td><a href="http://www.simontuffs.com" target="_blank"> <img
-			src="simontuffs.com.jpg" border="0" alt="simontuffs.com" /> </a></td>
-		<td><a href="one-jar-license.txt" target="_blank"> <img
-			src="license.jpg" border="0" alt="licensing information" /> </a></td>
-		<td><a href="http://sourceforge.net" target="_blank"> <img
-			src="http://sourceforge.net/sflogo.php?group_id=111153&amp;type=2"
-			width="125" height="37" border="0" alt="SourceForge.net Logo" /> </a></td>
-		<!--
-<td>
-  <a href="http://sourceforge.net/sendmessage.php?touser=82967" target="_blank">
-    <img src="contact.jpg" border="0" alt="Contact Me" />
-  </a>
-</td>
--->
-	</tr>
-</table>
-<hr>
-<h1>Deliver Your Java Application in One-JAR!</h1>
-<b>by P. Simon Tuffs, Software Architect and Consultant (<a
-	href="http://www.simontuffs.com">www.simontuffs.com</a>)</b>
-<p></p>
-<hr>
-<p></p>
+<?php include("header.php"); ?>
 <h2>Introduction</h2>
 Java developers often come to a point where they wish to deliver their application 
 as a single Jar file.  The Java Runtime Environment supports running a Jar file using the
@@ -60,7 +23,7 @@ file on its classpath.
 Most developers reasonably assume that putting such a Jar file into their own Jar file, and adding a <code>Class-Path</code>
 attribute to the <code>META-INF/MANIFEST</code> will do the trick:
 
-<pre>
+</p><pre>
 jarname.jar
 | /META-INF
 | | MANIFEST.MF
@@ -74,7 +37,8 @@ Unfortunately this is not the case.  The Java classloader does not know how to l
 The entries on the <code>Class-Path</code> must be references to files outside the Jar file, defeating the goal of 
 delivering an application in a single Jar file.
 
-<h2>One-JAR: Cracking the Problem</h2>
+<a name="opening">
+<h2>Opening the JAR  <a style="font-size:70%" href="#home">home</a></h2>
 One-Jar uses a classloader which knows how to load classes and resources from Jar files inside a Jar file.  To help provide some
 structure to the classloading process, the One-Jar <code>JarClassLoader</code> looks for a main program inside
 a <code>main</code> directory in the Jar file, and looks for supporting Jar files inside a <code>lib</code> directory.
@@ -107,36 +71,39 @@ verbose mode: <code>java -Done-jar.verbose=true -jar one-jar-example-0.96.jar</c
 going on in the classloader.
 
 <p>The demo will produce an output similar to this:
-<pre>
+</p><pre>
 $ java -jar one-jar-example-0.96.jar
 Main: com.simontuffs.onejar.example.main.Main.main()
 Test: loaded by com.simontuffs.onejar.DetectClassLoader@7a84e4
-Test: codesource is jar:file:/C:/work/eclipse-workspaces/workspace-simontuffs/one-jar/dist/one-jar-example-0.96.jar!/main/main.jar
+Test: codesource is jar:file:/C:/work/eclipse-workspaces/workspace-simontuffs/one-jar/dist/...
 Test: java.class.path=one-jar-example-0.96.jar
 Util: loaded by com.simontuffs.onejar.DetectClassLoader@7a84e4
 Util.sayHello()
 ... etc.
 </pre>
 
+<a name="options">
+<h2>Options  <a style="font-size:70%" href="#home">home</a></h2>
+
 <p>To see what options are supported by One-Jar use the <i>--one-jar-help</i> command line option on a One-Jar file:
-<pre>
+</p><pre>
 $ java -jar one-jar-example-0.96.jar --one-jar-help
 One-Jar uses the following command-line arguments
     --one-jar-help    Shows this message, then exits.
     --one-jar-version Shows the version of One-JAR, then exits.
     
 One-Jar uses the following VM properties (-D&lt;property&gt;=&lt;true|false|string&gt;)
-    one-jar.main-class Specifies the name of the class which should be executed (via public static void main(String[])
+    one-jar.main-class Specifies the name of the class which should be executed...
     one-jar.record     true:  Enables recording of the classes loaded by the application
     one-jar.jar-names  true:  Recorded classes are kept in directories corresponding to their jar names.
-                       false: Recorded classes are flattened into a single directory.  Duplicates are ignored (first wins)
+                       false: Recorded classes are flattened into a single directory...
     one-jar.verbose    true:  Print verbose classloading information
     one-jar.info       true:  Print informative classloading information
 </pre>
 
 <p>To see what the <code>JarClassLoader</code> is behind the scenes, enable verbose output using the
 one-jar.verbose system property:
-<pre>
+</p><pre>
 $ java -Done-jar.verbose=true -jar one-jar-example-0.96.jar
 JarClassLoader: One-Jar-Expand=expand,doc,file.txt
 JarClassLoader: Info: resource: one-jar-example-0.96.jar!META-INF/MANIFEST.MF
@@ -154,7 +121,8 @@ JarClassLoader: Info: resource: one-jar-example-0.96.jar!boot-manifest-external.
 </pre>
 This diagnostic output can prove useful when trying to debug class-loading issues.
 
-<h2>Getting Started</h2>
+<a name="gettingstarted"/>
+<h2>Getting Started  <a style="font-size:70%" href="#home">home</a></h2>
 To get started building an application using One-Jar, download the <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">One-Jar Software Developers Kit</a>.
 The kit is a One-Jar executable, which contains all the pieces needed to assemble One-Jar applications (and can also re-assemble itself).  When 
 run, should see the following output:
@@ -172,30 +140,26 @@ or the <code>sdk</code>.  You can obtain the latest version of ant here:
 <a href="http://ant.apache.org/bindownload.cgi">http://ant.apache.org/bindownload.cgi</a>.  Alternatively
 run Ant from within an IDE such as Eclipse.  You will also need a Java Runtime JRE 1.4 or later.
 
-<p><code>$ ant hello</code> builds a simple One-Jar Jar file containing a single Main class, and a single Hello
+</p><p><code>$ ant hello</code> builds a simple One-Jar Jar file containing a single Main class, and a single Hello
 class.  The Main class is bundled into <i>main.jar</i>, the Hello class is bundled into <i>hello.jar</i>, 
 and the requisite One-Jar jar-file is constructed.  Main invokes Hello(), which prints "Hello One-Jar".
 
-<p>Use this project as a starting point for your own development, by editing the <code>hello/build.xml</code> file.
+</p><p>Use this project as a starting point for your own development, by editing the <code>hello/build.xml</code> file.
 
-<hr>
-If you like <i>One-JAR</i> then you might want to check out some of the other Open-Source projects
-developed by simontuffs.com:
-<table align="center" cellpadding="20">
-	<tr>
-		<td><a href="http://soap-stone.sourceforge.net" target="_blank"><img
-			src="http://soap-stone.sourceforge.net/soap-stone.jpg" border="0"
-			alt="soap-stone at sourceforge.net"></a></td>
-		<td><a href="http://xml-xig.sourceforge.net" target="_blank"><img
-			src="http://xml-xig.sourceforge.net/xml-xig.jpg" border="0"
-			alt="XML Instance Generator"></a></td>
-		<td><a href="http://jar-plug.sourceforge.net" target="_blank"><img
-			src="http://jar-plug.sourceforge.net/jar-plug.jpg" border="0"
-			alt="Eclipse JAR Plugin"></a></td>
-		<td><a href="http://yaccl.sourceforge.net" target="_blank"><img
-			src="http://yaccl.sourceforge.net/yaccl.jpg" border="0"
-			alt="Yet Another Compiler Compiler Language"></a></td>
-	</tr>
+<a name="manifest"/>
+<h2>Manifest Attributes  <a style="font-size:70%" href="#home">home</a></h2>
+One-JAR uses manifest attributes to control its operation.  The purpose of these attributes
+is described in the following table.  The manifest file paths are relative to the top of the One-JAR archive.
+<p/>
+<table border="1" cellspacing="0" width="90%" align="center" cellpadding="5" bgcolor="lightgoldenrodyellow">
+<tr><th>Attribute</th><th>Manifest</th><th>Description</th></tr>
+<tr><td>One-Jar-Main-Class</td><td>META-INF/MANIFEST.MF</td><td>Optional: specifies the main class instead of looking in <code>main/main.jar</code></td></tr>
+<tr><td>Main-Class</td><td>/main/main.jar<br/>&nbsp;&nbsp;/META-INF/MANIFEST.MF</td><td>Specifies the main class inside <code>main.jar</code>.  You can use the One-Jar-Main-Class attribute instead. </td></tr>
+<tr><td>One-Jar-Expand</td><td>META-INF/MANIFEST.MF</td><td>Optional: specifies which files and/or directories to expand into the filesystem.  Files
+can only be expanded into a tree underneath the location where the One-JAR archive is executed.  This is a comma-separated
+list of prefixes, e.g. <code>One-Jar-Expand: file.txt,doc/</code> will expand file.txt, and all files in the <code>doc</code> directory.</td></tr>
+<tr><td>One-Jar-Show-Expand</td><td>META-INF/MANIFEST.MF</td><td><code>true</code>: show the file expansions.</td></tr>
 </table>
-</body>
-</html>
+
+
+<?php include("footer.php") ?>
