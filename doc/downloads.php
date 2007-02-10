@@ -1,7 +1,8 @@
 <?php 
 	include("header.php");
 	#$downloads="http://prdownloads.sourceforge.net/one-jar/";
-	$downloads="downloads/";
+	#$downloads="downloads/";
+	$downloads="http://one-jar.cvs.sourceforge.net/*checkout*/one-jar/one-jar/";
 ?>
 <h2>Downloads</h2>
 The following downloads are available in the distribution:
@@ -9,21 +10,21 @@ The following downloads are available in the distribution:
 <table border="1" cellspacing="0" width="90%" align="center" cellpadding="5" bgcolor="lightgoldenrodyellow">
 	<tr><th>Download</th><th>Description</th><th>Executable?</th>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>one-jar-sdk-0.96.jar">one-jar-sdk-0.96.jar</a></td><td>The Software Developer Kit, delivered as a self-extracting One-JAR application.  Requires Ant for rebuild.</td><td>Yes</td>
+		<td width="30%"><a href="<?=$downloads?>sdk/one-jar-sdk-0.96.jar">one-jar-sdk-0.96.jar</a></td><td>The Software Developer Kit, delivered as a self-extracting One-JAR application.  Requires Ant for rebuild.</td><td>Yes</td>
 	</tr>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>one-jar-example-0.96.jar">one-jar-example-0.96.jar</a></td><td>A test-case for various scenarios using One-JAR to load resources, URL's and classes.  Contains source-code for the One-JAR bootstrap classes</td><td>Yes</td>
+		<td width="30%"><a href="<?=$downloads?>dist/one-jar-example-0.96.jar">one-jar-example-0.96.jar</a></td><td>A test-case for various scenarios using One-JAR to load resources, URL's and classes.  Contains source-code for the One-JAR bootstrap classes</td><td>Yes</td>
 	</tr>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>one-jar-ant-task-0.96.jar">one-jar-ant-task-0.96.jar</a></td><td>The Ant taskdef code to support a &lt;one-jar&gt; task.  Also contains XML definitions for the Ant taskdef, and a macro version of a one-jar builder.</td><td>No</td>
+		<td width="30%"><a href="<?=$downloads?>dist/one-jar-ant-task-0.96.jar">one-jar-ant-task-0.96.jar</a></td><td>The Ant taskdef code to support a &lt;one-jar&gt; task.  Also contains XML definitions for the Ant taskdef, and a macro version of a one-jar builder.</td><td>No</td>
 	</tr>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>one-jar-boot-0.96.jar">one-jar-boot-0.96.jar</a></td><td>The low-level <code>JarClassLoader</code> and other one-jar bootstrap mechanisms (source included).</td><td>No</td>
+		<td width="30%"><a href="<?=$downloads?>dist/one-jar-boot-0.96.jar">one-jar-boot-0.96.jar</a></td><td>The low-level <code>JarClassLoader</code> and other one-jar bootstrap mechanisms (source included).</td><td>No</td>
 	</tr>
 		
 </table>
 <p class="caution">
-Note: these are command-line tools: do not try to execute them on Windows by double-clicking
+Note: the executable Jar files are command-line tools: do not try to execute them on Windows by double-clicking
 the file since you may get unexpected results.  Open a DOS command shell and execute them
 using the <code>java -jar</code> command.
 </p>
