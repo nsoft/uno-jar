@@ -13,16 +13,16 @@ The following downloads are available in the distribution:
 		<td width="30%"><a href="<?=$downloads?>sdk/one-jar-sdk-0.96.jar">one-jar-sdk-0.96.jar</a></td><td>The Software Developer Kit, delivered as a self-extracting One-JAR application.  Requires Ant for rebuild.</td><td>Yes</td>
 	</tr>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>dist/one-jar-example-0.96.jar">one-jar-example-0.96.jar</a></td><td>A test-case for various scenarios using One-JAR to load resources, URL's and classes.  Contains source-code for the One-JAR bootstrap classes</td><td>Yes</td>
+		<td width="30%"><a href="<?=$downloads?>dist/one-jar-example-0.96.jar">one-jar-example-0.96.jar</a></td><td>A test-case for various scenarios using One-JAR to load resources, URL's and classes.  Contains source-code for the One-JAR bootstrap classes.</td><td>Yes</td>
+	</tr>
+	<tr>
+		<td width="30%"><a href="<?=$downloadsdll?>dist/one-jar-dll-0.96.jar">one-jar-dll-0.96.jar</a></td><td>An example of using Windows Native Libraries (DLL's) with One-JAR.</td><td>Yes</td>
 	</tr>
 	<tr>
 		<td width="30%"><a href="<?=$downloads?>dist/one-jar-ant-task-0.96.jar">one-jar-ant-task-0.96.jar</a></td><td>The Ant taskdef code to support a &lt;one-jar&gt; task.  Also contains XML definitions for the Ant taskdef, and a macro version of a one-jar builder.</td><td>No</td>
 	</tr>
 	<tr>
-		<td width="30%"><a href="<?=$downloads?>dist/one-jar-boot-0.96.jar">one-jar-boot-0.96.jar</a></td><td>The low-level <code>JarClassLoader</code> and other one-jar bootstrap mechanisms (source included).</td><td>No</td>
-	</tr>
-	<tr>
-		<td width="30%"><a href="<?=$downloadsdll?>dist/one-jar-dll-0.96.jar">one-jar-dll-0.96.jar</a></td><td>An example of using Native Libraries with One-JAR.</td><td>No</td>
+		<td width="30%"><a href="<?=$downloads?>dist/one-jar-boot-0.96.jar">one-jar-boot-0.96.jar</a></td><td>The low-level <code>JarClassLoader</code> and other One-JAR bootstrap mechanisms (source included).</td><td>No</td>
 	</tr>
 		
 </table>
