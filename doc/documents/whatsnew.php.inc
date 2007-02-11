@@ -1,6 +1,3 @@
-<?php 
-	include("header.php");
-?>
 <h2>What's New?</h2>
 <h3>One-JAR version 0.96</h3>
 <ul>
@@ -12,4 +9,3 @@
 <li>Extensive JUnit regression tests</li>
 </ul>
 
-<?php include("footer.php") ?>

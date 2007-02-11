@@ -7,3 +7,5 @@ body {font-family:verdana,helvetica,arial,sans-serif; font-size=80%; line-height
 .indent {margin-left:1em; font-size:85%;}
 .half-line {margin-top:0.3em}
 .caution {color:red; border:solid 1px red; padding:0.5em;}
+.note {color:blue; font-style:italic}
+.navbar {background-color:lightblue; font-size:80%}

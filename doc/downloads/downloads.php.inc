@@ -1,8 +1,8 @@
 <?php 
-	include("header.php");
 	#$downloads="http://prdownloads.sourceforge.net/one-jar/";
 	#$downloads="downloads/";
 	$downloads="http://one-jar.cvs.sourceforge.net/*checkout*/one-jar/one-jar/";
+	$downloadsdll="http://one-jar.cvs.sourceforge.net/*checkout*/one-jar/one-jar-dll/"
 ?>
 <h2>Downloads</h2>
 The following downloads are available in the distribution:
@@ -20,6 +20,9 @@ The following downloads are available in the distribution:
 	</tr>
 	<tr>
 		<td width="30%"><a href="<?=$downloads?>dist/one-jar-boot-0.96.jar">one-jar-boot-0.96.jar</a></td><td>The low-level <code>JarClassLoader</code> and other one-jar bootstrap mechanisms (source included).</td><td>No</td>
+	</tr>
+	<tr>
+		<td width="30%"><a href="<?=$downloadsdll?>dist/one-jar-dll-0.96.jar">one-jar-dll-0.96.jar</a></td><td>An example of using Native Libraries with One-JAR.</td><td>No</td>
 	</tr>
 		
 </table>
@@ -44,4 +47,3 @@ taskdef.  (This file is also delivered with the SDK).</li>
 One-JAR is very compact: the class files have an uncompressed footprint of around 40KB.
 </ul>
 
-<?php include("footer.php") ?>
