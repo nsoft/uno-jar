@@ -10,4 +10,5 @@ is described in the following table.  The manifest file paths are relative to th
 can only be expanded into a tree underneath the location where the One-JAR archive is executed.  This is a comma-separated
 list of prefixes, e.g. <code>One-Jar-Expand: file.txt,doc/</code> will expand file.txt, and all files in the <code>doc</code> directory.</td></tr>
 <tr><td>One-Jar-Show-Expand</td><td>META-INF/MANIFEST.MF</td><td><code>true</code>: show the file expansions.</td></tr>
+<tr><td>One-Jar-Confirm-Expand</td><td>META-INF/MANIFEST.MF</td><td><code>true</code>: confirm file expansions by the user.</td></tr>
 </table>

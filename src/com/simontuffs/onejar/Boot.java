@@ -64,23 +64,23 @@ public class Boot {
 
     // System properties.
 	public final static String PROPERTY_PREFIX = "one-jar.";
-	public final static String MAIN_CLASS = PROPERTY_PREFIX + "main-class";
-	public final static String RECORD = PROPERTY_PREFIX + "record";
-	public final static String JARNAMES = PROPERTY_PREFIX + "jar-names";
-	public final static String VERBOSE = PROPERTY_PREFIX + "verbose";
-	public final static String INFO = PROPERTY_PREFIX + "info";
+	public final static String P_MAIN_CLASS = PROPERTY_PREFIX + "main-class";
+	public final static String P_RECORD = PROPERTY_PREFIX + "record";
+	public final static String P_JARNAMES = PROPERTY_PREFIX + "jar-names";
+	public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
+	public final static String P_INFO = PROPERTY_PREFIX + "info";
     
     // Command-line arguments
     public final static String HELP = "--one-jar-help";
     public final static String VERSION = "--one-jar-version";
     
     public final static String[] HELP_PROPERTIES = {
-        MAIN_CLASS, "Specifies the name of the class which should be executed (via public static void main(String[])", 
-        RECORD,     "true:  Enables recording of the classes loaded by the application",
-        JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
+        P_MAIN_CLASS, "Specifies the name of the class which should be executed (via public static void main(String[])", 
+        P_RECORD,     "true:  Enables recording of the classes loaded by the application",
+        P_JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
                     "false: Recorded classes are flattened into a single directory.  Duplicates are ignored (first wins)",
-        VERBOSE,    "true:  Print verbose classloading information", 
-        INFO,       "true:  Print informative classloading information"
+        P_VERBOSE,    "true:  Print verbose classloading information", 
+        P_INFO,       "true:  Print informative classloading information"
     };
 	
     public final static String[] HELP_ARGUMENTS = {
@@ -90,7 +90,7 @@ public class Boot {
     
     
 	protected static boolean info, verbose;
-    protected static String myJarName;
+    protected static String myJarPath;
 
 	// Singleton loader.
 	protected static JarClassLoader loader = null;
@@ -108,7 +108,7 @@ public class Boot {
 	protected static void VERBOSE(String message) {
 		if (verbose) System.out.println("Boot: " + message);
 	}
-
+    
 	protected static void WARNING(String message) {
 		System.err.println("Boot: Warning: " + message); 
 	}
@@ -167,12 +167,12 @@ public class Boot {
 			}
 		}		
 		// Process developer properties:
-		mainClass = System.getProperty(MAIN_CLASS);
+		mainClass = System.getProperty(P_MAIN_CLASS);
 
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
 		if (mainClass == null) {
-            String jar = getMyJarName();
+            String jar = getMyJarPath();
             JarFile jarFile = new JarFile(jar);
             Manifest manifest = jarFile.getManifest();
             Attributes attributes = manifest.getMainAttributes();
@@ -198,7 +198,7 @@ public class Boot {
 				mainClass = attributes.getValue(Attributes.Name.MAIN_CLASS);
 			} else {
 			    // There is no main jar. Warning.
-                WARNING("Unable to locate " + MAIN_JAR + " in the JAR file " + getMyJarName());
+                WARNING("Unable to locate " + MAIN_JAR + " in the JAR file " + getMyJarPath());
             }
 		}
 	
@@ -232,41 +232,44 @@ public class Boot {
         setProperties(loader);
 		mainClass = loader.load(mainClass);
         
-        if (mainClass == null) throw new Exception("main class (" + mainClass + ") was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + MAIN_CLASS + "=<your.class.name>)");
+        if (mainClass == null && !loader.isExpanding()) 
+            throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
 
-    	// Guard against the main.jar pointing back to this
-    	// class, and causing an infinite recursion.
-        String bootClass = Boot.class.getName();
-    	if (mainClass.equals(bootClass))
-    		throw new Exception("main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
-    	
-		// Set the context classloader in case any classloaders delegate to it.
-		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
-		// is used to launch the jar application, and attempts to load through
-		// it would fail if that code is encapsulated inside the one-jar.
-		Thread.currentThread().setContextClassLoader(loader);
-        
-    	Class cls = loader.loadClass(mainClass);
-    	
-    	Method main = cls.getMethod("main", new Class[]{String[].class}); 
-    	main.invoke(null, new Object[]{args});
+        if (mainClass != null) {
+        	// Guard against the main.jar pointing back to this
+        	// class, and causing an infinite recursion.
+            String bootClass = Boot.class.getName();
+        	if (bootClass.equals(mainClass))
+        		throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
+        	
+    		// Set the context classloader in case any classloaders delegate to it.
+    		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
+    		// is used to launch the jar application, and attempts to load through
+    		// it would fail if that code is encapsulated inside the one-jar.
+    		Thread.currentThread().setContextClassLoader(loader);
+            
+        	Class cls = loader.loadClass(mainClass);
+        	
+        	Method main = cls.getMethod("main", new Class[]{String[].class}); 
+        	main.invoke(null, new Object[]{args});
+        }
     }
     
     public static void setProperties(IProperties jarloader) {
         INFO("setProperties(" + jarloader + ")");
-        if (getProperty(RECORD)) {
+        if (getProperty(P_RECORD)) {
             jarloader.setRecord(true);
-            jarloader.setRecording(System.getProperty(RECORD));
+            jarloader.setRecording(System.getProperty(P_RECORD));
         } 
-        if (getProperty(JARNAMES)) {
+        if (getProperty(P_JARNAMES)) {
             jarloader.setRecord(true);
             jarloader.setFlatten(false);
         }
-        if (getProperty(VERBOSE)) {
+        if (getProperty(P_VERBOSE)) {
             jarloader.setVerbose(true);
             jarloader.setInfo(true);
         } 
-        if (getProperty(INFO)) {
+        if (getProperty(P_INFO)) {
             jarloader.setInfo(true);
         } 
     }
@@ -276,11 +279,20 @@ public class Boot {
     }
     
     public static String getMyJarName() {
-        if (myJarName != null) {
-            return myJarName;
+        String name = getMyJarPath();
+        int last = name.lastIndexOf("/");
+        if (last >= 0) {
+            name = name.substring(last+1); 
         }
-        myJarName = System.getProperty(PROPERTY_PREFIX + "jarname"); 
-        if (myJarName == null) {
+        return name;
+    }
+    
+    public static String getMyJarPath() {
+        if (myJarPath != null) {
+            return myJarPath;
+        }
+        myJarPath = System.getProperty(PROPERTY_PREFIX + "jarname"); 
+        if (myJarPath == null) {
             try {
                 // Hack to obtain the name of this jar file.
                 String jarname = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
@@ -304,16 +316,18 @@ public class Boot {
                     }
                     JarEntry entry = findJarEntry(new JarInputStream(is), Boot.class.getName().replace('.', '/') + ".class");
                     if (entry != null) {
-                        myJarName = jarname;
+                        myJarPath = jarname;
                         break;
                     }
                 }
             } catch (Exception x) {
                 x.printStackTrace();
-                WARNING("jar=" + myJarName + " loaded from " + JarClassLoader.JAVA_CLASS_PATH + " (" + System.getProperty(JarClassLoader.JAVA_CLASS_PATH) + ")");
+                WARNING("jar=" + myJarPath + " loaded from " + JarClassLoader.JAVA_CLASS_PATH + " (" + System.getProperty(JarClassLoader.JAVA_CLASS_PATH) + ")");
             }
         }
-        return myJarName;
+        // Normalize those annoying DOS backslashes.
+        myJarPath = myJarPath.replace('\\', '/');
+        return myJarPath;
     }
     
     public static JarEntry findJarEntry(JarInputStream jis, String name) throws IOException {

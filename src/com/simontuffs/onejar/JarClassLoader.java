@@ -17,12 +17,14 @@
 
 package com.simontuffs.onejar;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -74,11 +76,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String UNPACK = "unpack";
     public final static String EXPAND = "One-Jar-Expand";
     public final static String SHOW_EXPAND = "One-Jar-Show-Expand";
+    public final static String CONFIRM_EXPAND = "One-Jar-Confirm-Expand";
     public final static String CLASS = ".class";
     
     public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
     
     protected String name;
+    protected boolean expanded;
     
     static {
         // Add our 'onejar:' protocol handler, but leave open the 
@@ -114,6 +118,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     protected void PRINTLN(String message) {
         System.out.println(message);
+    }
+    
+    protected void PRINT(String message) {
+        System.out.print(message);
     }
     
     // Synchronize for thread safety.  This is less important until we
@@ -225,7 +233,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     public String load(String mainClass) {
         // Hack: if there is a one-jar.jarname property, use it.
-        String jarname = Boot.getMyJarName();
+        String jarname = Boot.getMyJarPath();
         return load(mainClass, jarname);
     }
     
@@ -235,7 +243,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         try {
             if (jarName == null) {
-                jarName = Boot.getMyJarName();
+                jarName = Boot.getMyJarPath();
             }
             JarFile jarFile = new JarFile(jarName);
             Enumeration _enum = jarFile.entries();
@@ -246,8 +254,21 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // One-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
             if (expand != null) {
+                expanded = true;
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
+                boolean confirm = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(CONFIRM_EXPAND));
+                if (confirm) {
+                    PRINTLN("Do you want to allow '" + Boot.getMyJarName() + "' to expand files into the file-system at " + new File(".").getAbsolutePath() + "?");
+                    PRINT("Note: Answering n (no) will terminate this application: (y/n)? ");
+                    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                    String answer = br.readLine();
+                    if (answer != null && answer.trim().toLowerCase().equals("n")) {
+                        PRINTLN("exiting without expansion.");
+                        // Indicate failure.
+                        System.exit(1);
+                    }
+                }
             }
             boolean showexpand = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(SHOW_EXPAND));
             while (_enum.hasMoreElements()) {
@@ -916,5 +937,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         
         return result;
+    }
+    
+    public boolean isExpanding() {
+        return expanded;
     }
 }

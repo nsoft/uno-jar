@@ -18,7 +18,8 @@
   			"other" => "Other#nolink", 
   			"whatsnew" => "What's New", 
   			"faq" => FAQ, 
-  			"license" => "License"), 
+  			"license" => "License", 
+  			"junit-noframes" => "Test Results"), 
   	);
 
 ?>

@@ -348,7 +348,7 @@ public class Test extends Testable {
         count++;
         // By the time we get here, the contents of the expand directory in the One-Jar file 
         // should be present in the filesystem.  Verify this.
-        String jarName = Boot.getMyJarName();
+        String jarName = Boot.getMyJarPath();
         JarFile jarFile = new JarFile(jarName);
         Enumeration _enum = jarFile.entries();
         Manifest manifest = jarFile.getManifest();

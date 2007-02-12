@@ -1,18 +1,20 @@
 <?xml version="1.0"?>
 
 <project name="one-jar" default="dist" basedir=".">
-	<property name="src.dir" value="${basedir}/src" />
-	<property name="ant.dir" value="${basedir}/ant" />
-	<property name="example.dir" value="${basedir}/example" />
-	<property name="test.dir" value="${basedir}/test" />
-	<property name="services.dir" value="${basedir}/services" />
-	<property name="build.dir" value="${basedir}/build" />
-    <property name="sdk.dir" value="${basedir}/sdk" />   
+	<property name="src.dir" location="${basedir}/src" />
+	<property name="ant.dir" location="${basedir}/ant" />
+	<property name="example.dir" location="${basedir}/example" />
+	<property name="test.dir" location="${basedir}/test" />
+	<property name="services.dir" location="${basedir}/services" />
+	<property name="build.dir" location="${basedir}/build" />
+    <property name="sdk.dir" location="${basedir}/sdk" />   
 
-    <property name="classes.dir" value="${build.dir}/ant" />
-	<property name="dist.dir" value="${basedir}/dist" />
-	<property name="jar.dir" value="${build.dir}/jars" />
-
+    <property name="classes.dir" location="${build.dir}/ant" />
+	<property name="dist.dir" location="${basedir}/dist" />
+	<property name="jar.dir" location="${build.dir}/jars" />
+    <property name="test.results" value="test-results"/>   
+    <property name="test.reports" value="test-reports"/>   
+   
 	<!-- version number -->
 	<property name="one-jar.version" value="0.96" />
 
@@ -163,8 +165,9 @@
 		</jar>
 	</target>
 
-	<target name="build.ant.jar" depends="compile">
+	<target name="build.ant.jar" depends="compile,build.boot.jar">
 		<copy file="${boot.jar}" tofile="${classes.dir}/ant/com/simontuffs/onejar/ant/one-jar-boot.jar" />
+        <delete failonerror="false" file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar"/>
 		<jar destfile="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar">
 			<fileset dir="${classes.dir}/ant">
 				<include name="**" />
@@ -183,7 +186,7 @@
 
 	<target name="build.example.jar" depends="build.boot.jar,build.main.jar,build.util.jar,build.services">
 		<delete file="${example.jar}" />
-		<jar destfile="${example.jar}" manifest="${src.dir}/boot-manifest.mf">
+		<jar destfile="${example.jar}" manifest="${src.dir}/example-manifest.mf">
 			<fileset dir="${classes.dir}/src">
 				<exclude name="**/Detect*" />
 			</fileset>
@@ -309,8 +312,8 @@
           If this task fails, it is probably because the OneJarTask class has changed underneath us.
           Re-execute the Ant command.
         </echo>   
-    
-		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/boot-manifest.mf">
+  
+		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/example-manifest.mf">
 			<fileset dir="${src.dir}">
 				<exclude name="**/Detect*" />
 			</fileset>
@@ -354,6 +357,25 @@
         <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
         <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
     </target>   
+
+    <!-- 
+        A one-jar file which contains the boot sources, expands itself after confirmation.
+        Uses expansion confirmation.
+    -->
+    <target name="build.source.jar" depends="build.ant.jar">
+        <one-jar destfile="dist/one-jar-source-${one-jar.version}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="com.simontuffs.onejar.Boot"/>
+                <attribute name="One-Jar-Expand" value="src"/>
+                <attribute name="One-Jar-Show-Expand" value="true"/>
+                <attribute name="One-Jar-Confirm-Expand" value="true"/>
+            </manifest>
+            <main/>   
+            <fileset dir="${basedir}">
+                <include name="src/**"/>                   
+            </fileset>   
+        </one-jar>
+    </target>   
  
     <target name="sdk">
         <ant antfile="sdk/build.xml" inheritall="false"/>
@@ -363,7 +385,7 @@
 
 	<target name="compile.tests">
 		<mkdir dir="${classes.dir}/test" />
-		<mkdir dir="test-results" />
+		<mkdir dir="${test.results}" />
 		<javac destdir="${classes.dir}/test" debug="on" deprecation="off" optimize="off">
 			<src path="${test.dir}" />
 			<classpath>
@@ -374,12 +396,14 @@
 
 	<!-- Test the distribution -->
 	<target name="test" depends="dist,compile.tests">
+        <delete dir="${test.results}"/>
 		<antcall target="test.one-jar-example" />
 		<antcall target="test.one-jar-example-task" />
 		<antcall target="test.one-jar-example-macro" />
         <antcall target="test.one-jar-example-ext" />
         <antcall target="test.one-jar-example-secure" />
 		<antcall target="test.command-line" />
+        <antcall target="test.ant.taskdefs" />   
 		<antcall target="report" />
 	</target>
 	<target name="test.one-jar-example" depends="dist,compile.tests">
@@ -392,7 +416,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest" outfile="test-results/one-jar-SelfTest" />
+			<test name="com.simontuffs.onejar.test.SelfTest" outfile="${test.results}/one-jar-SelfTest" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -406,7 +430,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest$Task" outfile="test-results/one-jar-SelfTest-task" />
+			<test name="com.simontuffs.onejar.test.SelfTest$Task" outfile="${test.results}/one-jar-SelfTest-task" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -420,7 +444,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest$Macro" outfile="test-results/one-jar-SelfTest-macro" />
+			<test name="com.simontuffs.onejar.test.SelfTest$Macro" outfile="${test.results}/one-jar-SelfTest-macro" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -434,7 +458,7 @@
                 <path location="${classes.dir}/test" />
             </classpath>
 
-            <test name="com.simontuffs.onejar.test.SelfTestExternal" outfile="test-results/one-jar-SelfTestExt" />
+            <test name="com.simontuffs.onejar.test.SelfTestExternal" outfile="${test.results}/one-jar-SelfTestExt" />
             <formatter type="${formatter}" usefile="yes" />
         </junit>
     </target>
@@ -448,7 +472,7 @@
                 <path location="${classes.dir}/test" />
             </classpath>
 
-            <test name="com.simontuffs.onejar.test.SelfTestSecure" outfile="test-results/one-jar-SelfTestSecure" />
+            <test name="com.simontuffs.onejar.test.SelfTestSecure" outfile="${test.results}/one-jar-SelfTestSecure" />
             <formatter type="${formatter}" usefile="yes" />
         </junit>
     </target>
@@ -462,12 +486,62 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.CommandLine" outfile="test-results/one-jar-SelfTest-commandline" />
+			<test name="com.simontuffs.onejar.test.CommandLine" outfile="${test.results}/one-jar-SelfTest-commandline" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
+ 
+    <target name="test.ant.taskdefs" depends="test.ant.taskdef.1,test.ant.taskdef.2,test.ant.taskdef.3">
+    </target>   
 
-	<target name="clean" depends="init">
+    <!-- Test the Ant one-jar taskdef -->   
+    <target name="test.ant.taskdef.1" depends="build.ant.jar">
+        <mkdir dir="${test.results}"/>   
+        <!-- Degenerate One-JAR -->   
+        <one-jar destfile="${test.results}/ant-taskdef-1.jar">
+            <main/>   
+        </one-jar>
+        <java fork="true" jar="${test.results}/ant-taskdef-1.jar" failonerror="true">
+            <arg line="--one-jar-help"/>
+        </java>
+    </target>
+   
+    <target name="test.ant.taskdef.2" depends="build.ant.jar">
+        <one-jar destfile="${test.results}/ant-taskdef-2.jar">
+            <manifest>
+                <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
+                <attribute name="One-Jar-Expand" value=""/>   
+                <attribute name="One-Jar-Show-Expand" value="true"/>   
+                <attribute name="One-Jar-Confirm-Expand" value="true"/>   
+            </manifest>   
+            <main/>   
+        </one-jar>   
+        <delete dir="tmp"/>   
+        <mkdir dir="tmp"/>
+        <java fork="true" dir="tmp" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y"/>
+        <available property="test.ant.taskdef.2" file="tmp/OneJar.class"/>
+        <fail unless="test.ant.taskdef.2"/>
+    </target>   
+
+    <target name="test.ant.taskdef.3" depends="build.ant.jar">
+        <!-- Create and use a manifest file -->
+        <delete dir="tmp"/>  
+        <manifest file="${test.results}/manifest.mf">
+            <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
+            <attribute name="One-Jar-Expand" value=""/>   
+            <attribute name="One-Jar-Show-Expand" value="true"/>   
+            <attribute name="One-Jar-Confirm-Expand" value="true"/>   
+        </manifest>   
+        <one-jar destfile="${test.results}/ant-taskdef-3.jar" manifest="${test.results}/manifest.mf">
+            <main/>   
+        </one-jar>   
+        <mkdir dir="tmp"/>
+        <java fork="true" dir="tmp" jar="${test.results}/ant-taskdef-3.jar" failonerror="true" inputstring="y"/>
+        <available property="test.ant.taskdef.3" file="tmp/OneJar.class"/>
+        <fail unless="test.ant.taskdef.3"/>
+    </target>   
+
+    <target name="clean" depends="init">
 		<!-- delete everything in the classes and jars dir -->
 		<delete dir="${classes.dir}" />
         <delete dir="${jar.dir}" />
@@ -481,13 +555,13 @@
     </target>
 
 	<target name="report">
-		<mkdir dir="test-reports" />
-		<junitreport todir="test-reports">
-			<fileset dir="test-results" includes="*SelfTest*.xml" />
-			<report format="frames" todir="test-reports" />
+		<mkdir dir="${test.reports}" />
+		<junitreport todir="${test.reports}">
+			<fileset dir="${test.results}" includes="*SelfTest*.xml" />
+			<report format="noframes" todir="${test.reports}" />
 		</junitreport>
         <echo>***********************************************</echo>
-        <echo>* Report is in /test-reports/index.html</echo>
+        <echo>* Report is in ${test.reports}/index.html</echo>
         <echo>***********************************************</echo>
 	</target>
  
