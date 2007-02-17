@@ -1,5 +1,7 @@
 <?php
   	$SITEMAP = array(
+  		"title" => array(
+  			"#onejar" => "One-JAR v0.96"), 
   		"introduction" => array(
   			"intro" => "Introduction", 
   			"opening" => "Opening the JAR", 
@@ -15,8 +17,8 @@
   		"support" => array(
   			"support" => "Professional Support"),
   		"documents" => array(
-  			"other" => "Other#nolink", 
-  			"whatsnew" => "What's New", 
+  			"#info" => "Information", 
+  			"whatsnew" => "What's New?", 
   			"faq" => FAQ, 
   			"license" => "License", 
   			"junit-noframes" => "Test Results"), 
@@ -33,8 +35,7 @@
 <body>
 <a name="home"/>
 <h1>Deliver Your Java Application in One-JAR!</h1>
-<b>by P. Simon Tuffs, Software Architect and Consultant (<a
-	href="http://www.simontuffs.com">www.simontuffs.com</a>)</b>
+<b>by P. Simon Tuffs, Software Architect and Consultant</b>
 <p></p>
 <hr>
 <table>

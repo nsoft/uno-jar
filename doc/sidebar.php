@@ -1,17 +1,18 @@
 <?php 
 ?>
 
-<div style="font-size:90%; padding:0.5em; border-style:solid; border-width:1px; border-color:blue; background-color:lightblue; line-height:1.5em; margin-right:0.5em;">
-Site Map<br/>
+<div class="sidebar">
+<a href="http://www.simontuffs.com">www.simontuffs.com</a><br/>
 <?php
 	$page = $_GET['page'];
 	foreach ($SITEMAP as $page => $array) {
 		$class = "";
 		foreach ($array as $key => $value) {
-			$pos = strpos($value, "#nolink");
-			if ($pos > 0) {
-				echo "<br/>".substr($value, 0, $pos)."<br/>";
+			$pos = strpos($key, "#");
+			if (!($pos === false)) {
+				echo "</div><br/><div class='sidebar header'>".$value."</div><div class='sidebar'>";
 			} else {
+				if (!file_exists("$page/$key.php.inc")) echo "!";
 				if ($key == $file) echo "<b>";
 				echo "<a href='index.php?page=$page&file=$key' $class>$value</a><br/>";
 				if ($key == $file) echo "</b>";
@@ -20,27 +21,10 @@ Site Map<br/>
 		}
 	}
 ?>
-<!--
-<a href="index.php?file=introduction/intro.php.inc">Introduction</a><br/>
-<a class="indent" href="index.php?file=introduction/opening.php.inc">Opening the JAR</a><br/>
-<a class="indent" href="index.php?file=introduction/options.php.inc">Options</a><br/>
-<a class="indent" href="index.php?file=introduction/gettingstarted.php.inc">Getting Started</a><br/>
-<a class="indent" href="index.php?file=introduction/manifest.php.inc">Manifest Attributes</a><br/>
-<a class="indent" href="index.php?file=introduction/native.php.inc">Native Libraries</a><br/>
-
-<a href="ant.php">Ant</a><br/>
-<a class="indent" href="ant.php#simple">It's Simple.  Really!</a></br>
-
-<a href="downloads.php">Downloads</a><br/>
-<a href="license.php">License</a><br/>
-<a href="whatsnew.php">What's New</a><br/>
-<a href="faq.php">FAQ</a><br/>
-<a href="support.php">Professional Support</a><br/>
--->
 </div>
 <p/>
-<div style="font-size:90%; padding:0.5em; border-style:solid; border-width:1px; border-color:blue; background-color:lightblue; line-height:1.5em; margin-right:0.5em;">
-Documentation<br/>
+<div class='sidebar header'>
+Documentation</div><div class='sidebar'>
 <a href="http://www-128.ibm.com/developerworks/java/library/j-onejar/">IBM&nbsp;DeveloperWorks</a><br/>
 <a href="/version-0.95">Version 0.95</a>
 </div>

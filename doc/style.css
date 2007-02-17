@@ -1,11 +1,15 @@
 h1,h2,h3,h4,i {color:blue; line-height=100%}
 li {margin-top:0.5em;}
 pre, .green {color:green; margin-left:2em; overflow:auto;}
-code {color:darkblue; font-size:110%;}
-body {font-family:verdana,helvetica,arial,sans-serif; font-size=80%; line-height=150%}
+code {color:darkblue; font-size:100%;}
+body {font-family:verdana,helvetica,arial,sans-serif; }
+a {text-decoration:none}
+td {font-size:90%}
 .figure {color:blue}
 .indent {margin-left:1em; font-size:85%;}
 .half-line {margin-top:0.3em}
 .caution {color:red; border:solid 1px red; padding:0.5em;}
 .note {color:blue; font-style:italic}
 .navbar {background-color:lightblue; font-size:80%}
+.sidebar {font-size:90%; padding:0.5em; border-style:solid; border-width:1px; border-color:blue; background-color:lightblue; line-height:1.5em; margin-right:0.5em;}
+.header {border-bottom:0px; padding-top:0.25em; padding-bottom:0.25em}
