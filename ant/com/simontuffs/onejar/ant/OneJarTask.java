@@ -231,6 +231,8 @@ public class OneJarTask extends Jar {
 			                        	if (!entries.contains(dir)) {
 			                        		ZipEntry ze = new ZipEntry(dir);
 			                        		zout.putNextEntry(ze);
+                                            // Suppress FindBugs AM warning.
+                                            zout.flush();
 			                        		zout.closeEntry();
 			                        		entries.add(dir);
 			                        	}
@@ -313,7 +315,7 @@ public class OneJarTask extends Jar {
         	// Pick up default one-jar boot files as a resource relative to
         	// this class.
         	String ONE_JAR_BOOT = "one-jar-boot.jar";
-        	InputStream is = this.getClass().getResourceAsStream(ONE_JAR_BOOT);
+        	InputStream is = OneJarTask.class.getResourceAsStream(ONE_JAR_BOOT);
         	if (is == null) 
         		throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
         	// Pull the manifest out and use it.

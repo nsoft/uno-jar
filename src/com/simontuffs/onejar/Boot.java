@@ -18,6 +18,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -194,6 +196,7 @@ public class Boot {
 			if (is != null) {
 				JarInputStream jis = new JarInputStream(is);
 				Manifest manifest = jis.getManifest();
+                jis.close();
 				Attributes attributes = manifest.getMainAttributes();
 				mainClass = attributes.getValue(Attributes.Name.MAIN_CLASS);
 			} else {
@@ -208,26 +211,43 @@ public class Boot {
 		
 		if (url != null) {
 			// Wrap class loaders.
-			JarClassLoader bootLoader = new JarClassLoader(WRAP_DIR);
+			JarClassLoader bootLoader = (JarClassLoader)AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        return new JarClassLoader(WRAP_DIR);
+                    }
+                }
+            );
             setProperties(bootLoader);
 			bootLoader.load(null);
 			
 			// Read the "Wrap-Class-Loader" property from the wraploader jar file.
 			// This is the class to use as a wrapping class-loader.
-			JarInputStream jis = new JarInputStream(Boot.class.getResourceAsStream(WRAP_JAR));
-			String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
-			if (wrapLoader == null) {
-				WARNING(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
-			} else {
-				INFO("using " + wrapLoader);
-				Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
-				Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
-				loader = (JarClassLoader)ctor.newInstance(new Object[]{bootLoader});
-			}
+            InputStream is = Boot.class.getResourceAsStream(WRAP_JAR);
+            if (is != null) {
+    			JarInputStream jis = new JarInputStream(is);
+    			String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
+                jis.close();
+    			if (wrapLoader == null) {
+    				WARNING(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
+    			} else {
+    				INFO("using " + wrapLoader);
+    				Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
+    				Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
+    				loader = (JarClassLoader)ctor.newInstance(new Object[]{bootLoader});
+    			}
+            }
 				
 		} else {
 			INFO("using JarClassLoader");
-			loader = new JarClassLoader(Boot.class.getClassLoader());
+			loader = (JarClassLoader)AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        return new JarClassLoader(Boot.class.getClassLoader());
+                    }
+                }
+            ); 
+                
 		}
         setProperties(loader);
 		mainClass = loader.load(mainClass);
@@ -275,7 +295,7 @@ public class Boot {
     }
     
     public static boolean getProperty(String key) {
-        return new Boolean(System.getProperty(key, "false")).booleanValue();
+        return Boolean.valueOf(System.getProperty(key, "false")).booleanValue();
     }
     
     public static String getMyJarName() {
@@ -389,8 +409,14 @@ public class Boot {
             System.exit(0);
         } else if (arguments.contains(VERSION)) {
             InputStream is = Boot.class.getResourceAsStream("/.version");
-            String version = new BufferedReader(new InputStreamReader(is)).readLine();
-            System.out.println("One-JAR version " + version);
+            if (is != null) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+                String version = br.readLine();
+                br.close();
+                System.out.println("One-JAR version " + version);
+            } else {
+                System.out.println("Unable to determine One-JAR version (missing /.version resource in One-JAR archive)");
+            }
             System.exit(0);
         }
     }

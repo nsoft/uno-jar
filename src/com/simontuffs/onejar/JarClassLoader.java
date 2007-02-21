@@ -138,11 +138,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected String jarName, mainJar, wrapDir;
     protected boolean delegateToParent;
     
-    protected class ByteCode {
-		public ByteCode(String $name, String $original, byte $bytes[], String $codebase, Manifest $manifest) {
+    protected static class ByteCode {
+		public ByteCode(String $name, String $original, ByteArrayOutputStream baos, String $codebase, Manifest $manifest) {
             name = $name;
             original = $original;
-            bytes = $bytes;
+            bytes = baos.toByteArray();
             codebase = $codebase;
 			manifest = $manifest;
         }
@@ -265,7 +265,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     String answer = br.readLine();
                     if (answer != null && answer.trim().toLowerCase().equals("n")) {
                         PRINTLN("exiting without expansion.");
-                        // Indicate failure.
+                        // Indicate (expected) failure with a non-zero return code.
                         System.exit(1);
                     }
                 }
@@ -334,6 +334,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                         if (mainClass == null) {
                             JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
                             Manifest m = jis.getManifest();
+                            jis.close();
                             // Is this a jar file with a manifest?
                             if (m != null) {
                                 mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
@@ -432,26 +433,25 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // If entry is a class, check to see that it hasn't been defined
             // already.  Class names must be unique within a classloader because
             // they are cached inside the VM until the classloader is released.
-            byte[] bytes = baos.toByteArray();
             if (type.equals("class")) {
-                if (alreadyCached(entryName, jar, bytes)) return;
-				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar, man));
+                if (alreadyCached(entryName, jar, baos)) return;
+				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
                 VERBOSE("cached bytes for class " + entryName);
             } else {
                 // Another kind of resource.  Cache this by name, and also prefixed
                 // by the jar name.  Don't duplicate the bytes.  This allows us
                 // to map resource lookups to either jar-local, or globally defined.
                 String localname = jar + "/" + entryName;
-				byteCode.put(localname, new ByteCode(localname, entry.getName(), bytes, jar, man));
+				byteCode.put(localname, new ByteCode(localname, entry.getName(), baos, jar, man));
                 // Keep a set of jar names so we can do multiple-resource lookup by name
                 // as in findResources().
                 jarNames.add(jar);
                 VERBOSE("cached bytes for local name " + localname);
                 // Only keep the first non-local entry: this is like classpath where the first
                 // to define wins.  
-                if (alreadyCached(entryName, jar, bytes)) return;
+                if (alreadyCached(entryName, jar, baos)) return;
 
-                byteCode.put(entryName, new ByteCode(entryName, entry.getName(), bytes, jar, man));
+                byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
                 VERBOSE("cached bytes for entry name " + entryName);
                 
             }
@@ -610,6 +610,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 				sealed = attr.getValue(Name.SEALED);
 			}
 		}
+        if (sealed != null) {
+            try {
+                sealBase = new URL(sealed);
+            } catch (MalformedURLException mux) {
+                // Would use IllegalArgumentException, but it don't have the chained constructor.
+                throw new RuntimeException("Error in " + Name.SEALED + " manifest attribute: " + sealed, mux);
+            }
+        }
 		return definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
 	}
 	
@@ -713,11 +721,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return resource;
     }
     
-    protected boolean alreadyCached(String name, String jar, byte[] bytes) {
+    protected boolean alreadyCached(String name, String jar, ByteArrayOutputStream baos) {
         // TODO: check resource map to see how we will map requests for this
         // resource from this jar file.  Only a conflict if we are using a
         // global map and the resource is defined by more than
         // one jar file (default is to map to local jar).
+        byte[] bytes = baos.toByteArray();
         ByteCode existing = (ByteCode)byteCode.get(name);
         if (existing != null) {
             // If bytecodes are identical, no real problem.  Likewise if it's in

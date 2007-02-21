@@ -21,7 +21,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         
-        TEST_EXTERNAL = new Boolean(System.getProperty("one-jar.test.external", "false")).booleanValue();
+        TEST_EXTERNAL = Boolean.valueOf(System.getProperty("one-jar.test.external", "false")).booleanValue();
         
     	System.out.print("Main: " + Main.class.getName() + ".main(");
     	for (int i=0; i<args.length; i++) {

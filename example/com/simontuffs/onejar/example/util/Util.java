@@ -16,12 +16,14 @@ import java.io.InputStream;
  */
 public class Util {
     
+    protected int variable;
+    
 	public Util() {
 		System.out.println("Util: loaded by " + this.getClass().getClassLoader());
 	}
 	
 	// This class is never used, and should be pruned from the jar file.
-	public class NeverUsedClass {
+	public static class NeverUsedClass {
 		NeverUsedClass() {
 		}
 	}
@@ -29,10 +31,11 @@ public class Util {
 	public class InnerClass {
 		InnerClass() {
 			System.out.println("Util.InnerClass loaded by " + this.getClass().getClassLoader());
+            System.out.println("Util.variable=" + variable++);
 		}
 	}
 	
-	public class StaticInnerClass {
+	public static class StaticInnerClass {
 		StaticInnerClass() {
 			System.out.println("Util.StaticInnerClass loaded by " + this.getClass().getClassLoader());
 		}
@@ -46,7 +49,7 @@ public class Util {
 	}
 	
 	public void dumpResource(String resource) throws Exception {
-		InputStream is = this.getClass().getResourceAsStream(resource);
+		InputStream is = Util.class.getResourceAsStream(resource);
 		if (is == null) throw new Exception("Unable to load resource " + resource);
 		System.out.println("Test.useResource(" + resource + ") OK");
 		// Dump it.

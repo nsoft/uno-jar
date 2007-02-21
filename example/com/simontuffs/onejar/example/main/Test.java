@@ -49,7 +49,7 @@ public class Test extends Testable {
 		System.out.println("Test: loaded by " + this.getClass().getClassLoader());
 		System.out.println("Test: codesource is " + this.getClass().getProtectionDomain().getCodeSource().getLocation());
         System.out.println("Test: java.class.path=" + System.getProperty("java.class.path"));
-        boolean security = new Boolean(System.getProperty("one-jar.test.security", "false")).booleanValue();
+        boolean security = Boolean.valueOf(System.getProperty("one-jar.test.security", "false")).booleanValue();
         if (security && System.getSecurityManager() == null) {
             String policy = System.getProperty(JAVA_SECURITY_POLICY);
             if (policy == null) {
@@ -80,23 +80,26 @@ public class Test extends Testable {
 		System.out.println("testLoadCodeSource(): dumping entries in " + codesource);
 		// Can we load from our own codesource (which is a jar file).
 		InputStream is = this.getClass().getProtectionDomain().getCodeSource().getLocation().openConnection().getInputStream();
-		JarInputStream jis = new JarInputStream(is);
-        
-        int count = 0, expected = 24;
-		JarEntry entry = null;
-		while ((entry = jis.getNextJarEntry()) != null) {
-			System.out.println("testLoadCodeSource(): entry=" + entry);
-            count++;
-		}
-        if (count != expected) {
-            fail("testLoadCodeSource(): Error: Huh? Should find " + expected + " entries in codesource, found " + count);
+        if (is != null) {
+    		JarInputStream jis = new JarInputStream(is);
+            
+            int count = 0, expected = 24;
+    		JarEntry entry = null;
+    		while ((entry = jis.getNextJarEntry()) != null) {
+    			System.out.println("testLoadCodeSource(): entry=" + entry);
+                count++;
+    		}
+            if (count != expected) {
+                fail("testLoadCodeSource(): Error: Huh? Should find " + expected + " entries in codesource, found " + count);
+            }
+            jis.close();
         }
 	
 	}
     
     public void testDumpResource(String resource) throws Exception {
         count++;
-		InputStream is = this.getClass().getResourceAsStream(resource);
+		InputStream is = Test.class.getResourceAsStream(resource);
 		if (is == null) throw new Exception("testDumpResource: Unable to load resource " + resource);
 		System.out.println("Test.useResource(" + resource + ") OK");
 		// Dump it.
@@ -125,7 +128,7 @@ public class Test extends Testable {
 		}
 		// A well behaved classloader must delegate findResource to its loading class.
 		public URL findResource(String resource) {
-			return this.getClass().getResource(resource); 
+			return TestLoader.class.getResource(resource); 
 		}
 	}
 	
@@ -172,7 +175,7 @@ public class Test extends Testable {
 		
 		// Now do it using getResource().
 		System.out.println("testClassURL(): opening using getResource(" + className + ")");
-		url = this.getClass().getResource(className);
+		url = Test.class.getResource(className);
         System.out.println("testClassURL(): Opened: " + url);
 		is = url.openStream();
 		if (is == null) {
@@ -204,7 +207,7 @@ public class Test extends Testable {
         
         // Now do it using getResource().
         System.out.println("testResourceURL(): opening using getResource(" + image + ")");
-        url = this.getClass().getResource(image);
+        url = Test.class.getResource(image);
         System.out.println("testResourceURL(): Opened: " + url);
         if (url == null) {
             fail("testResourceURL(): Error: Huh? Should find " + resource + " using getResource()");
@@ -230,7 +233,7 @@ public class Test extends Testable {
         
         // Now do it using getResource().
         System.out.println("testResourceRelativeURL(): opening using getResource(" + image + ")");
-        URL url = this.getClass().getResource(image);
+        URL url = Test.class.getResource(image);
         System.out.println("testResourceRelativeURL(): Opened: " + url);
         if (url == null) {
             fail("testResourceRelativeURL(): Error: Huh? Should find " + image + " using getResource()");
@@ -247,9 +250,9 @@ public class Test extends Testable {
     public void testImageIcon() {
         count++;
         String image = "button.mail.1.gif";
-        URL url = this.getClass().getResource(image);
+        URL url = Test.class.getResource(image);
         if (url == null) {
-        	fail("testImageIcon(): Error: unable to resolve url for image " + image + ": " + url);
+        	fail("testImageIcon(): Error: unable to resolve url for image " + image);
         	return;
         }
         System.out.println("testImageIcon(): loaded image url OK: " + url);

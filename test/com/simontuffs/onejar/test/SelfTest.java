@@ -5,6 +5,8 @@
 package com.simontuffs.onejar.test;
 
 import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 import junit.framework.TestCase;
 import junit.framework.TestResult;
@@ -29,7 +31,11 @@ public class SelfTest extends TestCase {
     public SelfTest() throws Exception {
         if (test == null) {
             // Load Test object from the jar.
-            JarClassLoader loader = new JarClassLoader("");
+            JarClassLoader loader = (JarClassLoader)AccessController.doPrivileged(new PrivilegedAction() {
+                public Object run() {
+                    return new JarClassLoader(""); 
+                }
+            });
             Boot.setClassLoader(loader);
             // loader.setVerbose(true);
             loader.load(null);
