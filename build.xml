@@ -551,9 +551,11 @@
 		<!-- delete everything in the classes and jars dir -->
 		<delete dir="${classes.dir}" />
         <delete dir="${jar.dir}" />
-        <delete>
+        <delete deleteonexit="true">
             <fileset dir="${dist.dir}">
-                <exclude name="one-jar-ant-task-${one-jar.version}.jar"/>
+                <exclude name="CVS/**"/>
+                <exclude name=".cvsignore"/>   
+                <exclude name="*.xml"/>   
             </fileset>
         </delete>   
 	</target>
