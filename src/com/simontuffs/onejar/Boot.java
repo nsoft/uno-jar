@@ -94,14 +94,28 @@ public class Boot {
 	protected static boolean info, verbose;
     protected static String myJarPath;
 
-	// Singleton loader.
-	protected static JarClassLoader loader = null;
+	// Singleton loader.  This must not be changed once it is set, otherwise all
+    // sorts of nasty class-cast exceptions will ensue.  Hence we control 
+    // access to it strongly.
+	private static JarClassLoader loader = null;
 	
-	public static JarClassLoader getClassLoader() {
+    
+	/**
+     * This method provides access to the bootstrap One-JAR classloader which 
+     * is needed in the URL connection Handler when opening streams relative
+     * to classes.  
+     * @return
+	 */
+    public synchronized static JarClassLoader getClassLoader() {
 		return loader;
 	}
     
-    public static void setClassLoader(JarClassLoader $loader) {
+    /**
+     * This is the single point of entry for setting the "loader" member.  It checks to 
+     * make sure programming errors don't call it more than once.
+     * @param $loader
+     */
+    public synchronized static void setClassLoader(JarClassLoader $loader) {
         if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
         loader = $loader;
         setProperties(loader);
@@ -234,20 +248,19 @@ public class Boot {
     				INFO("using " + wrapLoader);
     				Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
     				Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
-    				loader = (JarClassLoader)ctor.newInstance(new Object[]{bootLoader});
+                    setClassLoader((JarClassLoader)ctor.newInstance(new Object[]{bootLoader}));
     			}
             }
 				
 		} else {
 			INFO("using JarClassLoader");
-			loader = (JarClassLoader)AccessController.doPrivileged(
+			setClassLoader((JarClassLoader)AccessController.doPrivileged(
                 new PrivilegedAction() {
                     public Object run() {
                         return new JarClassLoader(Boot.class.getClassLoader());
                     }
                 }
-            ); 
-                
+            ));
 		}
         setProperties(loader);
 		mainClass = loader.load(mainClass);

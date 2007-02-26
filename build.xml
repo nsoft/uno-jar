@@ -14,7 +14,10 @@
 	<property name="jar.dir" location="${build.dir}/jars" />
     <property name="test.results" value="test-results"/>   
     <property name="test.reports" value="test-reports"/>   
-   
+ 
+    <property name="one-jar-dll.dir" location="../one-jar-dll"/>   
+    <available property="one-jar-dll.exists" file="${one-jar-dll.dir}/build.xml"/>
+ 
 	<!-- version number -->
 	<property name="one-jar.version" value="0.96" />
 
@@ -212,7 +215,7 @@
 
 	<target name="build.example-ext.jar" depends="build.boot.jar,build.main.jar,build.util.jar,build.services,build.external.jar">
 		<delete file="${example-ext.jar}" />
-		<jar destfile="${example-ext.jar}" manifest="${src.dir}/boot-manifest-external.mf">
+		<jar destfile="${example-ext.jar}" manifest="${src.dir}/example-manifest-external.mf">
 			<fileset dir="${classes.dir}/src">
 				<exclude name="**/Detect*" />
 				<exclude name="**/example/**" />
@@ -274,7 +277,7 @@
 	<import file="${dist.dir}/one-jar-macro.xml" optional="true" />
 	<target name="one-jar-example-macro" depends="jar">
 		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" />
-		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" manifest="${src.dir}/boot-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
+		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" manifest="${src.dir}/example-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
 			<main>
 				<fileset dir="${classes.dir}/example">
 					<include name="**/example/main/**" />
@@ -314,9 +317,6 @@
         </echo>   
   
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/example-manifest.mf">
-			<fileset dir="${src.dir}">
-				<exclude name="**/Detect*" />
-			</fileset>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 				<!-- Construct main.jar from classes and source code -->
 				<fileset dir="${classes.dir}/example">
@@ -348,7 +348,7 @@
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk,sdk">
+	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk,sdk,one-jar-dll">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
 	</target>
@@ -379,8 +379,14 @@
  
     <target name="sdk">
         <ant antfile="sdk/build.xml" inheritall="false"/>
+        <copy file="${sdk.dir}/one-jar-sdk-${one-jar.version}.jar" todir="${dist.dir}"/>   
     </target>   
 
+    <target name="one-jar-dll" if="one-jar-dll.exists">
+        <ant antfile="${one-jar-dll.dir}/build.xml" inheritall="false"/>
+        <copy file="${one-jar-dll.dir}/dist/one-jar-dll-${one-jar.version}.jar" todir="${dist.dir}"/>   
+    </target>   
+    
 	<property name="formatter" value="xml" />
 
 	<target name="compile.tests">
@@ -545,6 +551,11 @@
 		<!-- delete everything in the classes and jars dir -->
 		<delete dir="${classes.dir}" />
         <delete dir="${jar.dir}" />
+        <delete>
+            <fileset dir="${dist.dir}">
+                <exclude name="one-jar-ant-task-${one-jar.version}.jar"/>
+            </fileset>
+        </delete>   
 	</target>
 
     <target name="clean.compile" depends="init">

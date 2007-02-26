@@ -21,6 +21,7 @@
   			"whatsnew" => "What's New?", 
   			"faq" => FAQ, 
   			"license" => "License", 
+  			"ack" => "Acknowledgements", 
   			"junit-noframes" => "Test Results"), 
   	);
 

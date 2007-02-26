@@ -266,8 +266,10 @@ public class OneJarTask extends Jar {
             Enumeration entries = zip.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = (ZipEntry)entries.nextElement();
-                log("ZipPump: " + entry.getName(), Project.MSG_DEBUG);
-                super.zipFile(zip.getInputStream(entry), zOut, entry.getName(), System.currentTimeMillis(), null, ZipFileSet.DEFAULT_FILE_MODE);
+                if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version")) {
+                    log("ZipPump: " + entry.getName(), Project.MSG_DEBUG);
+                    super.zipFile(zip.getInputStream(entry), zOut, entry.getName(), System.currentTimeMillis(), null, ZipFileSet.DEFAULT_FILE_MODE);
+                }
             }
         } catch (IOException iox) {
             throw new BuildException(iox);

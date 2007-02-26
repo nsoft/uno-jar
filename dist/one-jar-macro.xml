@@ -34,7 +34,13 @@
 				<binlib/>
 				<fileset dir="." excludes="**"/>
 			</copy>
-			<unjar dest="${tmp.jar.dir}" src="@{onejarboot}" />
+			<unjar dest="${tmp.jar.dir}" src="@{onejarboot}">
+                <patternset>
+                    <include name="**/*.class"/>
+                    <include name=".version"/>   
+                    <include name="doc/**"/>   
+                </patternset>
+            </unjar>            
 			<mkdir dir="${tmp.jar.dir}/main"/>
 			<jar destfile="${tmp.jar.dir}/main/main.jar" manifest="@{mainmanifest}">
 				<fileset dir="${tmp.dir}/main">
