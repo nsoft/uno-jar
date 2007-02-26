@@ -2,7 +2,7 @@
 One-JAR is Open-Source: it is licensed without guarantee or support but with full access to the source code.
 If this proves insufficient, you can obtain professional consulting services on a contract basis by 
 sending an email request to <i>one-jar-support(@)simontuffs.com</i> (remove the parentheses -- there is no spam-blocker
-on this address for now, and I hope to leave it that way).</a>
+on this address for now, and I hope to leave it that way).
 
 <p>We will be able to assist you in building and diagnosing your application, using remote
 consulting methods including Skype, Email, Instant Messaging and Remote Desktop debugging sessions 

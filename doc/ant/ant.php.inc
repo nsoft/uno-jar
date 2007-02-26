@@ -21,12 +21,12 @@ simply include the XML fragment that defines the taskdef, and invoke the target.
     	&lt;/lib&gt;
     	&lt;binlib&gt;
     		<span class="note">&lt;filesets&gt; containing native libraries.  Native libraries are expanded into a 
-    		temporary directory at runtime: these files are deleted on exit.x</span>
+    		temporary directory at runtime: these files are deleted on exit.</span>
     	&lt;/binlib&gt;
     	&lt;wrap&gt;
     		<span class="note">&lt;filesets&gt; containing class-loader wrappers.  These check classloaders 
     		that are loaded from the supporting Jar files to make sure they are compatible 
-    		with the One-JAR classloader. This is a complex subject, contact <a href="index.php?page=support&file=support">one-jar support</a> for
+    		with the One-JAR classloader. This is a complex subject, contact <a href="index.php?page=support&amp;file=support">one-jar support</a> for
     		more information and consulting services if you need to wrap a classloader.
     		You will know you need this if your application does not load classes when
     		you expect it should, from JAR files inside the &lt;lib&gt; directory.</span>
@@ -36,7 +36,7 @@ simply include the XML fragment that defines the taskdef, and invoke the target.
     		.class files you put in here will not be able to "see into" JAR files loaded
     		from /main and /lib because their classloader will be the top-level Java 
     		Application Loader, which does not understand One-JAR files (this is how One-JAR 
-    		came about in the first place). Contact <a href="index.php?page=support&file=support	">one-jar support</a> if you find 
+    		came about in the first place). Contact <a href="index.php?page=support&amp;file=support	">one-jar support</a> if you find 
     		yourself having problems with this kind of issue.</span>
     	&lt;/fileset&gt;
     &lt;/one-jar&gt;

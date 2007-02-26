@@ -561,7 +561,7 @@
 			<report format="noframes" todir="${test.reports}" />
 		</junitreport>
         <echo>***********************************************</echo>
-        <echo>* Report is in ${test.reports}/index.html</echo>
+        <echo>* Report is in ${test.reports}</echo>
         <echo>***********************************************</echo>
 	</target>
  

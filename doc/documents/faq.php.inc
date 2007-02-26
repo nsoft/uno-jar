@@ -29,7 +29,7 @@ so if you want to submit a patch it is highly recommended that you (a) add a new
 </li>
 <li>
 Q: Can I modify the source code for my application?
-<p class="half-line">A: Yes, the One-JAR <a href="index.php?page=documents&file=license">license</a> expressly permits this.
+<p class="half-line">A: Yes, the One-JAR <a href="index.php?page=documents&amp;file=license">license</a> expressly permits this.
 The <u>only</u> requirement is that you must redistribute the copyright notice and disclaimer contained in the license.
 There are different ways you can satisfy this requirement, for example:
 <ul>

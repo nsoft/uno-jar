@@ -1,7 +1,12 @@
+<?php
+  	if ($ONEPAGE) {
+  		return;
+ 	}
+?>
+
 </td>
 </tr>
 </table>
-<p>
 <hr>
 If you like <i>One-JAR</i> then you might want to check out some of the other Open-Source projects
 developed by simontuffs.com:
