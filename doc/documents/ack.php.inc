@@ -12,6 +12,7 @@ Thanks to the following contributors for their suggestions and patches towards i
   <li>Andreas Goetz: finding a problem with getPackage()</li>
   <li>Efrain Klein: for suggesting improvements to the argument parsing</li>
   <li>Oleg Astakhov: for pointing out that my documentation was inadequate, and suggesting improvements to it and the code</li>
+  <li>Ferenc Hechler: for integrating One-JAR into Fat Jar and Eclipse (<a href="http://fjep.sourceforge.net">http://fjep.sourceforge.net</a>)
   <li>Everyone else for using it and providing feedback</li>
 </ul>
 

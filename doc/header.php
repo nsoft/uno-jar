@@ -13,7 +13,8 @@
   			"ant" => "Ant", 
   			"simple" => "It's Simple.  Really!"), 
   		"downloads" => array(
-  			"downloads" => "Downloads"), 
+  			"downloads" => "Downloads", 
+  			"source" => "Source Code"),
   		"support" => array(
   			"support" => "Professional Support"),
   		"documents" => array(
@@ -66,7 +67,7 @@
 
 <?php
 	if ($ONEPAGE) {
-		echo "<b>Deliver Your Java Application in One-JAR! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </b>";
+		echo "<b><center>Deliver Your Java Application in One-JAR! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </center></b>";
 	}
 	if ($ONEPAGE) return;
 ?>

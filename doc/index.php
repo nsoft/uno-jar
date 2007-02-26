@@ -41,7 +41,6 @@
 		}
 		
 		if ($onepage) {
-			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE'>Normal Layout</a>";
 			// Figure out prev and next pages.
 			$found = false;
 			foreach ($SITEMAP as $page => $a) {
@@ -69,6 +68,8 @@
 			} else {
 				$NEXT = "";
 			}
+			$CURR = reset($SITEMAP[$currpage]);
+			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE'>$CURR</a>";
 		} else {
 			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE&amp;onepage=true'>Print Layout</a>";
 		}
@@ -80,6 +81,11 @@
 
 <?php	
 	if (!$onepage) {
+		if (!file_exists("$PAGE/$FILE.php.inc")) {
+			include("sorry.php.inc");
+			return;
+		}
+	
 		include("$PAGE/$FILE.php.inc");
 	} else {
 		// Render all files in a topic as one page.
