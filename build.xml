@@ -270,7 +270,7 @@
 		</jar>
 	</target>
 
-	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.example.jar,build.example-ext.jar,build.services">
+	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.example.jar,build.example-ext.jar,build.services,build.source.jar">
 	</target>
 
 	<!-- Build the example jar using the one-jar-macro -->

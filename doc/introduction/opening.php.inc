@@ -24,8 +24,10 @@ That's pretty much all there is to it.  Wrap the main class in a file called <co
 called <code>main</code>, likewise put supporting Jar files under a folder called <code>lib</code>, 
 change the top-level <code>Main-Class</code> to point to the bootstrap classloader from the One-Jar package, 
 and then point to main class with a new attributes <code>One-Jar-Main-Class</code>.   Don't worry, there's
-an Ant task that will do this, which I'll get to in a moment.  But first try running
-an application build with One-Jar <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-example-0.96.jar?download">here</a>.
+an Ant task that will do this, which I'll get to in a moment.  
+
+<p>But first try running
+an application build with One-Jar here: <?=hyperlink("downloads", "downloads", "one-jar-example-0.96.jar")?>.
 Download this application and run it using <code>java -jar one-jar-example-0.96.jar</code>.  Then try it with 
 verbose mode: <code>java -Done-jar.verbose=true -jar one-jar-example-0.96.jar</code> to get a detailed look at what's
 going on in the classloader.

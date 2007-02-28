@@ -92,7 +92,11 @@
 		$pages = $SITEMAP[$PAGE];
 		foreach ($pages as $file => $title) {
 			if (strpos($file, "#") === false) {
-				include("$PAGE/$file.php.inc");
+				if (!file_exists("$PAGE/$FILE.php.inc")) {
+					include("sorry.php.inc");
+				} else {
+					include("$PAGE/$file.php.inc");
+				}
 			}
 		}
 	}

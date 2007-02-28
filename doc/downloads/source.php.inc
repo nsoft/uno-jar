@@ -1,5 +1,8 @@
 <h2>Source Code</h2>
+The released source-code for One-JAR is contained in the bootstrap and example JAR files.  Simply unjar them
+and you can be sure that the source is synchronized with the actual class files.
 
+<h3>CVS</h3>
 The CVS repository for One-JAR is located at SourceForge.  The CVS project is set up to work
 with Eclipse 3.2.1.  The credentials for access are:
 
