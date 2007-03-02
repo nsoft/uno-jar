@@ -2,25 +2,27 @@
 	
 	<property name="top.dir" location="../.."/>
 	<property name="build.dir" location="${top.dir}/build"/>
-	<property name="class.dir" location="${build.dir}/classes"/>
+	<property name="classes.dir" location="${build.dir}/eclipse/ant"/>
 	<property name="example.dir" location="${top.dir}/example"/>
 	<property name="jar.dir" location="${build.dir}/jars"/>
+    <property name="one-jar.version" value="0.96"/>   
 	
 	<target name="init">
 		<mkdir dir="${build.dir}/ant"/>
 	</target>
 
-	<taskdef onerror="ignore" classpath="${build.dir}/classes" name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"/>
+	<taskdef onerror="ignore" classpath="${classes.dir}" name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask"/>
 	
 	<target name="one-jar" depends="init">
 		<!-- The one-jar Ant taskdef, extends <jar> -->
 		<delete file="${build.dir}/ant/one-jar-example.jar"/>
-		<one-jar destfile="${build.dir}/ant/one-jar-example.jar">
-			<fileset dir="${class.dir}">
+        <property name="onejarboot" value="${top.dir}/dist/one-jar-boot-${one-jar.version}.jar"/>
+		<one-jar destfile="${build.dir}/ant/one-jar-example.jar" onejarboot="${onejarboot}">
+			<fileset dir="${classes.dir}">
 				<include name="com/simontuffs/onejar/*.class"/>
 			</fileset>
 			<main manifest="${example.dir}/main/main-manifest.mf">
-	            <fileset dir="${class.dir}">
+	            <fileset dir="${classes.dir}">
 	                <include name="**/example/main/**"/>   
 	                <include name="**/example/util/Duplicate*"/>   
 	            </fileset>
