@@ -9,6 +9,7 @@ td,th {padding-left:5px; padding-bottom:2px; padding-top:2px; font-size:90%;}
 .pad-top-bottom {padding-top:0.5em; padding-bottom:0.5em};
 .figure {color:blue}
 .indent {margin-left:1em; font-size:85%;}
+.listindent {margin-left:2em; margin-top:0.5em;}
 .half-line {margin-top:0.3em}
 .caution {color:red; border:solid 1px red; padding:0.5em;}
 .note {color:blue; font-style:italic; padding:0.2em}

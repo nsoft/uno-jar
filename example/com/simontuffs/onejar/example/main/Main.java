@@ -32,14 +32,12 @@ public class Main {
     	Test test = new Test();
     	
     	long start = new Date().getTime();
-    	int failures = 0;
     	
     	try {
 			test.testUseUtil();
     	} catch (Exception x) {
     		System.out.println("test.testUseUtil() failed: " + x);
     		x.printStackTrace();
-			failures++;
     	}
     	
     	System.out.println();
@@ -56,7 +54,6 @@ public class Main {
 		} catch (Exception x) {
 			System.out.println("test.testDumpResource() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 		
@@ -66,7 +63,6 @@ public class Main {
 		} catch (Exception x) {
 			System.out.println("test.testDumpResource() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 
@@ -75,25 +71,21 @@ public class Main {
         } catch (Exception x) {
             System.out.println("test.testLoadCoadSource() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
 		System.out.println();
 
 		try {
 			test.testClassLoader();
-            failures++;
 		} catch (Exception x) {
-			System.out.println("Test.testClassLoader() failed (as expected!): " + x);
+			System.out.println("Test.testClassLoader() failed: " + x);
 		}
 		System.out.println();
-		
 		
 		try {
 			test.testClassURL();
 		} catch (Exception x) {
 			System.out.println("Test.testClassURL() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 
@@ -102,7 +94,6 @@ public class Main {
 		} catch (Exception x) {
 			System.out.println("Test.testResourceURL() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 
@@ -111,7 +102,6 @@ public class Main {
 		} catch (Exception x) {
 			System.out.println("Test.testResourceRelativeURL() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 
@@ -120,7 +110,6 @@ public class Main {
 		} catch (Exception x) {
 			System.out.println("Test.testImageIcon() failed: " + x);
 			x.printStackTrace();
-			failures++;
 		}
 		System.out.println();
 
@@ -129,7 +118,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testServices() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
 
@@ -138,7 +126,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testContentType() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
 
@@ -147,7 +134,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testHtmlAnchor() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
 
@@ -157,7 +143,6 @@ public class Main {
             } catch (Exception x) {
                 System.out.println("Test.testExternal() failed: " + x);
                 x.printStackTrace();
-                failures++;
             }
             System.out.println();
         }
@@ -167,7 +152,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testExpand() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
         
@@ -176,7 +160,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testExpanded() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
         
@@ -185,7 +168,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testGetResourceAsStream() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
 
@@ -194,7 +176,6 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testLogging() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
         
@@ -203,16 +184,15 @@ public class Main {
         } catch (Exception x) {
             System.out.println("Test.testPackageName() failed: " + x);
             x.printStackTrace();
-            failures++;
         }
         System.out.println();
         
-        failures += test.failures;
+        int failures = test.failures;
         
         long end = new Date().getTime();
 		
 		System.out.println("Main: finished in " + (end - start) + " ms");
-		String f = "count=" + test.count + " failure" + (failures==0 || failures>2? "s": "") + "=" + failures;
+		String f = "count=" + test.count + " skipped=" + test.skipped + " failure" + (failures==0 || failures>1? "s": "") + "=" + failures;
 		System.out.println(f);
 		
     }

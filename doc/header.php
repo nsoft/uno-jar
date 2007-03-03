@@ -20,6 +20,7 @@
   		"documents" => array(
   			"#info" => "Information", 
   			"whatsnew" => "What's New?", 
+  			"features" => "Key Features", 
   			"faq" => FAQ, 
   			"license" => "License", 
   			"ack" => "Acknowledgements", 

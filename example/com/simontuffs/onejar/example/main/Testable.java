@@ -10,7 +10,7 @@ public class Testable {
 
     public Error cause;
     public int failures;
-    public int count;
+    public int count, skipped;
     
     public void fail(String reason) throws Error {
         cause = new Error(reason);

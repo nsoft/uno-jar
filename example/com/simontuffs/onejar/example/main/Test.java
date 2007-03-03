@@ -159,8 +159,16 @@ public class Test extends Testable {
 			
 	}
 	
+    public boolean shouldSkip() {
+        boolean skip = this.getClass().getClassLoader().toString().indexOf("JarClassLoader") < 0;
+        if (skip) skipped++;
+        return skip;
+    }
+    
 	public void testClassURL() throws IOException, MalformedURLException {
         count++;
+        // Skip this test unless we're running inside One-JAR.
+        if (shouldSkip()) return;
 		String className = "/com/simontuffs/onejar/example/main/Main.class";
 		String resource = "onejar:" + className;
 		System.out.println("testClassURL(): Opening onejar resource using new URL(" + resource + ")");
@@ -193,6 +201,7 @@ public class Test extends Testable {
 	 */
     public void testResourceURL() throws IOException, MalformedURLException {
         count++;
+        if (shouldSkip()) return;
         String image = "/images/button.mail.gif";
         String resource = "onejar:" + image;
         System.out.println("testResourceURL(): Opening onejar resource using new URL(" + resource + ")");
@@ -307,26 +316,29 @@ public class Test extends Testable {
      */
     public void testGetResourceAsStream() {
         count++;
-        InputStream stream = Test.class.getResourceAsStream("/main-manifest.mf");
+        String resource = "/main-manifest.mf";
+        InputStream stream = Test.class.getResourceAsStream(resource);
         if (stream == null) {
-            fail("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getResourceAsStream()");
+            fail("testGetResourceAsStream(): Error: Whoops: unable to load " + resource + " using Test.class.getResourceAsStream() ");
         } else {
-            System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getResourceAsStream()");
+            System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getResourceAsStream()");
         }
         stream = Test.class.getClassLoader().getResourceAsStream("/main-manifest.mf");
         if (stream == null) {
-            fail("testGetResourceAsStream(): Error: Whoops: unable to load /main-manifest.mf using Test.class.getClassloader().getResourceAsStream()");
+            fail("testGetResourceAsStream(): Error: Whoops: unable to load " + resource + " using Test.class.getClassloader().getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
         } else {
-            System.out.println("testGetResourceAsStream(): OK: able to load stream using Test.class.getClassLoader().getResourceAsStream()");
+            System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getClassLoader().getResourceAsStream()");
         }
         // The following is expected to fail, since the ClassLoader class is
         // part of the Java bootstrap classloader, and should not be able to
         // see into this codebase.
-        stream = ClassLoader.class.getResourceAsStream("/main-manifest.mf");
-        if (stream != null) {
-            fail("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
-        } else {
-            System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
+        if (!shouldSkip()) {
+            stream = ClassLoader.class.getResourceAsStream("/main-manifest.mf");
+            if (stream != null) {
+                fail("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
+            } else {
+                System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
+            }
         }
     }
     
@@ -349,6 +361,8 @@ public class Test extends Testable {
     
     public void testExpanded() throws IOException {
         count++;
+        if (shouldSkip()) return;
+        
         // By the time we get here, the contents of the expand directory in the One-Jar file 
         // should be present in the filesystem.  Verify this.
         String jarName = Boot.getMyJarPath();
@@ -393,6 +407,7 @@ public class Test extends Testable {
     
     public void testContentType() throws Exception {
         count++;
+        if (shouldSkip()) return;
         String uri = "onejar:index.html";
         URL url = new URL(uri);
         URLConnection connection = url.openConnection();
@@ -404,6 +419,7 @@ public class Test extends Testable {
     
     public void testHtmlAnchor() throws Exception {
         count++;
+        if (shouldSkip()) return;
         String uri = "onejar:index.html#anchor";
         URL url = new URL(uri);
         InputStream is = url.openStream();
