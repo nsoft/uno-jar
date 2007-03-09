@@ -160,9 +160,16 @@ public class Test extends Testable {
 	}
 	
     public boolean shouldSkip() {
-        boolean skip = this.getClass().getClassLoader().toString().indexOf("JarClassLoader") < 0;
-        if (skip) skipped++;
-        return skip;
+        // Some tests should be skipped unless they are executed under One-JAR.  This test relies on the
+        // late-loading property of Java classes (otherwise this whole test class would fail to load).
+        try {
+            ClassLoader loader = this.getClass().getClassLoader(); 
+            if (loader instanceof JarClassLoader) return false;
+        } catch (NoClassDefFoundError nfe) {
+            System.out.println("skipping test because: : " + nfe);
+        }
+        skipped ++;
+        return true;
     }
     
 	public void testClassURL() throws IOException, MalformedURLException {

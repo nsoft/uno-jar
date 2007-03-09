@@ -16,7 +16,10 @@ One-Jar uses the following VM properties (-D&lt;property&gt;=&lt;true|false|stri
     one-jar.info       true:  Print informative classloading information
 </pre>
 
-<p>To see what the <code>JarClassLoader</code> is behind the scenes, enable verbose output using the
+<p>Version information is presented as a single line response.  For example: <code>One-JAR version 0.96-rc4-20070308-2022</code>
+The major version number is 0.96, the minor version number is rc4 (release-candidate 4), built on March 8, 2007 at 2022.
+
+<p>To see what the <code>JarClassLoader</code> is doing behind the scenes, enable verbose output using the
 one-jar.verbose system property:
 </p><pre>
 $ java -Done-jar.verbose=true -jar one-jar-example-0.96.jar
