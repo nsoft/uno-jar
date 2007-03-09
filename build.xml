@@ -20,6 +20,12 @@
  
 	<!-- version number -->
 	<property name="one-jar.version" value="0.96" />
+    <!-- 
+      Additional version information inside .version file, but not encoded into file names 
+      The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
+    -->   
+    <tstamp prefix="time"/>   
+    <property name="one-jar.info" value="-rc4-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
@@ -62,7 +68,7 @@
 		<javac destdir="${classes.dir}/src" deprecation="off" optimize="${optimize}" debug="${debug}">
 			<src path="${src.dir}" />
 		</javac>
-        <echo file="${classes.dir}/src/.version">${one-jar.version}</echo>
+        <echo file="${classes.dir}/src/.version">${one-jar.version}${one-jar.info}</echo>
 		<javac destdir="${classes.dir}/example" deprecation="off" optimize="${optimize}" debug="${debug}">
 			<src path="${example.dir}" />
 			<classpath>
