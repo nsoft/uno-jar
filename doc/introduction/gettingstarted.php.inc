@@ -1,5 +1,5 @@
 <h2>Getting Started</h2>
-To get started building an application using One-Jar, download the <a href="http://prdownloads.sourceforge.net/one-jar/one-jar-sdk-0.96.jar?download">One-Jar Software Developers Kit</a>.
+To get started building an application using One-Jar, download the <a href="index.php?page=downloads&amp;file=downloads">One-Jar Software Developers Kit</a>.
 The kit is a One-Jar executable, which contains all the pieces needed to assemble One-Jar applications (and can also re-assemble itself).  When 
 run, should see the following output:
 <pre>

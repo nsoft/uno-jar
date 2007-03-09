@@ -11,14 +11,14 @@ approaches to delivering Java applications in a single file.
 	</li>
 	<li>No temporary files are created during runtime execution. 
 		<div class="listindent">Unlike other single Jar-file approaches (which unpack supporting Jar files into
-		temporary files in the file-system), One-JAR executes completely in-memory.  This allows
+		temporary files in the file-system), One-JAR reads nested Jar files directly from the One-JAR archive.  This allows
 		One-JAR applications to run from read-only filesystems, and provides much faster
 		startup and shutdown times.</div>
 	</li>
 	<li>Duplicate class/resource safety.
 		<div class="listindent">One-JAR checks classes and resources from supporting Jar 
 		files and will warn if duplicates are detected.  Such warnings can save hours
-		of debugging puzzling NoSuchMethodError problems etc.
+		of debugging puzzling NoSuchMethodError problems etc.</div>
 	</li>
 	<li>Supports Jar-local resources.
 		<div class="listindent">One-JAR allows each supporting Jar file to read resources 

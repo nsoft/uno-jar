@@ -1,6 +1,6 @@
 <h2>It's Simple. Really!</h2>
 
-For a more detailed example look a the build.xml file in the One-JAR SDK, available through the <a href="downloads.php">Downloads</a> page.
+For a more detailed example look a the build.xml file in the One-JAR SDK, available through the <a href="index.php?page=downloads&amp;file=downloads">Downloads</a> page.
 The key Ant target to learn from is shown below:
 
 <pre>

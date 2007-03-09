@@ -3,7 +3,7 @@
 Thanks to the following contributors for their suggestions and patches towards improving One-JAR:
 
 <ul>
-  <li>Christopher Ottley & Dennis Pfisterer: The native library loading mechanism</li>
+  <li>Christopher Ottley &amp; Dennis Pfisterer: The native library loading mechanism</li>
   <li>Erik Pragt: for sharing his Comic Reader application and working through a nasty recursion problem</li>
   <li>Geoff Bourne: Cleaning up the one-jar "myName" mechanism and improving cross-platform support.</li>
   <li>Alex Gadenz: Improving the URL handler with Mime-Type and anchor support</li>
