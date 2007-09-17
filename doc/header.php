@@ -5,7 +5,7 @@
   		"introduction" => array(
   			"intro" => "Introduction", 
   			"opening" => "Opening the JAR", 
-  			"options" => "Options", 
+  			"options" => "Options & Properties", 
   			"gettingstarted" => "Getting Started", 
   			"manifest" => "Manifest Attributes", 
   			"native" => "Native Libraries"), 
@@ -21,7 +21,7 @@
   			"#info" => "Information", 
   			"whatsnew" => "What's New?", 
   			"features" => "Key Features", 
-  			"faq" => FAQ, 
+  			"faq" => "FAQ", 
   			"license" => "License", 
   			"ack" => "Acknowledgements", 
   			"junit-noframes" => "Test Results"), 

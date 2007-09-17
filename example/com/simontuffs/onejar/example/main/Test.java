@@ -376,7 +376,10 @@ public class Test extends Testable {
         JarFile jarFile = new JarFile(jarName);
         Enumeration _enum = jarFile.entries();
         Manifest manifest = jarFile.getManifest();
-        String paths[] = manifest.getMainAttributes().getValue(JarClassLoader.EXPAND).split(",");
+        String expand = manifest.getMainAttributes().getValue(JarClassLoader.EXPAND);
+        if (expand == null) 
+            return;
+        String paths[] = expand.split(",");
 
         System.out.println("testExpanded(): checking expanded files");
         String missing = "";

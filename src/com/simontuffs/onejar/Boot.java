@@ -30,6 +30,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * Run a java application which requires multiple support jars from inside
@@ -38,23 +40,24 @@ import java.util.jar.Manifest;
  * <p>
  * Developer time JVM properties:
  * <pre>
- *   -Done-jar.main-class={name}  Use named class as main class to run. 
+ *   -Done-jar.main.class={name}  Use named class as main class to run. 
  *   -Done-jar.record[=recording] Record loaded classes into "recording" directory.
- *                                Flatten jar-names into directory tree suitable 
+ *                                Flatten jar.names into directory tree suitable 
  * 								  for use as a classpath.
- *   -Done-jar.jar-names          Record loaded classes, preserve jar structure
+ *   -Done-jar.jar.names          Record loaded classes, preserve jar structure
  *   -Done-jar.verbose            Run the JarClassLoader in verbose mode.
  * </pre>
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
 public class Boot {
 	
-	/**
+    /**
 	 * The name of the manifest attribute which controls which class 
 	 * to bootstrap from the jar file.  The boot class can
 	 * be in any of the contained jar files.
 	 */
 	public final static String BOOT_CLASS = "Boot-Class";
+    public final static String ONE_JAR_CLASSLOADER = "One-Jar-Class-Loader";
     public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
 	
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
@@ -66,33 +69,48 @@ public class Boot {
 
     // System properties.
 	public final static String PROPERTY_PREFIX = "one-jar.";
-	public final static String P_MAIN_CLASS = PROPERTY_PREFIX + "main-class";
+	public final static String P_MAIN_CLASS = PROPERTY_PREFIX + "main.class";
 	public final static String P_RECORD = PROPERTY_PREFIX + "record";
-	public final static String P_JARNAMES = PROPERTY_PREFIX + "jar-names";
+	public final static String P_JARNAMES = PROPERTY_PREFIX + "jar.names";
 	public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
 	public final static String P_INFO = PROPERTY_PREFIX + "info";
+    public final static String P_STATISTICS = PROPERTY_PREFIX + "statistics";
+    public final static String P_SHOW_PROPERTIES = PROPERTY_PREFIX + "show.properties";
+    public final static String P_JARPATH = PROPERTY_PREFIX + "jar.path";
+    public final static String P_ONE_JAR_CLASS_PATH = PROPERTY_PREFIX + "class.path";
+    public final static String P_JAVA_CLASS_PATH = "java.class.path";
+    public final static String P_PATH_SEPARATOR = "|";
+    public final static String P_EXPAND_DIR = PROPERTY_PREFIX + "expand.dir";
     
     // Command-line arguments
     public final static String HELP = "--one-jar-help";
     public final static String VERSION = "--one-jar-version";
     
     public final static String[] HELP_PROPERTIES = {
-        P_MAIN_CLASS, "Specifies the name of the class which should be executed (via public static void main(String[])", 
+        P_MAIN_CLASS, "Specifies the name of the class which should be executed \n(via public static void main(String[])", 
         P_RECORD,     "true:  Enables recording of the classes loaded by the application",
         P_JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
-                    "false: Recorded classes are flattened into a single directory.  Duplicates are ignored (first wins)",
+                      "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
         P_VERBOSE,    "true:  Print verbose classloading information", 
-        P_INFO,       "true:  Print informative classloading information"
+        P_INFO,       "true:  Print informative classloading information", 
+        P_STATISTICS, "true:  Shows statistics about the One-Jar Classloader",
+        P_JARPATH,    "Full path of the one-jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
+        P_ONE_JAR_CLASS_PATH,    "Extra classpaths to be added to the execution environment.  \nUse platform independent path separator '" + P_PATH_SEPARATOR + "'",
+        P_EXPAND_DIR, "Directory to use for expanded files.",
+        P_SHOW_PROPERTIES, "true:  Shows the JVM system properties.",
     };
 	
     public final static String[] HELP_ARGUMENTS = {
         HELP,       "Shows this message, then exits.",
-        VERSION,    "Shows the version of One-JAR, then exits."
+        VERSION,    "Shows the version of One-JAR, then exits.", 
     };
     
-    
-	protected static boolean info, verbose;
+	protected static boolean info, verbose, statistics;
     protected static String myJarPath;
+    
+    protected static long startTime = System.currentTimeMillis();
+    protected static long endTime = 0;
+    
 
 	// Singleton loader.  This must not be changed once it is set, otherwise all
     // sorts of nasty class-cast exceptions will ensue.  Hence we control 
@@ -132,24 +150,17 @@ public class Boot {
 	protected static void INFO(String message) {
 		if (info) System.out.println("Boot: Info: " + message);
 	}
+    
+    protected static void PRINTLN(String message) {
+        System.out.println("Boot: " + message);
+    }
 
     public static void main(String[] args) throws Exception {
     	run(args);
     }
     
     public static void run(String args[]) throws Exception {
-    	
-		if (false) {
-			// What are the system properties.
-	    	Properties props = System.getProperties();
-	    	Enumeration _enum = props.keys();
-	    	
-	    	while (_enum.hasMoreElements()) {
-	    		String key = (String)_enum.nextElement();
-	    		System.out.println(key + "=" + props.get(key));
-	    	}
-		}
-        
+		
         processArgs(args);
         
     	// Is the main class specified on the command line?  If so, boot it.
@@ -173,6 +184,7 @@ public class Boot {
 				INFO("loading properties from " + props);
 				properties.load(is);
 			} 
+			
 			// Set system properties only if not already specified.
 			Enumeration _enum = properties.propertyNames();
 			while (_enum.hasMoreElements()) {
@@ -182,16 +194,30 @@ public class Boot {
 				}
 			}
 		}		
+        if (Boolean.valueOf(System.getProperty(P_SHOW_PROPERTIES, "false")).booleanValue()) {
+            // What are the system properties.
+            Properties props = System.getProperties();
+            String keys[] = (String[])props.keySet().toArray(new String[]{});
+            Arrays.sort(keys);
+            
+            for (int i=0; i<keys.length; i++) {
+                String key = keys[i];
+                System.out.println(key + "=" + props.get(key));
+            }
+        }
 		// Process developer properties:
 		mainClass = System.getProperty(P_MAIN_CLASS);
 
+        // Pick some things out of the top-level JAR file.
+        String jar = getMyJarPath();
+        JarFile jarFile = new JarFile(jar);
+        Manifest manifest = jarFile.getManifest();
+        Attributes attributes = manifest.getMainAttributes();
+        String bootLoaderName = attributes.getValue(ONE_JAR_CLASSLOADER);
+        
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
 		if (mainClass == null) {
-            String jar = getMyJarPath();
-            JarFile jarFile = new JarFile(jar);
-            Manifest manifest = jarFile.getManifest();
-            Attributes attributes = manifest.getMainAttributes();
             mainClass = attributes.getValue(ONE_JAR_MAIN_CLASS);
             if (mainClass == null) {
                 mainClass = attributes.getValue(BOOT_CLASS);
@@ -200,7 +226,7 @@ public class Boot {
                 }
             } 
 		}
-		
+        
 		if (mainClass == null) {
 			// Still don't have one (default).  One final try: look for a jar file in a
 			// main directory.  There should be only one, and it's manifest 
@@ -209,10 +235,9 @@ public class Boot {
 			InputStream is = Boot.class.getResourceAsStream("/" + MAIN_JAR);
 			if (is != null) {
 				JarInputStream jis = new JarInputStream(is);
-				Manifest manifest = jis.getManifest();
+				Manifest mainmanifest = jis.getManifest();
                 jis.close();
-				Attributes attributes = manifest.getMainAttributes();
-				mainClass = attributes.getValue(Attributes.Name.MAIN_CLASS);
+				mainClass = mainmanifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 			} else {
 			    // There is no main jar. Warning.
                 WARNING("Unable to locate " + MAIN_JAR + " in the JAR file " + getMyJarPath());
@@ -225,13 +250,7 @@ public class Boot {
 		
 		if (url != null) {
 			// Wrap class loaders.
-			JarClassLoader bootLoader = (JarClassLoader)AccessController.doPrivileged(
-                new PrivilegedAction() {
-                    public Object run() {
-                        return new JarClassLoader(WRAP_DIR);
-                    }
-                }
-            );
+            final JarClassLoader bootLoader = getBootLoader(bootLoaderName);
             setProperties(bootLoader);
 			bootLoader.load(null);
 			
@@ -240,32 +259,29 @@ public class Boot {
             InputStream is = Boot.class.getResourceAsStream(WRAP_JAR);
             if (is != null) {
     			JarInputStream jis = new JarInputStream(is);
-    			String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
+    			final String wrapLoader = jis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
                 jis.close();
     			if (wrapLoader == null) {
     				WARNING(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
     			} else {
     				INFO("using " + wrapLoader);
-    				Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
-    				Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
-                    setClassLoader((JarClassLoader)ctor.newInstance(new Object[]{bootLoader}));
+                    JarClassLoader wrapped = getWrapLoader(bootLoader, wrapLoader);
+                    if (wrapped == null) {
+                        WARNING("Unable to instantiate " + wrapLoader + " from " + WRAP_DIR + ": using default JarClassLoader");
+                        wrapped = getBootLoader(null);
+                    }
+                    setClassLoader(wrapped);
     			}
             }
-				
 		} else {
-			INFO("using JarClassLoader");
-			setClassLoader((JarClassLoader)AccessController.doPrivileged(
-                new PrivilegedAction() {
-                    public Object run() {
-                        return new JarClassLoader(Boot.class.getClassLoader());
-                    }
-                }
-            ));
+            setClassLoader(getBootLoader(bootLoaderName, Boot.class.getClassLoader()));
+            INFO("using JarClassLoader: " + getClassLoader().getClass().getName());
 		}
         setProperties(loader);
+        
 		mainClass = loader.load(mainClass);
         
-        if (mainClass == null && !loader.isExpanding()) 
+        if (mainClass == null && !loader.isExpanded()) 
             throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
 
         if (mainClass != null) {
@@ -282,9 +298,19 @@ public class Boot {
     		Thread.currentThread().setContextClassLoader(loader);
             
         	Class cls = loader.loadClass(mainClass);
-        	
+            
+            endTime = System.currentTimeMillis();
+            showTime();
+            
         	Method main = cls.getMethod("main", new Class[]{String[].class}); 
         	main.invoke(null, new Object[]{args});
+        }
+    }
+
+    public static void showTime() {
+        long endtime = System.currentTimeMillis();
+        if (statistics) {
+            PRINTLN("Elapsed time: " + (endtime - startTime) + "ms");
         }
     }
     
@@ -301,10 +327,14 @@ public class Boot {
         if (getProperty(P_VERBOSE)) {
             jarloader.setVerbose(true);
             jarloader.setInfo(true);
+            verbose = true;
         } 
         if (getProperty(P_INFO)) {
             jarloader.setInfo(true);
+            info = true;
         } 
+        
+        statistics = getProperty(P_STATISTICS);
     }
     
     public static boolean getProperty(String key) {
@@ -324,16 +354,17 @@ public class Boot {
         if (myJarPath != null) {
             return myJarPath;
         }
-        myJarPath = System.getProperty(PROPERTY_PREFIX + "jarname"); 
+        myJarPath = System.getProperty(P_JARPATH); 
         if (myJarPath == null) {
             try {
                 // Hack to obtain the name of this jar file.
-                String jarname = System.getProperty(JarClassLoader.JAVA_CLASS_PATH);
+                String jarname = System.getProperty(P_JAVA_CLASS_PATH);
                 // Open each Jar file looking for this class name.  This allows for
                 // JVM's that place more than the jar file on the classpath.
                 String jars[] =jarname.split(System.getProperty("path.separator"));
                 for (int i=0; i<jars.length; i++) {
                     jarname = jars[i];
+                    VERBOSE("Checking " + jarname + " as One-Jar file");
                     // Allow for URL based paths, as well as file-based paths.  File
                     InputStream is = null;
                     try {
@@ -343,20 +374,30 @@ public class Boot {
                         try {
                             is = new FileInputStream(jarname);
                         } catch (IOException iox) {
-                            // Ignore...
+                            // Ignore..., but it isn't good to have bad entries on the classpath.
                             continue;
                         }
                     }
-                    JarEntry entry = findJarEntry(new JarInputStream(is), Boot.class.getName().replace('.', '/') + ".class");
+                    ZipEntry entry = findJarEntry(new JarInputStream(is), Boot.class.getName().replace('.', '/') + ".class");
                     if (entry != null) {
                         myJarPath = jarname;
                         break;
+                    } else {
+                        // One more try as a Zip file: supports launch4j on Windows.
+                        entry = findZipEntry(new ZipFile(jarname), Boot.class.getName().replace('.', '/') + ".class");
+                        if (entry != null) {
+                            myJarPath = jarname;
+                            break;
+                        }
                     }
                 }
             } catch (Exception x) {
                 x.printStackTrace();
-                WARNING("jar=" + myJarPath + " loaded from " + JarClassLoader.JAVA_CLASS_PATH + " (" + System.getProperty(JarClassLoader.JAVA_CLASS_PATH) + ")");
+                WARNING("jar=" + myJarPath + " loaded from " + P_JAVA_CLASS_PATH + " (" + System.getProperty(P_JAVA_CLASS_PATH) + ")");
             }
+        }
+        if (myJarPath == null) {
+            throw new IllegalArgumentException("Unable to locate " + Boot.class.getName() + " in the java.class.path: consider using -D" + P_JARPATH + " to specify the one-jar filename.");
         }
         // Normalize those annoying DOS backslashes.
         myJarPath = myJarPath.replace('\\', '/');
@@ -364,11 +405,22 @@ public class Boot {
     }
     
     public static JarEntry findJarEntry(JarInputStream jis, String name) throws IOException {
-        JarEntry entry; ;
+        JarEntry entry;
         while ((entry = jis.getNextJarEntry()) != null) {
             if (entry.getName().equals(name)) {
                 return entry;
             }
+        }
+        return null;
+    }
+    
+    public static ZipEntry findZipEntry(ZipFile zip, String name) throws IOException {
+        Enumeration entries = zip.entries();
+        while (entries.hasMoreElements()) {
+            ZipEntry entry = (ZipEntry) entries.nextElement();
+            VERBOSE(("findZipEntry(): entry=" + entry.getName()));
+            if (entry.getName().equals(name)) 
+                return entry;
         }
         return null;
     }
@@ -432,6 +484,69 @@ public class Boot {
             }
             System.exit(0);
         }
+    }
+    
+    protected static JarClassLoader getBootLoader(final String loader) {
+        JarClassLoader bootLoader = (JarClassLoader)AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        if (loader != null) {
+                            try {
+                                Class cls = Class.forName(loader);
+                                Constructor ctor = cls.getConstructor(new Class[]{String.class});
+                                return ctor.newInstance(new Object[]{WRAP_DIR});
+                            } catch (Exception x) {
+                                WARNING("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
+                            }
+                        }
+                        return new JarClassLoader(WRAP_DIR);
+                    }
+                }
+            );
+        return bootLoader;
+    }
+    
+    protected static JarClassLoader getBootLoader(final String loader, ClassLoader parent) {
+        return (JarClassLoader)AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    if (loader != null) {
+                        try {
+                            Class cls = Class.forName(loader);
+                            Constructor ctor = cls.getConstructor(new Class[]{ClassLoader.class});
+                            return ctor.newInstance(new Object[]{Boot.class.getClassLoader()});
+                        } catch (Exception x) {
+                            WARNING("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
+                        }
+                    }
+                    return new JarClassLoader(Boot.class.getClassLoader());
+                }
+            }
+        );        
+    }
+    
+    protected static JarClassLoader getWrapLoader(final ClassLoader bootLoader, final String wrapLoader) {
+        return ((JarClassLoader)AccessController.doPrivileged(
+            new PrivilegedAction() {
+                public Object run() {
+                    try {
+                        Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
+                        Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
+                        return ctor.newInstance(new Object[]{bootLoader});
+                    } catch (Throwable t) {
+                        WARNING(t.toString());
+                    }
+                    return null;
+                }
+            }));
+    }
+
+    public static long getEndTime() {
+        return endTime;
+    }
+
+    public static long getStartTime() {
+        return startTime;
     }
     
 }

@@ -142,6 +142,12 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testLogging");
     }
     
+    public void testExternal() throws Exception {
+        if (System.getProperty("one-jar.test.external") != null) {
+            Invoker.invoke(test, "testExternal");
+        }
+    }
+    
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.
 

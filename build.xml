@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <project name="one-jar" default="dist" basedir=".">
 	<property name="src.dir" location="${basedir}/src" />
 	<property name="ant.dir" location="${basedir}/ant" />
@@ -25,7 +24,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc4-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc5-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
@@ -423,6 +422,8 @@
 		<junit fork="yes" showoutput="no" printsummary="yes">
 			<jvmarg value="-Done-jar.verbose=true" />
 			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+			<sysproperty key="one-jar.test.external" value="true"/>
+			<sysproperty key="one-jar.class.path" value="${external.jar}"/>
 			<classpath>
 				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
 				<path location="${classes.dir}/test" />
@@ -523,15 +524,19 @@
             <manifest>
                 <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
                 <attribute name="One-Jar-Expand" value=""/>   
+                <attribute name="One-Jar-Expand-Tmp" value="true"/>   
                 <attribute name="One-Jar-Show-Expand" value="true"/>   
                 <attribute name="One-Jar-Confirm-Expand" value="true"/>   
             </manifest>   
             <main/>   
         </one-jar>   
-        <delete dir="tmp"/>   
-        <mkdir dir="tmp"/>
-        <java fork="true" dir="tmp" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y"/>
-        <available property="test.ant.taskdef.2" file="tmp/OneJar.class"/>
+        <delete dir="tmp/ant-taskdef-2.jar"/>   
+        <mkdir dir="tmp/ant-taskdef-2.jar"/>
+        <!-- <chmod dir="tmp" perm="444"/> -->
+        <java fork="true" dir="tmp/ant-taskdef-2.jar" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y">
+        	<sysproperty key="one-jar.expand.dir" value="."/>
+        </java>
+        <available property="test.ant.taskdef.2" file="tmp/ant-taskdef-2.jar/OneJar.class"/>
         <fail unless="test.ant.taskdef.2"/>
     </target>   
 

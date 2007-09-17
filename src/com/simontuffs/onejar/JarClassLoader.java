@@ -18,16 +18,20 @@
 package com.simontuffs.onejar;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
@@ -67,7 +71,7 @@ import java.util.jar.Attributes.Name;
  */
 public class JarClassLoader extends ClassLoader implements IProperties {
     
-    public final static String JAVA_CLASS_PATH = "java.class.path";
+    public static final String DOT_CONFIRM = ".onejar.confirm";
     public final static String LIB_PREFIX = "lib/";
     public final static String BINLIB_PREFIX = "binlib/";
     public final static String MAIN_PREFIX = "main/";
@@ -75,14 +79,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String TMP = "tmp";
     public final static String UNPACK = "unpack";
     public final static String EXPAND = "One-Jar-Expand";
+    public final static String EXPAND_TMP = "One-Jar-Expand-Tmp";
+    public final static String EXPAND_DIR = "One-Jar-Expand-Dir";
     public final static String SHOW_EXPAND = "One-Jar-Show-Expand";
     public final static String CONFIRM_EXPAND = "One-Jar-Confirm-Expand";
     public final static String CLASS = ".class";
     
+    public final static String NL = System.getProperty("line.separator");
+    
     public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
     
     protected String name;
-    protected boolean expanded;
+    protected boolean noExpand, expanded;
+    protected ClassLoader externalClassLoader;
     
     static {
         // Add our 'onejar:' protocol handler, but leave open the 
@@ -161,6 +170,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(String $wrap) {
         wrapDir = $wrap;
         delegateToParent = wrapDir == null;
+        init();
     }
     
     /**
@@ -228,7 +238,36 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(ClassLoader parent) {
         super(parent);
         delegateToParent = true;
+        init();
         // System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
+    }
+    
+    /**
+     * Common initialization code: establishes a classloader for delegation
+     * to one-jar.class.path resources.
+     */
+    protected void init() {
+        String classpath = System.getProperty(Boot.P_ONE_JAR_CLASS_PATH);
+        if (classpath != null) {
+            String tokens[] = classpath.split("\\" + Boot.P_PATH_SEPARATOR);
+            List list = new ArrayList();
+            for (int i=0; i<tokens.length; i++) {
+                String path = tokens[i];
+                try {
+                    list.add(new URL(path));
+                } catch (MalformedURLException mux) {
+                    // Try a file:/// prefix and an absolute path.
+                    try {
+                        list.add(new URL("file:///" + new File(path).getAbsolutePath()));
+                    } catch (MalformedURLException ignore) {
+                        Boot.WARNING("Unable to parse external path: " + path);
+                    }
+                }
+            }
+            URL urls[] = (URL[])list.toArray(new URL[0]);
+            Boot.INFO("external URLs=" + Arrays.asList(urls));
+            externalClassLoader = new URLClassLoader(urls);
+        }
     }
     
     public String load(String mainClass) {
@@ -253,24 +292,42 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // be specified like this:
             // One-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
-            if (expand != null) {
+            String expandtmp = manifest.getMainAttributes().getValue(EXPAND_TMP);
+            String expanddir = System.getProperty(Boot.P_EXPAND_DIR);
+            if (expanddir == null) expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
+            boolean shouldExpand = true;
+            File tmpdir = new File(".");
+            if (expandtmp != null && Boolean.valueOf(expandtmp).booleanValue()) {
+                if (expanddir != null) {
+                    tmpdir = new File(expanddir);
+                } else {
+                    File tmpfile = File.createTempFile("one-jar", ".tmp");
+                    tmpfile.deleteOnExit();
+                    tmpdir = new File(tmpfile.getParentFile() + "/" + new File(jarName).getName() + "/expand");
+                }
+            }
+            if (noExpand == false && expand != null) {
                 expanded = true;
                 VERBOSE(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
-                boolean confirm = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(CONFIRM_EXPAND));
-                if (confirm) {
-                    PRINTLN("Do you want to allow '" + Boot.getMyJarName() + "' to expand files into the file-system at " + new File(".").getAbsolutePath() + "?");
-                    PRINT("Note: Answering n (no) will terminate this application: (y/n)? ");
-                    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                    String answer = br.readLine();
-                    if (answer != null && answer.trim().toLowerCase().equals("n")) {
+                boolean getconfirm = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(CONFIRM_EXPAND));
+                if (getconfirm) {
+                    String answer = getConfirmation(tmpdir);
+                    if (answer == null) answer = "n";
+                    answer = answer.trim().toLowerCase();
+                    if (answer.startsWith("q")) {
                         PRINTLN("exiting without expansion.");
                         // Indicate (expected) failure with a non-zero return code.
                         System.exit(1);
+                    } else if (answer.startsWith("n")) {
+                        shouldExpand = false;
                     }
                 }
             }
             boolean showexpand = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(SHOW_EXPAND));
+            if (showexpand) {
+                PRINTLN("Expanding to: " + tmpdir.getAbsolutePath());
+            }
             while (_enum.hasMoreElements()) {
                 JarEntry entry = (JarEntry)_enum.nextElement();
                 if (entry.isDirectory()) continue;
@@ -282,8 +339,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 if (expandPaths != null) {
                     // TODO: Can't think of a better way to do this right now.  
                     // This code really doesn't need to be optimized anyway.
-                    if (shouldExpand(expandPaths, name)) {
-                        File dest = new File(name);
+                    if (shouldExpand && shouldExpand(expandPaths, name)) {
+                        File dest = new File(tmpdir, name);
                         // Override if ZIP file is newer than existing.
                         if (!dest.exists() || dest.lastModified() < entry.getTime()) {
                             String msg = "Expanding:  " + name;
@@ -365,7 +422,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
                 } else {
                     // A resource? 
-                   INFO("resource: " + jarFile.getName() + "!" + entry.getName());
+                   INFO("resource: " + jarFile.getName() + "!/" + entry.getName());
                 }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
@@ -465,8 +522,18 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * jar file which was used to load <u>this</u> class.
      */
     protected Class findClass(String name) throws ClassNotFoundException {
+        // Delegate to external paths first
+        Class cls = null;
+        if (externalClassLoader != null) {
+            try {
+            return externalClassLoader.loadClass(name);
+            } catch (ClassNotFoundException cnfx) {
+                // continue...
+            }
+        }
+
         // Make sure not to load duplicate classes.
-        Class cls = findLoadedClass(name);
+        cls = findLoadedClass(name);
         if (cls != null) return cls;
         
         // Look up the class in the byte codes.
@@ -888,6 +955,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         name = string;
     }
     
+    public void setExpand(boolean expand) {
+        noExpand = !expand;
+    }
+    
+    public boolean isExpanded() {
+        return expanded;
+    }
     
     /**
      * If the system specific library exists in the JAR, expand it and return the path
@@ -947,8 +1021,38 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
         return result;
     }
-    
-    public boolean isExpanding() {
-        return expanded;
+
+    protected String getConfirmation(File location) throws IOException {
+        File dotconfirm = new File(location, DOT_CONFIRM);
+        String answer = "";
+        if (dotconfirm.exists()) {
+            BufferedReader br = new BufferedReader(new FileReader(dotconfirm));
+            answer = br.readLine();
+            br.close();
+            PRINTLN("Previous confirmation for file expansion (" + answer + ") was read from " + dotconfirm);
+            return answer;
+        }
+        while (answer == null || (!answer.startsWith("n") && !answer.startsWith("y") && !answer.startsWith("q"))) {
+            promptForConfirm(location);
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            answer = br.readLine();
+            br.close();
+        }
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(dotconfirm));
+            bw.write(answer + NL);
+            bw.close();
+            PRINTLN("Your response has been stored in " + dotconfirm.getAbsolutePath() + ".  Please remove this file if you wish to change your mind.");
+        } catch (IOException iox) {
+            WARNING("Unable to store confirmation response in " + dotconfirm.getAbsolutePath() + ": " + iox);
+        }
+        return answer;
     }
+    
+    protected void promptForConfirm(File location) {
+        PRINTLN("Do you want to allow '" + Boot.getMyJarName() + "' to expand files into the file-system at the following location?");
+        PRINTLN("  " + location);
+        PRINT("Answer y(es) to expand files, n(o) to continue without expanding, or q(uit) to exit: ");
+    }
+    
 }
