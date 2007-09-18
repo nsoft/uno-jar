@@ -12,10 +12,9 @@ consulting methods including Skype, Email, Instant Messaging and Remote Desktop 
 <li>Fast, efficent problem solving.</li>
 <li>Extensive experience in building and diagnosing systems with the One-JAR classloading mechanisms.
 <li>Over 20 years professional experience in the field of software development.</li>
-<li>Previous client references available on request.</li>
 </ul>
 
 <p>Most problems only take a few hours to solve: you will save money by contracting with us. 
-We provide a "Satisfaction Guaranteed" service: if you aren't satisfied with our work we will
-refund your payments.
+We know that you will be satisfied with our work, and can provide references from 
+satisfied customers on previous contracts.
 

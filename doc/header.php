@@ -61,19 +61,19 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN">
 <html>
 	<head>
-		<title>Deliver Your Java Application in One-JAR!</title>
+		<title>Deliver Your Java Application in One-JAR&trade; !</title>
 		<link rel="stylesheet" type="text/css" href="style.css" />
 	</head>
 <body>
 
 <?php
 	if ($ONEPAGE) {
-		echo "<b><center>Deliver Your Java Application in One-JAR! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </center></b>";
+		echo "<b><center>Deliver Your Java Application in One-JAR&trade;! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </center></b>";
 	}
 	if ($ONEPAGE) return;
 ?>
 
-<h1>Deliver Your Java Application in One-JAR!</h1>
+<h1>Deliver Your Java Application in One-JAR&trade;!</h1>
 <b>Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </b>
 <br/>
 <hr>

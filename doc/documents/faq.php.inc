@@ -60,5 +60,7 @@ report it to the <a href="http://sourceforge.net/tracker/?group_id=111153&amp;at
 Better still, fix it and submit a patch and it will get integrated into the next release.
 
 <p>Please submit new FAQ questions (and answers if you have them) to the <a href="http://sourceforge.net/forum/forum.php?forum_id=380844">SourceForge Discussion List</a>.  The
-growing One-JAR community is good at supporting itself.
+growing One-JAR community is good at supporting itself.  But please don't expect a real-time response: One-JAR
+really is Open-Source, you should be able to build and support yourself with ease.  If you find yourself
+struggling, please contact us for <?=hyperlink("support", "support", "professional support")?>
 

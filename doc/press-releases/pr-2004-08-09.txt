@@ -1,6 +1,6 @@
 Headline:
 
-Deliver Your Java Applications Using One-JAR  
+Deliver Your Java Applications Using One-JAR(TM)
 
 Summary:
 
