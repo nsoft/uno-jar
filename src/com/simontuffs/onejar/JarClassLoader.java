@@ -962,6 +962,56 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public boolean isExpanded() {
         return expanded;
     }
+         
+     /** 
+     * Preloader for {@link JarClassLoader#findTheLibrary(String, String)} to allow arch-specific native libraries 
+     * 
+     * @param name the (system specific) name of the requested library
+     * @author Sebastian Just 
+     */ 
+     protected String findLibrary(String name) { 
+	     final String os = System.getProperty("os.name").toLowerCase(); 
+	     final String arch = System.getProperty("os.arch").toLowerCase(); 
+	     
+	     final String BINLIB_LINUX32_PREFIX = BINLIB_PREFIX + "linux32/"; 
+	     final String BINLIB_LINUX64_PREFIX = BINLIB_PREFIX + "linux64/"; 
+	     final String BINLIB_MACOSX_PREFIX = BINLIB_PREFIX + "macosx/"; 
+	     final String BINLIB_WINDOWS32_PREFIX = BINLIB_PREFIX + "windows32/"; 
+	     final String BINLIB_WINDOWS64_PREFIX = BINLIB_PREFIX + "windows64/"; 
+	     
+	     String binlib = null; 
+	     
+	     // Mac 
+	     if (os.startsWith("mac os x")) { 
+		     //TODO Nood arch detection on mac 
+		     binlib = BINLIB_MACOSX_PREFIX; 
+		 // Windows
+	     } else if (os.startsWith("windows")) { 
+		     if (arch.equals("x86")) { 
+		    	 binlib = BINLIB_WINDOWS32_PREFIX; 
+		     } else { 
+		    	 binlib = BINLIB_WINDOWS64_PREFIX; 
+		     } 
+		 // So it have to be Linux 
+	     } else { 
+		     if (arch.equals("i386")) { 
+		    	 binlib = BINLIB_LINUX32_PREFIX; 
+		     } else { 
+		    	 binlib = BINLIB_LINUX64_PREFIX; 
+		     } 
+	     }//TODO Need some work for solaris
+	     
+	     VERBOSE("Using arch-specific native library path: " + binlib); 
+	     
+	     String retValue = findTheLibrary(binlib, name); 
+	     if (retValue != null) { 
+	    	 VERBOSE("Found in arch-specific directory!"); 
+	    	 return retValue; 
+	     } else { 
+	    	 VERBOSE("Search in standard native directory!"); 
+	    	 return findTheLibrary(BINLIB_PREFIX, name); 
+	     } 
+     } 
     
     /**
      * If the system specific library exists in the JAR, expand it and return the path
@@ -971,11 +1021,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      *
      * @author Christopher Ottley
      * @param name the (system specific) name of the requested library
+     * @param BINLIB_PREFIX the (system specific) folder to search in
      * @return the full pathname to the requested library, or null
      * @see Runtime#loadLibrary()
      * @since 1.2
      */
-    protected String findLibrary(String name) {
+    protected String findTheLibrary(String BINLIB_PREFIX, String name) {
         String result = null; // By default, search the java.library.path for it
         
         String resourcePath = BINLIB_PREFIX + System.mapLibraryName(name);
