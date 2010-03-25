@@ -43,11 +43,16 @@ public class Handler extends URLStreamHandler {
                     contentType = "text/plain";
                 return contentType;
             }
-			public InputStream getInputStream() {
+			public InputStream getInputStream() throws IOException {
 				// Use the Boot classloader to get the resource.  There
 				// is only one per one-jar.
 				JarClassLoader cl = Boot.getClassLoader();
-				return cl.getByteStream(resource);
+				InputStream is = cl.getByteStream(resource);
+				// sun.awt image loading does not like null input streams rerurned here.
+				// Throw IOException (probably better anyway).
+				if (is == null) 
+					throw new IOException("cl.getByteStream() returned null for " + resource);
+				return is;
 			}
 		};
 	}

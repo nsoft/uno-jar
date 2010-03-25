@@ -20,11 +20,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -59,6 +58,7 @@ public class Boot {
 	public final static String BOOT_CLASS = "Boot-Class";
     public final static String ONE_JAR_CLASSLOADER = "One-Jar-Class-Loader";
     public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
+    public final static String ONE_JAR_DEFAULT_MAIN_JAR = "One-Jar-Default-Main-Jar";
 	
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
 	public final static String MAIN_JAR = "main/main.jar";
@@ -70,6 +70,8 @@ public class Boot {
     // System properties.
 	public final static String PROPERTY_PREFIX = "one-jar.";
 	public final static String P_MAIN_CLASS = PROPERTY_PREFIX + "main.class";
+	public final static String P_MAIN_JAR = PROPERTY_PREFIX + "main.jar";
+    public final static String P_MAIN_APP = PROPERTY_PREFIX + "main.app";
 	public final static String P_RECORD = PROPERTY_PREFIX + "record";
 	public final static String P_JARNAMES = PROPERTY_PREFIX + "jar.names";
 	public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
@@ -83,11 +85,12 @@ public class Boot {
     public final static String P_EXPAND_DIR = PROPERTY_PREFIX + "expand.dir";
     
     // Command-line arguments
-    public final static String HELP = "--one-jar-help";
-    public final static String VERSION = "--one-jar-version";
+    public final static String A_HELP    = "--one-jar-help";
+    public final static String A_VERSION = "--one-jar-version";
     
     public final static String[] HELP_PROPERTIES = {
         P_MAIN_CLASS, "Specifies the name of the class which should be executed \n(via public static void main(String[])", 
+        P_MAIN_APP,   "Specifies the name of the main/<app>.jar to be executed", 
         P_RECORD,     "true:  Enables recording of the classes loaded by the application",
         P_JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
                       "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
@@ -101,9 +104,11 @@ public class Boot {
     };
 	
     public final static String[] HELP_ARGUMENTS = {
-        HELP,       "Shows this message, then exits.",
-        VERSION,    "Shows the version of One-JAR, then exits.", 
+        A_HELP,       "Shows this message, then exits.",
+        A_VERSION,    "Shows the version of One-JAR, then exits.", 
     };
+    
+    protected static String mainJar;
     
 	protected static boolean info, verbose, statistics;
     protected static String myJarPath;
@@ -161,10 +166,10 @@ public class Boot {
     
     public static void run(String args[]) throws Exception {
 		
-        processArgs(args);
+        args = processArgs(args);
         
     	// Is the main class specified on the command line?  If so, boot it.
-    	// Othewise, read the main class out of the manifest.
+    	// Otherwise, read the main class out of the manifest.
 		String mainClass = null;
 		
 		{
@@ -205,16 +210,32 @@ public class Boot {
                 System.out.println(key + "=" + props.get(key));
             }
         }
-		// Process developer properties:
-		mainClass = System.getProperty(P_MAIN_CLASS);
 
+        // Process developer properties:
+        if (mainClass == null) {
+        	mainClass = System.getProperty(P_MAIN_CLASS);
+        }
+        
+		if (mainJar == null) {
+			String app = System.getProperty(P_MAIN_APP);
+			if (app != null) {
+				mainJar = "main/" + app + ".jar";
+			} else {
+				mainJar = System.getProperty(P_MAIN_JAR, app);
+			}
+        }
+		
         // Pick some things out of the top-level JAR file.
         String jar = getMyJarPath();
         JarFile jarFile = new JarFile(jar);
         Manifest manifest = jarFile.getManifest();
         Attributes attributes = manifest.getMainAttributes();
         String bootLoaderName = attributes.getValue(ONE_JAR_CLASSLOADER);
-        
+ 
+        if (mainJar == null) {
+            mainJar = attributes.getValue(ONE_JAR_DEFAULT_MAIN_JAR);
+        }
+       
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
 		if (mainClass == null) {
@@ -232,16 +253,18 @@ public class Boot {
 			// main directory.  There should be only one, and it's manifest 
 			// Main-Class attribute is the main class.  The JarClassLoader will take
 			// care of finding it.
-			InputStream is = Boot.class.getResourceAsStream("/" + MAIN_JAR);
+			InputStream is = Boot.class.getResourceAsStream("/" + mainJar);
 			if (is != null) {
 				JarInputStream jis = new JarInputStream(is);
 				Manifest mainmanifest = jis.getManifest();
                 jis.close();
 				mainClass = mainmanifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 			} else {
-			    // There is no main jar. Warning.
-                WARNING("Unable to locate " + MAIN_JAR + " in the JAR file " + getMyJarPath());
-            }
+			    // There is no main jar. Warning unless mainJar is empty string.
+				if (!"".equals(mainJar)){ 
+                    WARNING("Unable to locate " + mainJar + " in the JAR file " + getMyJarPath());
+				}
+			}
 		}
 	
 		// Do we need to create a wrapping classloader?  Check for the
@@ -298,7 +321,7 @@ public class Boot {
     		Thread.currentThread().setContextClassLoader(loader);
             
         	Class cls = loader.loadClass(mainClass);
-            
+        	
             endTime = System.currentTimeMillis();
             showTime();
             
@@ -449,41 +472,47 @@ public class Boot {
         return string;
     }
 
-    public static void processArgs(String args[]) throws Exception {
-        // Check for arguments which matter to us.  Process them, but pass them through to the
-        // application too. (TODO: maybe make this passthrough optional).
-        Set arguments = new HashSet(Arrays.asList(args));
-        if (arguments.contains(HELP)) {
-            int width = firstWidth(HELP_ARGUMENTS);
-            // Width of first column
-            
-            System.out.println("One-Jar uses the following command-line arguments");
-            for (int i=0; i<HELP_ARGUMENTS.length; i++) {
-                System.out.print(pad("    ", HELP_ARGUMENTS[i++], width+1));
-                System.out.println(wrap("    ", HELP_ARGUMENTS[i], width+1));
-            }
-            System.out.println();
-            
-            width = firstWidth(HELP_PROPERTIES);
-            System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false|string>)");
-            for (int i=0; i<HELP_PROPERTIES.length; i++) {
-                System.out.print(pad("    ", HELP_PROPERTIES[i++], width+1));
-                System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));
-            }
-            System.out.println();
-            System.exit(0);
-        } else if (arguments.contains(VERSION)) {
-            InputStream is = Boot.class.getResourceAsStream("/.version");
-            if (is != null) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
-                String version = br.readLine();
-                br.close();
-                System.out.println("One-JAR version " + version);
-            } else {
-                System.out.println("Unable to determine One-JAR version (missing /.version resource in One-JAR archive)");
-            }
-            System.exit(0);
+    public static String[] processArgs(String args[]) throws Exception {
+        // Check for arguments which matter to us, and strip them.
+    	VERBOSE("processArgs(" + Arrays.asList(args) + ")");
+    	ArrayList list = new ArrayList();
+    	for (int a=0; a<args.length; a++) {
+        	String argument = args[a];
+	        if (argument.startsWith(A_HELP)) {
+	            int width = firstWidth(HELP_ARGUMENTS);
+	            // Width of first column
+	            
+	            System.out.println("One-Jar uses the following command-line arguments");
+	            for (int i=0; i<HELP_ARGUMENTS.length; i++) {
+	                System.out.print(pad("    ", HELP_ARGUMENTS[i++], width+1));
+	                System.out.println(wrap("    ", HELP_ARGUMENTS[i], width+1));
+	            }
+	            System.out.println();
+	            
+	            width = firstWidth(HELP_PROPERTIES);
+	            System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false|string>)");
+	            for (int i=0; i<HELP_PROPERTIES.length; i++) {
+	                System.out.print(pad("    ", HELP_PROPERTIES[i++], width+1));
+	                System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));
+	            }
+	            System.out.println();
+	            System.exit(0);
+	        } else if (argument.startsWith(A_VERSION)) {
+	            InputStream is = Boot.class.getResourceAsStream("/.version");
+	            if (is != null) {
+	                BufferedReader br = new BufferedReader(new InputStreamReader(is)); 
+	                String version = br.readLine();
+	                br.close();
+	                System.out.println("One-JAR version " + version);
+	            } else {
+	                System.out.println("Unable to determine One-JAR version (missing /.version resource in One-JAR archive)");
+	            }
+	            System.exit(0);
+	        } else {
+	        	list.add(argument);
+	        }
         }
+    	return (String[])list.toArray(new String[0]);
     }
     
     protected static JarClassLoader getBootLoader(final String loader) {

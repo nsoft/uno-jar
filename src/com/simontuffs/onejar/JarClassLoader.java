@@ -71,7 +71,6 @@ import java.util.jar.Attributes.Name;
  */
 public class JarClassLoader extends ClassLoader implements IProperties {
     
-    public static final String DOT_CONFIRM = ".onejar.confirm";
     public final static String LIB_PREFIX = "lib/";
     public final static String BINLIB_PREFIX = "binlib/";
     public final static String MAIN_PREFIX = "main/";
@@ -79,7 +78,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String TMP = "tmp";
     public final static String UNPACK = "unpack";
     public final static String EXPAND = "One-Jar-Expand";
-    public final static String EXPAND_TMP = "One-Jar-Expand-Tmp";
     public final static String EXPAND_DIR = "One-Jar-Expand-Dir";
     public final static String SHOW_EXPAND = "One-Jar-Show-Expand";
     public final static String CONFIRM_EXPAND = "One-Jar-Confirm-Expand";
@@ -292,19 +290,17 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // be specified like this:
             // One-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
-            String expandtmp = manifest.getMainAttributes().getValue(EXPAND_TMP);
             String expanddir = System.getProperty(Boot.P_EXPAND_DIR);
-            if (expanddir == null) expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
+            if (expanddir == null) 
+            	expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
             boolean shouldExpand = true;
             File tmpdir = new File(".");
-            if (expandtmp != null && Boolean.valueOf(expandtmp).booleanValue()) {
-                if (expanddir != null) {
-                    tmpdir = new File(expanddir);
-                } else {
-                    File tmpfile = File.createTempFile("one-jar", ".tmp");
-                    tmpfile.deleteOnExit();
-                    tmpdir = new File(tmpfile.getParentFile() + "/" + new File(jarName).getName() + "/expand");
-                }
+            if (expanddir != null) {
+                tmpdir = new File(expanddir);
+            } else {
+                File tmpfile = File.createTempFile("one-jar", ".tmp");
+                tmpfile.deleteOnExit();
+                tmpdir = new File(tmpfile.getParentFile() + "/" + new File(jarName).getName() + "/expand");
             }
             if (noExpand == false && expand != null) {
                 expanded = true;
@@ -457,7 +453,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
 	protected void loadBytes(JarEntry entry, InputStream is, String jar, String tmp, Manifest man) throws IOException {
-        String entryName = entry.getName().replace('/', '.');
+        String entryName = entry.getName();
         int index = entryName.lastIndexOf('.');
         String type = entryName.substring(index+1);
         
@@ -539,7 +535,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // Look up the class in the byte codes.
         // Translate path?
         VERBOSE("findClass(" + name + ")");
-        String cache = name + CLASS;
+        String cache = name.replace('.', '/') + CLASS;
         ByteCode bytecode = (ByteCode)byteCode.get(cache);
         if (bytecode != null) {
             VERBOSE("found " + name + " in codebase '" + bytecode.codebase + "'");
@@ -604,7 +600,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     private boolean isSealed(String name, Manifest man) {
-		String path = name.replace('.', '/').concat("/");
+		String path = name.concat("/");
 		Attributes attr = man.getAttributes(path);
 		String sealed = null;
 		if (attr != null) {
@@ -637,7 +633,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 	 * @return the newly defined Package object
 	 */
 	protected Package definePackage(String name, Manifest man) throws IllegalArgumentException {
-		String path = name.replace('.', '/').concat("/");
+		String path = name.concat("/");
 		String specTitle = null, specVersion = null, specVendor = null;
 		String implTitle = null, implVersion = null, implVendor = null;
 		String sealed = null;
@@ -714,6 +710,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     /**
+     * Make a path canonical, removing . and ..
+     */
+    protected static String canon(String path) {
+    	path = path.replaceAll("/\\./", "/");
+		String canon = path;
+		String next = canon;
+		do {
+			next = canon;
+			canon = canon.replaceFirst("([^/]*/\\.\\./)", "");
+		} while (!next.equals(canon));
+		return canon;
+    }
+    /**
      * Overriden to return resources from the appropriate codebase.
      * There are basically two ways this method will be called: most commonly
      * it will be called through the class of an object which wishes to 
@@ -735,6 +744,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * strategy in Java today.
      */
     public InputStream getByteStream(String resource) {
+    	
+    	VERBOSE("getByteStream(" + resource + ")");
+    	
+    	// Make resource canonical (remove ., .., etc).
+    	resource = canon(resource);
         
         InputStream result = null;
         // Look up without resolving first.  This allows jar-local 
@@ -745,12 +759,32 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             bytecode = (ByteCode)byteCode.get(resolve(resource));
         }
         if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
+        
+        // Contributed by SourceForge "ffrog_8" (with thanks, Pierce. T. Wetter III).
+        // Handles JPA loading from jars.
+        if (result == null) {
+	        if (jarNames.contains(resource)) {
+		        // resource wanted is an actual jar
+	        	INFO("loading resource file directly" + resource);
+		        result = super.getResourceAsStream(resource);
+	        }
+        }
+
         // Special case: if we are a wrapping classloader, look up to our
         // parent codebase.  Logic is that the boot JarLoader will have 
         // delegateToParent = false, the wrapping classloader will have 
         // delegateToParent = true;
         if (result == null && delegateToParent) {
-            result = ((JarClassLoader)getParent()).getByteStream(resource);
+            // http://code.google.com/p/onejar-maven-plugin/issues/detail?id=16
+			ClassLoader parentClassLoader = getParent();
+
+			// JarClassLoader cannot satisfy requests for actual jar files themselves so it must delegate to it's
+			// parent. However, the "parent" is not always a JarClassLoader.
+			if (parentClassLoader instanceof JarClassLoader) {
+				result = ((JarClassLoader)parentClassLoader).getByteStream(resource);
+			} else {
+				result = parentClassLoader.getResourceAsStream(resource);
+			}
         }
         VERBOSE("getByteStream(" + resource + ") -> " + result);
         return result;
@@ -764,7 +798,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected String resolve(String $resource) {
         
         if ($resource.startsWith("/")) $resource = $resource.substring(1);
-        $resource = $resource.replace('/', '.');
         String resource = null;
         String caller = getCaller();
         ByteCode callerCode = (ByteCode)byteCode.get(caller + ".class");
@@ -899,9 +932,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         INFO("findResources: looking in " + jarNames);
         Iterator iter = jarNames.iterator();
         final List resources = new ArrayList();
-        // Mangle name to match our dot separated format.  This still 
-        // seems a bit flakey to me.  TODO: revisit.
-        name = name.replace('/', '.');
         while (iter.hasNext()) {
             String resource = iter.next().toString() + "/" + name;
             if (byteCode.containsKey(resource)) {
@@ -1074,28 +1104,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
 
     protected String getConfirmation(File location) throws IOException {
-        File dotconfirm = new File(location, DOT_CONFIRM);
         String answer = "";
-        if (dotconfirm.exists()) {
-            BufferedReader br = new BufferedReader(new FileReader(dotconfirm));
-            answer = br.readLine();
-            br.close();
-            PRINTLN("Previous confirmation for file expansion (" + answer + ") was read from " + dotconfirm);
-            return answer;
-        }
         while (answer == null || (!answer.startsWith("n") && !answer.startsWith("y") && !answer.startsWith("q"))) {
             promptForConfirm(location);
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             answer = br.readLine();
             br.close();
-        }
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter(dotconfirm));
-            bw.write(answer + NL);
-            bw.close();
-            PRINTLN("Your response has been stored in " + dotconfirm.getAbsolutePath() + ".  Please remove this file if you wish to change your mind.");
-        } catch (IOException iox) {
-            WARNING("Unable to store confirmation response in " + dotconfirm.getAbsolutePath() + ": " + iox);
         }
         return answer;
     }

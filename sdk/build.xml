@@ -1,6 +1,5 @@
 <project name="one-jar-sdk" default="sdk">
 
-    <property name="one-jar.version" value="0.96"/>
     <property name="one-jar.dist.dir" value="${basedir}"/>   
     
     <property name="src.dir" location="${basedir}/src"/>
@@ -52,6 +51,7 @@
  
     <target name="sdk">
         <!-- Rebuild this SDK using the One-JAR task. -->   
+    	<echo>Building sdk ${one-jar.version}</echo>
         <mkdir dir="${classes.dir}/sdk"/>   
         <javac destdir="${classes.dir}/sdk">
             <src path="${sdk.dir}" />

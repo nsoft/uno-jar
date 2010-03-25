@@ -18,7 +18,7 @@
     <available property="one-jar-dll.exists" file="${one-jar-dll.dir}/build.xml"/>
  
 	<!-- version number -->
-	<property name="one-jar.version" value="0.96" />
+	<property name="one-jar.version" value="0.97" />
     <!-- 
       Additional version information inside .version file, but not encoded into file names 
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
@@ -275,7 +275,7 @@
 		</jar>
 	</target>
 
-	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.ant.jar,build.external.jar,build.wraploader.jar,build.example.jar,build.example-ext.jar,build.services,build.source.jar">
+	<target name="jar" depends="build.main.jar,build.util.jar,build.boot.jar,build.external.jar,build.wraploader.jar,build.example.jar,build.example-ext.jar,build.services,build.source.jar">
 	</target>
 
 	<!-- Build the example jar using the one-jar-macro -->
@@ -314,7 +314,7 @@
          for intermediates.
     -->
 	<import file="${dist.dir}/one-jar-ant-task.xml" optional="true" />
-	<target name="one-jar-example-task" depends="build.boot.jar,build.ant.jar,build.example.jar">
+	<target name="one-jar-example-task" depends="build.boot.jar,build.example.jar">
 		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
         <echo>
           If this task fails, it is probably because the OneJarTask class has changed underneath us.
@@ -362,12 +362,12 @@
         <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
         <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
     </target>   
-
+	
     <!-- 
         A one-jar file which contains the boot sources, expands itself after confirmation.
         Uses expansion confirmation.
     -->
-    <target name="build.source.jar" depends="build.ant.jar">
+    <target name="build.source.jar">
         <one-jar destfile="dist/one-jar-source-${one-jar.version}.jar">
             <manifest>
                 <attribute name="Main-Class" value="com.simontuffs.onejar.Boot"/>
@@ -383,12 +383,15 @@
     </target>   
  
     <target name="sdk">
-        <ant antfile="sdk/build.xml" inheritall="false"/>
+        <ant antfile="sdk/build.xml" inheritall="false">
+            <property name="one-jar.version" value="${one-jar.version}"/>
+        </ant>
         <copy file="${sdk.dir}/one-jar-sdk-${one-jar.version}.jar" todir="${dist.dir}"/>   
     </target>   
 
     <target name="one-jar-dll" if="one-jar-dll.exists">
-        <ant antfile="${one-jar-dll.dir}/build.xml" inheritall="false"/>
+        <ant antfile="${one-jar-dll.dir}/build.xml" inheritall="false">
+        </ant>
         <copy file="${one-jar-dll.dir}/dist/one-jar-dll-${one-jar.version}.jar" todir="${dist.dir}"/>   
     </target>   
     
@@ -508,7 +511,7 @@
     </target>   
 
     <!-- Test the Ant one-jar taskdef -->   
-    <target name="test.ant.taskdef.1" depends="build.ant.jar">
+    <target name="test.ant.taskdef.1">
         <mkdir dir="${test.results}"/>   
         <!-- Degenerate One-JAR -->   
         <one-jar destfile="${test.results}/ant-taskdef-1.jar">
@@ -519,12 +522,12 @@
         </java>
     </target>
    
-    <target name="test.ant.taskdef.2" depends="build.ant.jar">
+    <target name="test.ant.taskdef.2">
         <one-jar destfile="${test.results}/ant-taskdef-2.jar">
             <manifest>
                 <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
                 <attribute name="One-Jar-Expand" value=""/>   
-                <attribute name="One-Jar-Expand-Tmp" value="true"/>   
+                <attribute name="One-Jar-Expand-Dir" value="tmp"/>   
                 <attribute name="One-Jar-Show-Expand" value="true"/>   
                 <attribute name="One-Jar-Confirm-Expand" value="true"/>   
             </manifest>   
@@ -540,7 +543,7 @@
         <fail unless="test.ant.taskdef.2"/>
     </target>   
 
-    <target name="test.ant.taskdef.3" depends="build.ant.jar">
+    <target name="test.ant.taskdef.3">
         <!-- Create and use a manifest file -->
         <delete dir="tmp"/>  
         <manifest file="${test.results}/manifest.mf">

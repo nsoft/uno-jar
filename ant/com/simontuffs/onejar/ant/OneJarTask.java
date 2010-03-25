@@ -24,7 +24,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.FileScanner;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
@@ -54,6 +53,7 @@ public class OneJarTask extends Jar {
     public static final String MAIN_CLASS = Attributes.Name.MAIN_CLASS.toString();
     
     protected Main main;
+    protected MainJars mainJars;
     protected ZipFile onejar;
     protected File mainManifest;
     protected String oneJarMainClass;
@@ -77,6 +77,15 @@ public class OneJarTask extends Jar {
         }
     }
     
+    public static class MainJars extends Task {
+        protected List filesets = new ArrayList();
+        protected String app;
+        public void addFileSet(ZipFileSet fileset) {
+            log("MainJar.addFileSet() ", Project.MSG_VERBOSE);
+            filesets.add(fileset);
+        }
+    }
+
     public static class Lib extends Task {
         protected List filesets = new ArrayList();
         public void addFileSet(ZipFileSet fileset) {
@@ -141,6 +150,17 @@ public class OneJarTask extends Jar {
         while (iter.hasNext()) {
             ZipFileSet fileset = (ZipFileSet)iter.next();
             fileset.setPrefix("lib/");
+            super.addFileset(fileset);
+        }
+    }
+    
+    public void addConfiguredMainJars(MainJars jars) {
+    	this.mainJars = jars;
+        log("addMainJar()", Project.MSG_VERBOSE);
+        Iterator iter = jars.filesets.iterator();
+        while (iter.hasNext()) {
+            ZipFileSet fileset = (ZipFileSet)iter.next();
+            fileset.setPrefix("main/");
             super.addFileset(fileset);
         }
     }
@@ -303,8 +323,8 @@ public class OneJarTask extends Jar {
     }
     
     protected void checkMain() {
-        if (main == null) 
-            throw new BuildException("No <main> element found in the <one-jar> task!");
+        if (mainJars == null && main == null) 
+            throw new BuildException("No <main> or <mainjars> element found in the <one-jar> task!");
     }
     
     protected void checkManifest() {
@@ -330,7 +350,7 @@ public class OneJarTask extends Jar {
             java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
             try {
                 // Specify our Created-By and Main-Class attributes as overrides.
-                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.96 Ant taskdef"));
+                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.97 Ant taskdef"));
                 manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS, jattributes.getValue(MAIN_CLASS)));
                 if (oneJarMainClass != null) {
                     manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));
@@ -354,7 +374,7 @@ public class OneJarTask extends Jar {
     
     protected void addMain(ZipOutputStream zOut) throws IOException {
         // Already constructed?
-        if (main.jar != null)
+        if (main == null || main.jar != null)
             return;
         // Assemble main/main.jar
         FileSetPump pump = new FileSetPump(MAIN_MAIN_JAR);
@@ -382,7 +402,7 @@ public class OneJarTask extends Jar {
     public void execute() throws BuildException {
         log("execute()", Project.MSG_VERBOSE);
         // First include a main.jar if specified.
-        if (main.jar != null) {
+        if (main != null && main.jar != null) {
             ZipFileSet fs = new ZipFileSet();
             fs.setProject(getProject());
             fs.setFile(main.jar);
@@ -398,8 +418,8 @@ public class OneJarTask extends Jar {
     
     protected void zipFile(InputStream is, ZipOutputStream zOut, String vPath, long lastModified, File fromArchive,
             int mode) throws IOException {
-        if (main.jar == null && vPath.equals(Boot.MAIN_JAR)) {
-            log("zipFile(): ignored " + Boot.MAIN_JAR, Project.MSG_VERBOSE);
+        if (vPath.equals(Boot.MAIN_JAR) && (main == null || main.jar == null)) {
+            log("zipFile(): unable to build " + Boot.MAIN_JAR, Project.MSG_VERBOSE);
         } else {
             super.zipFile(is, zOut, vPath, lastModified, fromArchive, mode);
         }
