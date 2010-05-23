@@ -18,13 +18,10 @@
 package com.simontuffs.onejar;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,6 +42,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -52,6 +50,8 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -291,17 +291,23 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // One-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
             String expanddir = System.getProperty(Boot.P_EXPAND_DIR);
-            if (expanddir == null) 
+            if (expanddir == null) {
             	expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
-            boolean shouldExpand = true;
-            File tmpdir = new File(".");
-            if (expanddir != null) {
-                tmpdir = new File(expanddir);
-            } else {
-                File tmpfile = File.createTempFile("one-jar", ".tmp");
-                tmpfile.deleteOnExit();
-                tmpdir = new File(tmpfile.getParentFile() + "/" + new File(jarName).getName() + "/expand");
             }
+            // Default is to expand into temporary directory based on the name of the jar file.
+            if (expanddir == null) {
+            	String jar = new File(jarName).getName().replaceFirst("\\.[^\\.]*$", "");
+            	expanddir = "${java.io.tmpdir}/" + jar;
+            }
+            // Expand system properties.
+            expanddir = replaceProps(System.getProperties(), expanddir);
+            
+            // Make a note of this location in the VM system properties in case applications need to know
+            // where the expanded files are.
+            System.setProperty(Boot.P_EXPAND_DIR, expanddir);
+            
+            boolean shouldExpand = true;
+            File tmpdir = new File(expanddir);
             if (noExpand == false && expand != null) {
                 expanded = true;
                 VERBOSE(EXPAND + "=" + expand);
@@ -430,6 +436,25 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         return mainClass;
     }
+    
+    public String replaceProps(Map replace, String string) {
+		Pattern pat = Pattern.compile("\\$\\{([^\\}]*)");
+		Matcher mat = pat.matcher(string);
+		boolean found = mat.find();
+		Map props = new HashMap();
+		while (found) {
+			String prop = mat.group(1);
+			props.put(prop, replace.get(prop));
+			found = mat.find();
+		}
+		Set keys = props.keySet();
+		Iterator iter = props.keySet().iterator();
+		while (iter.hasNext()) {
+			String prop = (String)iter.next();
+			string = string.replace("${" + prop + "}", (String)props.get(prop));
+		}
+		return string;
+    }
 
     public static boolean shouldExpand(String expandPaths[], String name) {
         for (int i=0; i<expandPaths.length; i++) {
@@ -510,8 +535,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             }
         }
     }
-    
-    protected boolean classPool = false;
     
     /**
      * Locate the named class in a jar-file, contained inside the
@@ -712,7 +735,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     /**
      * Make a path canonical, removing . and ..
      */
-    protected static String canon(String path) {
+    protected String canon(String path) {
     	path = path.replaceAll("/\\./", "/");
 		String canon = path;
 		String next = canon;

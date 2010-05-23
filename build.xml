@@ -517,7 +517,9 @@
         <one-jar destfile="${test.results}/ant-taskdef-1.jar">
             <main/>   
         </one-jar>
-        <java fork="true" jar="${test.results}/ant-taskdef-1.jar" failonerror="true">
+        <delete dir="tmp/ant-taskdef-1"/>
+    	<mkdir dir="tmp/ant-taskdef-1"/>
+        <java fork="true" dir="tmp/ant-taskdef-1" jar="${test.results}/ant-taskdef-1.jar" failonerror="true">
             <arg line="--one-jar-help"/>
         </java>
     </target>
@@ -533,35 +535,37 @@
             </manifest>   
             <main/>   
         </one-jar>   
-        <delete dir="tmp/ant-taskdef-2.jar"/>   
-        <mkdir dir="tmp/ant-taskdef-2.jar"/>
+        <delete dir="tmp/ant-taskdef-2"/>   
+        <mkdir dir="tmp/ant-taskdef-2"/>
         <!-- <chmod dir="tmp" perm="444"/> -->
-        <java fork="true" dir="tmp/ant-taskdef-2.jar" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y">
+    	<!-- Override the manifest setting for One-Jar-Expand-Dir" -->
+        <java fork="true" dir="tmp/ant-taskdef-2" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y">
         	<sysproperty key="one-jar.expand.dir" value="."/>
         </java>
-        <available property="test.ant.taskdef.2" file="tmp/ant-taskdef-2.jar/OneJar.class"/>
+        <available property="test.ant.taskdef.2" file="tmp/ant-taskdef-2/OneJar.class"/>
         <fail unless="test.ant.taskdef.2"/>
     </target>   
 
     <target name="test.ant.taskdef.3">
         <!-- Create and use a manifest file -->
-        <delete dir="tmp"/>  
         <manifest file="${test.results}/manifest.mf">
             <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
             <attribute name="One-Jar-Expand" value=""/>   
+            <attribute name="One-Jar-Expand-Dir" value="tmp"/>   
             <attribute name="One-Jar-Show-Expand" value="true"/>   
             <attribute name="One-Jar-Confirm-Expand" value="true"/>   
         </manifest>   
         <one-jar destfile="${test.results}/ant-taskdef-3.jar" manifest="${test.results}/manifest.mf">
             <main/>   
         </one-jar>   
-        <mkdir dir="tmp"/>
-        <java fork="true" dir="tmp" jar="${test.results}/ant-taskdef-3.jar" failonerror="true" inputstring="y"/>
-        <available property="test.ant.taskdef.3" file="tmp/OneJar.class"/>
+        <delete dir="tmp/ant-taskdef-3"/>  
+        <mkdir dir="tmp/ant-taskdef-3"/>
+        <java fork="true" dir="tmp/ant-taskdef-3" jar="${test.results}/ant-taskdef-3.jar" failonerror="true" inputstring="y"/>
+        <available property="test.ant.taskdef.3" file="tmp/ant-taskdef-3/tmp/OneJar.class"/>
         <fail unless="test.ant.taskdef.3"/>
     </target>   
 
-    <target name="clean" depends="init">
+    <target name="clean" depends="init" description="clean tree (including dist)">
 		<!-- delete everything in the classes and jars dir -->
 		<delete dir="${classes.dir}" />
         <delete dir="${jar.dir}" />
