@@ -173,7 +173,7 @@
 		</jar>
 	</target>
 
-	<target name="build.ant.jar" depends="compile,build.boot.jar">
+	<target name="build.ant.jar" depends="compile,build.boot.jar" description="Build Ant one-jar-task separately">
 		<copy file="${boot.jar}" tofile="${classes.dir}/ant/com/simontuffs/onejar/ant/one-jar-boot.jar" />
         <delete failonerror="false" file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar"/>
 		<jar destfile="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar">

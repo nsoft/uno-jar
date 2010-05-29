@@ -23,7 +23,7 @@ import java.net.URLStreamHandler;
 public class Handler extends URLStreamHandler {
 
 	/**
-	 * This procol name must match the name of the package in which this class
+	 * This protocol name must match the name of the package in which this class
 	 * lives.
 	 */
 	public static String PROTOCOL = "onejar";

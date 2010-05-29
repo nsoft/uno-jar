@@ -237,7 +237,43 @@ public class Test extends Testable {
         }
     }
     
-	/**
+    /**
+     * Test the ability to find resources inside various places.
+     */
+    public void testFindResourcesInMainJar() throws IOException {
+        ClassLoader cl = getClass().getClassLoader();
+        System.out.println("classloader=" + cl);
+        Enumeration e = cl.getResources("index.html");
+        int count = 0;
+        while (e.hasMoreElements()) {
+            System.out.println("testFindResourcesInJars(): " + e.nextElement());
+            count++;
+        }
+        if (count != 1) {
+            fail("testFindResourcesInMain(): Error: Huh? Should find 1 copies of index.html (found " + count + ")");
+        } else {
+            System.out.println("testFindResourcesInJars(): OK.");
+        }
+    }
+    
+    public void testFindResourcesInJars() throws IOException {
+        ClassLoader cl = getClass().getClassLoader();
+        System.out.println("classloader=" + cl);
+        Enumeration e = cl.getResources("duplicate.txt");
+        int count = 0;
+        while (e.hasMoreElements()) {
+            System.out.println("testFindResourcesInJars: " + e.nextElement());
+            count++;
+        }
+        if (count != 3) {
+            fail("testFindResourcesInJars(): Error: Huh? Should find " + 2 + " copies of duplicate.txt (found " + count + ")");
+        } else {
+            System.out.println("testFindResourcesInJars(): OK.");
+        }
+        
+    }
+
+    /**
 	 * Tests the ability to load a resource from a relative path 
 	 * (relative to this class).
 	 * @throws IOException
@@ -355,7 +391,11 @@ public class Test extends Testable {
         Enumeration services = loader.getResources("META-INF/services/com.simontuffs.onejar.services.IHelloService");
         int count = 0;
         while (services.hasMoreElements()) {
-            System.out.println("testServices(): found " + services.nextElement());
+            URL url = (URL)services.nextElement();
+            System.out.println("testServices(): found " + url);
+            // Test resource can be opened.
+            InputStream is = url.openStream();
+            is.close();
             count++;
         }
         if (count != 3) {

@@ -2,7 +2,7 @@
  * Copyright (c) 2004-2007, P. Simon Tuffs (simon@simontuffs.com)
  * All rights reserved.
  *
- * See the full license at http://www.simontuffs.com/one-jar/one-jar-license.html
+ * See the full license at http://one-jar.sourceforge.net/one-jar-license.html
  * This license is also included in the distributions of this software
  * under doc/one-jar-license.txt
  */
@@ -29,6 +29,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
@@ -42,7 +44,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
@@ -472,7 +473,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         JarEntry entry = null;
         // TODO: implement lazy loading of bytecode.
         while ((entry = jis.getNextJarEntry()) != null) {
-            if (entry.isDirectory()) continue;
+            // if (entry.isDirectory()) continue;
 			loadBytes(entry, jis, jar, tmp, man);
         }
     }
@@ -485,9 +486,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // agattung: patch (for one-jar 0.95)
         // add package handling to avoid NullPointer exceptions
         // after calls to getPackage method of this ClassLoader
-        int index2 = entryName.lastIndexOf('.', index-1);
-        if (index2 > -1) {
-            String packageName = entryName.substring(0, index2);
+        int index2 = entryName.lastIndexOf('/', index-1);
+        if (entryName.endsWith(CLASS) && index2 > -1) {
+            String packageName = entryName.substring(0, index2).replace('/', '.');
             if (getPackage(packageName) == null) {
                 definePackage(packageName, "", "", "", "", "", "", null);
             }
@@ -855,7 +856,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // If bytecodes are identical, no real problem.  Likewise if it's in
             // META-INF.
             if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("/META-INF")) {
-                INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
             }
@@ -950,15 +951,27 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
     }
     
-    public Enumeration findResources(String name) throws IOException {
+    URLStreamHandler zipHandler = new URLStreamHandler() {
+        protected URLConnection openConnection(URL url) throws IOException {
+            URLConnection connection = new OneJarURLConnection(url);
+            connection.connect();
+            return connection;
+        }
+    };
+    
+    protected Enumeration findResources(String name) throws IOException {
         INFO("findResources(" + name + ")");
         INFO("findResources: looking in " + jarNames);
         Iterator iter = jarNames.iterator();
         final List resources = new ArrayList();
         while (iter.hasNext()) {
             String resource = iter.next().toString() + "/" + name;
+            ByteCode entry = ((ByteCode) byteCode.get(resource));
             if (byteCode.containsKey(resource)) {
-                resources.add(new URL(Handler.PROTOCOL + ":" + resource));
+                String path = "file:" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + name;
+                URL url = new URL("jar", "", -1, path, zipHandler);
+                INFO("findResources(): Adding " + url + " to resources list.");
+                resources.add(url);
             }
         }
         final Iterator ri = resources.iterator();

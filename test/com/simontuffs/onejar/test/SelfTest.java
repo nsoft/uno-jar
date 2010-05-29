@@ -102,6 +102,14 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testResourceRelativeURL");
     }
 
+    public void testFindResourcesInMainJar() throws Exception {
+        Invoker.invoke(test, "testFindResourcesInMainJar");
+    }
+
+    public void testFindResourcesInJars() throws Exception {
+        Invoker.invoke(test, "testFindResourcesInJars");
+    }
+
     public void testImageIcon() throws Exception {
         Invoker.invoke(test, "testImageIcon");
     }
