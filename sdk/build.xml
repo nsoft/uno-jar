@@ -2,15 +2,15 @@
 
     <property name="one-jar.dist.dir" value="${basedir}"/>   
     
-    <property name="src.dir" location="${basedir}/src"/>
-    <property name="lib.dir" location="${basedir}/lib"/>
-    <property name="sdk.dir" location="${basedir}/sdk"/>
+    <property name="main.dir" location="${basedir}/src/main"/>
+    <property name="lib.dir" location="${basedir}/src/lib"/>
+    <property name="install.dir" location="${basedir}/src/install"/>
     <property name="build.dir" location="${basedir}/build"/>   
     
     <property name="classes.dir" location="${basedir}/classes"/>   
  
     <target name="init">
-        <mkdir dir="${src.dir}"/>   
+        <mkdir dir="${main.dir}"/>   
         <mkdir dir="${lib.dir}"/>   
         <mkdir dir="${classes.dir}/lib"/>   
         <mkdir dir="${classes.dir}/src"/>   
@@ -28,12 +28,20 @@
             <fileset dir="${classes.dir}/lib"/>
         </jar>   
         <!-- Build classes for main.jar -->   
-        <javac destdir="${classes.dir}/src">
-            <src path="${src.dir}" />
+        <javac destdir="${classes.dir}/main">
+            <src path="${main.dir}" />
             <classpath path="${build.dir}/lib.jar"/>   
         </javac>
         <!-- Construct the One-JAR file -->   
-        <one-jar destfile="hello.jar" manifest="hello.mf">
+        <one-jar destfile="hello.jar">
+            <!-- hello.mf:
+            
+            Main-Class: com.simontuffs.onejar.Boot
+            One-Jar-Main-Class: com.simontuffs.onejar.hello.Main
+            -->
+            <manifest>
+                <attribute name="One-Jar-Main-Class" value="com.simontuffs.onejar.hello.Main"/> 
+            </manifest>
             <main>
                 <!-- Construct main.jar from classes and source code -->
                 <fileset dir="${classes.dir}/src"/>
@@ -52,18 +60,34 @@
     <target name="sdk">
         <!-- Rebuild this SDK using the One-JAR task. -->   
     	<echo>Building sdk ${one-jar.version}</echo>
-        <mkdir dir="${classes.dir}/sdk"/>   
-        <javac destdir="${classes.dir}/sdk">
-            <src path="${sdk.dir}" />
+        <mkdir dir="${classes.dir}/install"/>   
+        <javac destdir="${classes.dir}/install">
+            <src path="${install.dir}" />
         </javac>
         <delete file="one-jar-sdk-${one-jar.version}.jar"/>
-        <one-jar destfile="one-jar-sdk-${one-jar.version}.jar" manifest="one-jar-sdk.mf">
+        <one-jar destfile="one-jar-sdk-${one-jar.version}.jar">
+            <!-- one-jar-sdk.mf:
+            
+            Main-Class: com.simontuffs.onejar.Boot
+            One-Jar-Main-Class: com.simontuffs.onejar.sdk.Install
+            One-Jar-Expand: 
+            One-Jar-Expand-Dir: ./one-jar-sdk-${one-jar.version}
+            One-Jar-Show-Expand: true           
+            -->
+            <manifest>
+                <attribute name="One-Jar-Main-Class" value="com.simontuffs.onejar.sdk.Install"/>
+                <!-- Note: One-Jar-Expand is a list of paths to expand: empty is all -->
+            	<attribute name="One-Jar-Expand" value=""/>
+                <attribute name="One-Jar-Expand-Dir" value="./one-jar-sdk-${one-jar.version}"/>
+                <attribute name="One-Jar-Show-Expand" value="true"/>
+            </manifest>
             <fileset dir=".">
                 <include name="one-jar-ant-${one-jar.version}.jar"/>   
-                <include name="src/**"/>   
-                <include name="lib/**"/>   
-                <include name="sdk/**"/>   
+                <include name="src/main/**"/>   
+                <include name="src/lib/**"/>   
+                <include name="src/install/**"/>   
                 <include name="build.xml"/>   
+                <include name="README.txt"/>   
                 <include name="one-jar-ant-task*"/>   
                 <include name="*.mf"/>   
                 <include name=".*"/>   

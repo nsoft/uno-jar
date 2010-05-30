@@ -154,6 +154,11 @@ public class OneJarTask extends Jar {
         }
     }
     
+    public void addConfiguredManifest(Manifest newManifest) throws ManifestException {
+        super.addConfiguredManifest(newManifest);
+        manifestSet = true;
+    }
+    
     public void addConfiguredMainJars(MainJars jars) {
     	this.mainJars = jars;
         log("addMainJar()", Project.MSG_VERBOSE);

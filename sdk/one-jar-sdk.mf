@@ -1,5 +1,0 @@
-Main-Class: com.simontuffs.onejar.Boot
-One-Jar-Main-Class: com.simontuffs.onejar.sdk.Install
-One-Jar-Expand: 
-One-Jar-Expand-Dir: ./one-jar-sdk
-One-Jar-Show-Expand: true

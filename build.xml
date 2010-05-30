@@ -24,7 +24,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc5-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc2-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
@@ -353,12 +353,12 @@
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk,sdk,one-jar-dll">
+	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,prepare.sdk,sdk,one-jar-dll">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
 	</target>
  
-    <target name="build.sdk">
+    <target name="prepare.sdk">
         <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
         <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
     </target>   
@@ -383,6 +383,7 @@
     </target>   
  
     <target name="sdk">
+    	<copy file="${dist.dir}/one-jar-ant-task.xml" todir="${sdk.dir}"/>
         <ant antfile="sdk/build.xml" inheritall="false">
             <property name="one-jar.version" value="${one-jar.version}"/>
         </ant>
