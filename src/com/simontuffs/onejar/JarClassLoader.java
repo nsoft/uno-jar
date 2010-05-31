@@ -474,7 +474,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // TODO: implement lazy loading of bytecode.
         while ((entry = jis.getNextJarEntry()) != null) {
             // if (entry.isDirectory()) continue;
-			loadBytes(entry, jis, jar, tmp, man);
+            Manifest jarMan = jis.getManifest();
+            loadBytes(entry, jis, jar, tmp, jarMan);
         }
     }
     
@@ -490,7 +491,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (entryName.endsWith(CLASS) && index2 > -1) {
             String packageName = entryName.substring(0, index2).replace('/', '.');
             if (getPackage(packageName) == null) {
-                definePackage(packageName, "", "", "", "", "", "", null);
+                definePackage(packageName, man, null);
             }
         }
         // end patch
@@ -609,7 +610,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 					}
 				} else {
 					if (man != null) {
-						definePackage(pkgname, man);
+						definePackage(pkgname, man, pd.getCodeSource().getLocation());
 					} else {
 						definePackage(pkgname, null, null, null, null, null, null, null);
 					}
@@ -656,7 +657,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 	 *                in this class loader or one of its ancestors
 	 * @return the newly defined Package object
 	 */
-	protected Package definePackage(String name, Manifest man) throws IllegalArgumentException {
+	protected Package definePackage(String name, Manifest man, URL url) throws IllegalArgumentException {
 		String path = name.concat("/");
 		String specTitle = null, specVersion = null, specVendor = null;
 		String implTitle = null, implVersion = null, implVendor = null;
@@ -698,11 +699,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 			}
 		}
         if (sealed != null) {
-            try {
-                sealBase = new URL(sealed);
-            } catch (MalformedURLException mux) {
-                // Would use IllegalArgumentException, but it don't have the chained constructor.
-                throw new RuntimeException("Error in " + Name.SEALED + " manifest attribute: " + sealed, mux);
+        	boolean isSealed = Boolean.parseBoolean(sealed);
+        	if (isSealed) {
+        		sealBase = url;
             }
         }
 		return definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);

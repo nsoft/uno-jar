@@ -122,6 +122,10 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testPackageName");
     }
     
+    public void testLibPackageName() throws Exception {
+        Invoker.invoke(test, "testLibPackageName");
+    }
+    
     public void testGetResourceAsStream() throws Exception {
         Invoker.invoke(test, "testGetResourceAsStream");
     }

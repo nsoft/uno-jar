@@ -334,14 +334,15 @@ public class Test extends Testable {
      */
     public void testPackageName() {
         count++;
-        Package pkg = this.getClass().getPackage();
+        Class cls = this.getClass();
+        Package pkg = cls.getPackage();
         if (pkg == null) {
-            fail("testPackageName(): Error: package is null for " + this.getClass() + " loaded by " + 
-                this.getClass().getClassLoader());
+            fail("testPackageName(): Error: package is null for " + cls + " loaded by " + 
+                cls.getClassLoader());
             return;
         }
-        String packagename = this.getClass().getPackage().getName();
-        String expected = this.getClass().getName();
+        String packagename = cls.getPackage().getName();
+        String expected = cls.getName();
         int last = expected.lastIndexOf(".");
         expected = expected.substring(0, last);
         if (!packagename.equals(expected)) {
@@ -349,8 +350,49 @@ public class Test extends Testable {
         } else {
             System.out.println("testPackageName() ok: " + packagename);
         }
+        String expect, got;
+        expect = "main-manifest.mf Implementation-Title";
+        got = pkg.getImplementationTitle();
+        if (!got.equals(expect)) {
+            fail("testPackageName(): Error in implementation title: expected '" + expect + "' got '" + got + "'");
+        }
+        expect = "main-manifest.mf Specification-Title";
+        got = pkg.getSpecificationTitle();
+        if (!got.equals(expect)) {
+            fail("testPackageName(): Error in specification title: expected '" + expect + "' got '" + got + "'");
+        }
     }
     
+    public void testLibPackageName() {
+        count++;
+        Class cls = Util.class;
+        Package pkg = cls.getPackage();
+        if (pkg == null) {
+            fail("testPackageName(): Error: package is null for " + cls + " loaded by " + 
+                cls.getClassLoader());
+            return;
+        }
+        String packagename = cls.getPackage().getName();
+        String expected = cls.getName();
+        int last = expected.lastIndexOf(".");
+        expected = expected.substring(0, last);
+        if (!packagename.equals(expected)) {
+            fail("testPackageName(): Error: Whoops: package name '" + packagename + " is not the expected '" + expected + "'");
+        } else {
+            System.out.println("testPackageName() ok: " + packagename);
+        }
+        String expect, got;
+        expect = "util-manifest.mf Implementation-Title";
+        got = pkg.getImplementationTitle();
+        if (!got.equals(expect)) {
+            fail("testPackageName(): Error in implementation title: expected '" + expect + "' got '" + got + "'");
+        }
+        expect = "util-manifest.mf Specification-Title";
+        got = pkg.getSpecificationTitle();
+        if (!got.equals(expect)) {
+            fail("testPackageName(): Error in specification title: expected '" + expect + "' got '" + got + "'");
+        }
+    }
     /**
      * Tests the ability to load a resource using getResourceAsStream based
      * on the class of this object.  A number of users have reported problems
@@ -383,6 +425,12 @@ public class Test extends Testable {
                 System.out.println("testGetResourceAsStream(): OK: unable to load stream using ClassLoader.class.getResourceAsStream()");
             }
         }
+    }
+    
+    public void testCodesourceURL() {
+        count++;
+        Class cls = this.getClass();
+        System.out.println("codesource=" + cls.getProtectionDomain().getCodeSource().getLocation());
     }
     
     public void testServices() throws IOException {

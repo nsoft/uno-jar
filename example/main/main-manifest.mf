@@ -1,3 +1,11 @@
 Manifest-Version: 1.0
 Main-Class: com.simontuffs.onejar.example.main.Main
+Implementation-Title: main-manifest.mf Implementation-Title
+Implementation-Vendor: main-manifest.mf Implementation-Vendor
+Implementation-Vendor-Id: main-manifest.mf Implementation-Vendor-Id
+Implementation-URL: main-manifest.mf Implementation-URL
+Specification-Title: main-manifest.mf Specification-Title
+Specification-Version: main-manifest.mf Specification-Version
+Specification-Vendor: main-manifest.mf Specification-Vendor
+Sealed: false
 
