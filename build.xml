@@ -353,16 +353,11 @@
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,prepare.sdk,sdk,one-jar-dll">
+	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk,build.one-jar-dll">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
 	</target>
  
-    <target name="prepare.sdk">
-        <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
-        <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
-    </target>   
-	
     <!-- 
         A one-jar file which contains the boot sources, expands itself after confirmation.
         Uses expansion confirmation.
@@ -382,15 +377,16 @@
         </one-jar>
     </target>   
  
-    <target name="sdk">
-    	<copy file="${dist.dir}/one-jar-ant-task.xml" todir="${sdk.dir}"/>
+    <target name="build.sdk">
+        <copy file="${ant.dir}/one-jar-ant-task.xml" todir="${sdk.dir}" />
+        <copy file="${dist.dir}/one-jar-ant-task-${one-jar.version}.jar" todir="${sdk.dir}" />
         <ant antfile="sdk/build.xml" inheritall="false">
             <property name="one-jar.version" value="${one-jar.version}"/>
         </ant>
         <copy file="${sdk.dir}/one-jar-sdk-${one-jar.version}.jar" todir="${dist.dir}"/>   
     </target>   
 
-    <target name="one-jar-dll" if="one-jar-dll.exists">
+    <target name="build.one-jar-dll" if="one-jar-dll.exists">
         <ant antfile="${one-jar-dll.dir}/build.xml" inheritall="false">
         </ant>
         <copy file="${one-jar-dll.dir}/dist/one-jar-dll-${one-jar.version}.jar" todir="${dist.dir}"/>   

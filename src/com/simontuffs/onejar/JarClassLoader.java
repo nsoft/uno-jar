@@ -1113,6 +1113,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     suffix = resourcePath.substring(lastdot);
                 }
                 InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
+                if (is == null) 
+                    return null;
                 File tempNativeLib = File.createTempFile(name + "-", suffix);
                 FileOutputStream os = new FileOutputStream(tempNativeLib);
                 copy(is, os);

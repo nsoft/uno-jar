@@ -221,7 +221,7 @@ public class Boot {
 			if (app != null) {
 				mainJar = "main/" + app + ".jar";
 			} else {
-				mainJar = System.getProperty(P_MAIN_JAR, app);
+				mainJar = System.getProperty(P_MAIN_JAR, MAIN_JAR);
 			}
         }
 		
@@ -262,7 +262,7 @@ public class Boot {
 			} else {
 			    // There is no main jar. Warning unless mainJar is empty string.
 				if (!"".equals(mainJar)){ 
-                    WARNING("Unable to locate " + mainJar + " in the JAR file " + getMyJarPath());
+                    WARNING("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
 				}
 			}
 		}
