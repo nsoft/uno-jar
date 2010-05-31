@@ -24,7 +24,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc2-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc3-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
