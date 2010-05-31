@@ -234,9 +234,9 @@ public class OneJarTask extends Jar {
 	                ZipEntry m = new ZipEntry(META_INF_MANIFEST);
 	                zout.putNextEntry(m);
 	                if (main.manifest != null) {
-	                    copy(new FileInputStream(main.manifest), zout);
+	                    copy(new FileInputStream(main.manifest), zout, true);
 	                } else if (mainManifest != null) {
-	                    copy(new FileInputStream(mainManifest), zout);
+	                    copy(new FileInputStream(mainManifest), zout, true);
                     }
 	                zout.closeEntry();
 	                // Now the rest of the main.jar entries
@@ -278,7 +278,7 @@ public class OneJarTask extends Jar {
 	                        zout.putNextEntry(ze);
 	                        log("processing " + file, Project.MSG_DEBUG);
 	                        FileInputStream fis = new FileInputStream(new File(basedir, file));
-	                        copy(fis, zout);
+	                        copy(fis, zout, true);
 	                        zout.closeEntry();
 	                    }
 	                }
@@ -310,16 +310,17 @@ public class OneJarTask extends Jar {
     }
 
     protected byte buf[] = new byte[BUFFER_SIZE];
-    protected void copy(InputStream is, OutputStream os) throws IOException {
+    protected void copy(InputStream is, OutputStream os, boolean closein) throws IOException {
         int len = -1;
         while ((len = is.read(buf)) >= 0) {
             os.write(buf, 0, len);
         }
+        if (closein) is.close();
     }
     
     protected void copy(String s, OutputStream os) throws IOException {
         ByteArrayInputStream bais = new ByteArrayInputStream(s.getBytes());
-        copy(bais, os);
+        copy(bais, os, true);
     }
     
     public void setManifest(File manifestFile) {
@@ -369,7 +370,7 @@ public class OneJarTask extends Jar {
                 if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version")) {
                     log("entry=" + entry.getName(), Project.MSG_DEBUG);
                     zOut.putNextEntry(new org.apache.tools.zip.ZipEntry(entry));
-                    copy(jis, zOut);
+                    copy(jis, zOut, false);
                 }
                 entry = jis.getNextJarEntry();
             }
