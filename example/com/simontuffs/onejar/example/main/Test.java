@@ -18,10 +18,12 @@ package com.simontuffs.onejar.example.main;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -441,8 +443,9 @@ public class Test extends Testable {
         while (services.hasMoreElements()) {
             URL url = (URL)services.nextElement();
             System.out.println("testServices(): found " + url);
-            // Test resource can be opened.
+            // Test resource can be opened and read.
             InputStream is = url.openStream();
+            copy(is, null);
             is.close();
             count++;
         }
@@ -540,4 +543,61 @@ public class Test extends Testable {
         logger.info("testLogging(): Logging is working");
     }
     
+   /**
+    * Tests the ability to load all MANIFEST.MFs in all jars in the classpath.
+    */
+   public void testFindAllManifestMfs() throws IOException {
+       count++;
+       ClassLoader loader = getClass().getClassLoader();
+       Enumeration manifests = loader.getResources("META-INF/MANIFEST.MF");
+       int manifestCount = 0;
+       String found = "";
+       while (manifests.hasMoreElements()) {
+           URL manifest = (URL)manifests.nextElement();
+           System.out.println("testFindAllManifestMfs(): found: " + manifest);
+           found += manifest + "\n";
+           manifestCount++;
+           // Make sure we can open and read it.
+           InputStream is = manifest.openStream();
+           copy(is, null);
+           is.close();
+       }
+
+       // Should be at least 4 manifests in the whole classpath
+       if (manifestCount < 4) {
+           fail("testFindAllManifestMfs(): incorrect number of manifests found: should be more than 3, " +
+                "was " + manifestCount + " loader=" + loader);
+       } else {
+           System.out.println("testFindAllManifestMfs(): OK: found 4 or more manifests");
+       }
+
+       String expected[] = new String[]{"/wrap/wraploader.jar!/META-INF/MANIFEST.MF", "/main/main.jar!/META-INF/MANIFEST.MF", 
+               "/lib/util.jar!/META-INF/MANIFEST.MF", "/lib/english.jar!/META-INF/MANIFEST.MF", 
+               "/lib/french.jar!/META-INF/MANIFEST.MF", "/lib/german.jar!/META-INF/MANIFEST.MF"
+       };
+       for (int i=0; i<expected.length; i++) {
+           if (!found.contains(expected[i])) {
+               fail("manifest list did not contain expected entry: " + expected[i]);
+           }
+       }
+           
+   }
+
+   /**
+    * Utility to assist with copying InputStream to OutputStream.  All
+    * bytes are copied, but both streams are left open.
+    * @param in Source of bytes to copy.
+    * @param out Destination of bytes to copy.
+    * @throws IOException
+    */
+   public static void copy(InputStream in, OutputStream out) throws IOException {
+       byte[] buf = new byte[1024];
+       while (true) {
+           int len = in.read(buf);
+           if (len < 0) break;
+           if (out != null) 
+               out.write(buf, 0, len);
+       }
+   }
+
 }

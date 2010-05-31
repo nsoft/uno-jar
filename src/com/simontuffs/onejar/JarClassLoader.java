@@ -477,6 +477,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             Manifest jarMan = jis.getManifest();
             loadBytes(entry, jis, jar, tmp, jarMan);
         }
+        // Add in a fake manifest entry.
+        entry = new JarEntry(Boot.MANIFEST);
+        Manifest manifest = jis.getManifest();
+        if (manifest != null) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            manifest.write(baos);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray()); 
+            loadBytes(entry, bais, jar, tmp, man);
+        }
+
     }
     
 	protected void loadBytes(JarEntry entry, InputStream is, String jar, String tmp, Manifest man) throws IOException {
@@ -967,7 +977,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             String resource = iter.next().toString() + "/" + name;
             ByteCode entry = ((ByteCode) byteCode.get(resource));
             if (byteCode.containsKey(resource)) {
-                String path = "file:" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + name;
+                String path = "file:/" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + name;
                 URL url = new URL("jar", "", -1, path, zipHandler);
                 INFO("findResources(): Adding " + url + " to resources list.");
                 resources.add(url);

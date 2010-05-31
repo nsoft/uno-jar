@@ -160,6 +160,10 @@ public class SelfTest extends TestCase {
         }
     }
     
+    public void testFindAllManifestMfs() throws Exception {
+        Invoker.invoke(test, "testFindAllManifestMfs");
+    }
+    
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.
 

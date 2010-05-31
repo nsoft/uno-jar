@@ -41,6 +41,11 @@ public class OneJarFile extends JarFile {
 
     public JarEntry getJarEntry(String name) {
         String filename = name.substring(name.indexOf("!/") + 2);
+        if (filename.equals(MANIFEST_NAME)) {
+            // Synthesize a JarEntry.
+            return new JarEntry(filename) { 
+            };
+        }
         try {
             JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
             try {
@@ -104,6 +109,11 @@ public class OneJarFile extends JarFile {
     public synchronized InputStream getInputStream(ZipEntry ze) throws IOException {
         try {
             JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
+            if (filename.equals(MANIFEST_NAME)) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                is.getManifest().write(baos);
+                return new ByteArrayInputStream(baos.toByteArray());
+            }
             try {
                 JarEntry entry;
                 while ((entry = is.getNextJarEntry()) != null) {
