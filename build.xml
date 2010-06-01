@@ -326,6 +326,11 @@
           Re-execute the Ant command.
         </echo>   
   
+		<!-- Pick libraries out of configured path -->
+		<path id="libs">
+			<fileset file="${jar.dir}/lib/**" />
+	    </path>
+		
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/example-manifest.mf">
             <fileset dir="${src.dir}">
                 <exclude name="**/Detect*" />
@@ -357,7 +362,9 @@
 			</main>
 			<lib>
 				<!-- Pre-built library jars -->
-				<fileset file="${jar.dir}/lib/**" />
+				<!-- <fileset file="${jar.dir}/lib/**" /> -->
+				<!-- Use classpath -->
+			    <classpath refid="libs"/>
 			</lib>
 			<wrap>
 				<!-- Class-loader wrapper -->

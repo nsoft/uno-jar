@@ -32,7 +32,10 @@ import org.apache.tools.ant.taskdefs.Manifest;
 import org.apache.tools.ant.taskdefs.ManifestException;
 import org.apache.tools.ant.taskdefs.Manifest.Attribute;
 import org.apache.tools.ant.types.FileSet;
+import org.apache.tools.ant.types.Path;
+import org.apache.tools.ant.types.Resource;
 import org.apache.tools.ant.types.ZipFileSet;
+import org.apache.tools.ant.types.resources.FileResource;
 import org.apache.tools.zip.ZipOutputStream;
 
 import com.simontuffs.onejar.Boot;
@@ -91,6 +94,30 @@ public class OneJarTask extends Jar {
         public void addFileSet(ZipFileSet fileset) {
             log("Lib.addFileSet() ", Project.MSG_VERBOSE);
             filesets.add(fileset);
+        }
+        public void addConfiguredClasspath(final Path classpath) {
+            log("adding classpath: " + classpath, Project.MSG_VERBOSE);
+            final Iterator pathIter = classpath.iterator();
+            while(pathIter.hasNext()) {
+                final Resource res = (Resource)pathIter.next();
+                if(res instanceof FileResource) {
+                    final FileResource fres = (FileResource)res;          
+                    log("res.name: " + fres.getName()
+                            + " res.exists: " + fres.isExists()
+                            + " res.class: " + fres.getClass().getName()
+                            + " res.file: " + fres.getFile()
+                            , Project.MSG_DEBUG);
+                    final File dir = fres.getFile().getParentFile();
+                    final String name = fres.getFile().getName();
+                    final ZipFileSet fileset = new ZipFileSet();
+                    fileset.setProject(getProject());
+                    fileset.setDir(dir);
+                    fileset.createInclude().setName(name);
+                    filesets.add(fileset);
+                } else {
+                    throw new BuildException("Not a file resource: " + res);
+                }
+            }          
         }
     }
 

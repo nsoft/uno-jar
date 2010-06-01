@@ -8,7 +8,7 @@
 	<classpathentry kind="src" path="sdk/src/lib"/>
 	<classpathentry kind="src" path="sdk/src/main"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar" sourcepath="/org.junit"/>
-	<classpathentry kind="lib" path="lib/ant-1.6.5.jar" sourcepath="/disks/work/apache-ant-1.6.5-src"/>
+	<classpathentry kind="lib" path="lib/ant-1.8.0.jar" sourcepath="/disks/work/apache-ant-1.8.0-src"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/english"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/french"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/german"/>
