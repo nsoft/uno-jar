@@ -164,6 +164,10 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testFindAllManifestMfs");
     }
     
+    public void testRelativeURL() throws Exception {
+        Invoker.invoke(test, "testRelativeURL");
+    }
+
     // TODO: add self-test for loading native library.
     // TODO: add self-test for external classpath loader.
 

@@ -1,4 +1,3 @@
-<?xml version="1.0"?>
 <project name="one-jar" default="dist" basedir=".">
 	<property name="src.dir" location="${basedir}/src" />
 	<property name="ant.dir" location="${basedir}/ant" />
@@ -195,14 +194,14 @@
 	<target name="build.example.jar" depends="build.boot.jar,build.main.jar,build.util.jar,build.services">
 		<delete file="${example.jar}" />
 		<jar destfile="${example.jar}" manifest="${src.dir}/example-manifest.mf">
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt" />
+            </fileset>
 			<fileset dir="${classes.dir}/src">
 				<exclude name="**/Detect*" />
 			</fileset>
 			<fileset dir="${src.dir}">
 				<exclude name="**/Detect*" />
-			</fileset>
-			<fileset dir="${basedir}">
-				<include name="doc/*license.txt" />
 			</fileset>
 			<fileset dir="${example.dir}">
 				<include name="expand/**" />
@@ -221,28 +220,24 @@
 	<target name="build.example-ext.jar" depends="build.boot.jar,build.main.jar,build.util.jar,build.services,build.external.jar">
 		<delete file="${example-ext.jar}" />
 		<jar destfile="${example-ext.jar}" manifest="${src.dir}/example-manifest-external.mf">
-			<fileset dir="${classes.dir}/src">
-				<exclude name="**/Detect*" />
-				<exclude name="**/example/**" />
-			</fileset>
-			<fileset dir="${src.dir}">
-				<include name="com/**" />
-				<exclude name="**/example/**" />
-				<exclude name="**/Detect*" />
-			</fileset>
-			<fileset dir="${basedir}">
-				<include name="doc/*license.txt" />
-			</fileset>
-			<fileset dir="${jar.dir}">
-				<include name="main/main.jar" />
-				<include name="lib/*.jar" />
-                <include name="expand/*.jar" />   
-			</fileset>
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt" />
+            </fileset>
+            <fileset dir="${classes.dir}/src">
+                <exclude name="**/Detect*" />
+            </fileset>
+            <fileset dir="${src.dir}">
+                <exclude name="**/Detect*" />
+            </fileset>
             <fileset dir="${example.dir}">
                 <include name="expand/**" />
                 <include name="file.txt" />
             </fileset>
-			<fileset dir="${jar.dir}/external">
+            <fileset dir="${jar.dir}">
+                <include name="main/main.jar" />
+                <include name="lib/*.jar" />
+            </fileset>
+			<fileset dir="${jar.dir}/detect">
 				<include name="wrap/wraploader.jar" />
 			</fileset>
 		</jar>
@@ -279,10 +274,19 @@
 	</target>
 
 	<!-- Build the example jar using the one-jar-macro -->
-	<import file="${dist.dir}/one-jar-macro.xml" optional="true" />
-	<target name="one-jar-example-macro" depends="jar">
+	<import file="${ant.dir}/one-jar-macro.xml" optional="true" />
+	<target name="build.one-jar-example-macro" depends="jar">
 		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" />
 		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" manifest="${src.dir}/example-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
+            <top>
+    			<fileset dir="${src.dir}">
+                    <exclude name="**/Detect*" />
+                </fileset>
+                <fileset dir="${example.dir}">
+                    <include name="expand/**" />
+                    <include name="file.txt" />
+                </fileset>
+            </top>
 			<main>
 				<fileset dir="${classes.dir}/example">
 					<include name="**/example/main/**" />
@@ -314,7 +318,7 @@
          for intermediates.
     -->
 	<import file="${dist.dir}/one-jar-ant-task.xml" optional="true" />
-	<target name="one-jar-example-task" depends="build.boot.jar,build.example.jar">
+	<target name="build.one-jar-example-task" depends="build.boot.jar,build.example.jar">
 		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
         <echo>
           If this task fails, it is probably because the OneJarTask class has changed underneath us.
@@ -322,6 +326,16 @@
         </echo>   
   
 		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/example-manifest.mf">
+            <fileset dir="${src.dir}">
+                <exclude name="**/Detect*" />
+            </fileset>
+            <fileset dir="${basedir}">
+                <include name="doc/*license.txt" />
+            </fileset>
+            <fileset dir="${example.dir}">
+                <include name="expand/**" />
+                <include name="file.txt" />
+            </fileset>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 				<!-- Construct main.jar from classes and source code -->
 				<fileset dir="${classes.dir}/example">
@@ -353,7 +367,7 @@
 
 
 	<!-- Make the distribution -->
-	<target name="dist" depends="compile,jar,one-jar-example-macro,one-jar-example-task,build.sdk,build.one-jar-dll">
+	<target name="dist" depends="compile,jar,build.one-jar-example-macro,build.one-jar-example-task,build.sdk,build.one-jar-dll">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
 	</target>
@@ -589,7 +603,7 @@
 			<report format="noframes" todir="${test.reports}" />
 		</junitreport>
         <echo>***********************************************</echo>
-        <echo>* Report is in ${test.reports}</echo>
+        <echo>* Report is in ${basedir}/${test.reports}/junit_noframes.html</echo>
         <echo>***********************************************</echo>
 	</target>
  

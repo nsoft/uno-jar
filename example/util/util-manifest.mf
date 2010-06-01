@@ -1,5 +1,4 @@
 Manifest-Version: 1.0
-Main-Class: com.simontuffs.onejar.example.util.Util
 Implementation-Title: util-manifest.mf Implementation-Title
 Implementation-Vendor: util-manifest.mf Implementation-Vendor
 Implementation-Vendor-Id: util-manifest.mf Implementation-Vendor-Id
