@@ -236,6 +236,7 @@
             <fileset dir="${jar.dir}">
                 <include name="main/main.jar" />
                 <include name="lib/*.jar" />
+                <include name="expand/*.jar" />   
             </fileset>
 			<fileset dir="${jar.dir}/detect">
 				<include name="wrap/wraploader.jar" />
@@ -420,7 +421,7 @@
 	</target>
 
 	<!-- Test the distribution -->
-	<target name="test" depends="dist,compile.tests">
+	<target name="test" depends="dist,compile.tests" description="Run all regression tests">
         <delete dir="${test.results}"/>
 		<antcall target="test.one-jar-example" />
 		<antcall target="test.one-jar-example-task" />

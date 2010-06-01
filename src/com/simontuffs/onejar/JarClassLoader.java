@@ -864,7 +864,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (existing != null) {
             // If bytecodes are identical, no real problem.  Likewise if it's in
             // META-INF.
-            if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("/META-INF")) {
+            if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("META-INF")) {
                 WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
@@ -938,6 +938,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     /* (non-Javadoc)
      * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
+    // TODO: Revisit the issue of protocol handlers for findResource()
+    // and findResources();
     protected URL findResource(String $resource) {
         try {
             INFO("findResource(" + $resource + ")");
@@ -947,8 +949,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             String resource = resolve($resource);
             if (resource != null) {
                 // We know how to handle it.
+                ByteCode entry = ((ByteCode) byteCode.get(resource));
                 INFO("findResource() found: " + $resource);
-                return new URL(Handler.PROTOCOL + ":" + resource); 
+                // Return resources as onejar: protocol URL's, wrapped inside 
+                // jar: protocol, to maximize chance that code which uses 
+                // URLClassLoaders without propagating their handlers will work
+                // property (e.g. Guice).  
+                String path = "onejar:" + entry.codebase + "!/" + resource;
+                URL url = new URL("jar", "", -1, path);
+                return url;
             }
             INFO("findResource(): unable to locate " + $resource);
             // If all else fails, return null.

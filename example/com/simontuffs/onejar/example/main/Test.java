@@ -144,7 +144,7 @@ public class Test extends Testable {
 		testLoader.loadClass(name);
 		System.out.println("testClassLoader(): loaded " + name + " OK!");
 		try {
-			name = "com.simontuffs.onejar.example.util.NonExistant";
+			name = "com.simontuffs.onejar.example.util.NonExistent";
 			System.out.println("testClassLoader(): loading " + name);
 			testLoader.loadClass(name);
 			fail("testClassLoader(): Error: Huh?  Should not find " + name);
