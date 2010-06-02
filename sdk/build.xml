@@ -89,6 +89,7 @@
                 <!-- Note: One-Jar-Expand is a list of paths to expand: empty is all -->
             	<attribute name="One-Jar-Expand" value=""/>
                 <attribute name="One-Jar-Expand-Dir" value="./one-jar-sdk-${one-jar.version}"/>
+            	<attribute name="One-Jar-Confirm-Expand" value="true"/>
                 <attribute name="One-Jar-Show-Expand" value="true"/>
             </manifest>
             <fileset dir=".">
@@ -101,9 +102,10 @@
                 <include name="one-jar-ant-task*"/>   
                 <include name="*.mf"/>   
                 <include name=".*"/>   
+            	<exclude name=".version"/>
             </fileset>
             <main>
-                <fileset dir="${classes.dir}/sdk"/>
+                <fileset dir="${classes.dir}/install"/>
             </main>
         </one-jar> 
     </target>   
