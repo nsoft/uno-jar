@@ -169,6 +169,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(String $wrap) {
         wrapDir = $wrap;
         delegateToParent = wrapDir == null;
+        Boot.setProperties(this);
         init();
     }
     
@@ -237,6 +238,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(ClassLoader parent) {
         super(parent);
         delegateToParent = true;
+        Boot.setProperties(this);
         init();
         // System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
     }
@@ -255,11 +257,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 try {
                     list.add(new URL(path));
                 } catch (MalformedURLException mux) {
-                    // Try a file:/// prefix and an absolute path.
+                    // Try a file:// prefix and an absolute path.
                     try {
-                        list.add(new URL("file:///" + new File(path).getAbsolutePath()));
+                    	String _path = new File(path).getCanonicalPath();
+                    	// URLClassLoader searches in a directory if and only if the path ends with '/':
+                    	// toURI() takes care of adding the trailing slash in this case so everything's ok
+                        list.add(new File(_path).toURI().toURL());
                     } catch (MalformedURLException ignore) {
                         Boot.WARNING("Unable to parse external path: " + path);
+                    } catch (IOException ignore) {
+                    	Boot.WARNING("Unable to parse external path: " + path);                   
+                    } catch (IllegalArgumentException ignore) {
+                    	// won't happen File.toURI() returns an absolute URI
+                    	Boot.WARNING("Unable to parse external path: " + path);
                     }
                 }
             }
@@ -276,6 +286,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     public String load(String mainClass, String jarName) {
+    	INFO("load("+mainClass+","+jarName+")");
         if (record) {
             new File(recording).mkdirs();
         }
@@ -719,6 +730,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 	
     protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd) throws ClassFormatError {
         // Simple, non wrapped class definition.
+    	INFO("defineClass("+name+")");
         return defineClass(name, bytes, 0, bytes.length, pd);
     }
     
@@ -802,6 +814,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 		        result = super.getResourceAsStream(resource);
 	        }
         }
+
+        if (result == null && externalClassLoader != null)
+        	result = externalClassLoader.getResourceAsStream(resource);
 
         // Special case: if we are a wrapping classloader, look up to our
         // parent codebase.  Logic is that the boot JarLoader will have 
@@ -957,6 +972,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // property (e.g. Guice).  
                 String path = "onejar:" + entry.codebase + "!/" + resource;
                 URL url = new URL("jar", "", -1, path);
+                return url;
+            }
+            URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
+            if (url != null)
+            {
+                INFO("findResource() found in external: " + $resource);
+                //VERBOSE("findResource(): " + $resource + "=" + url);
                 return url;
             }
             INFO("findResource(): unable to locate " + $resource);

@@ -30,6 +30,7 @@ public class DetectClassLoader extends JarClassLoader {
 	 */
 	protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd)
 		throws ClassFormatError {
+		INFO("DetectClassLoader.defineClass("+name+")");
 		// Use the superclass to define the class, then check and see
 		// whether it is a classloader.  Too late to do anything but issue
 		// a warning, but better a warning than failed class-loads with no

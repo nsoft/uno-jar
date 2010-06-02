@@ -454,7 +454,7 @@
 			<jvmarg value="-Done-jar.verbose=true" />
 			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
 			<sysproperty key="one-jar.test.external" value="true"/>
-			<sysproperty key="one-jar.class.path" value="${external.jar}"/>
+			<sysproperty key="one-jar.class.path" value="${external.jar}|external/subdir"/>
 			<classpath>
 				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
 				<path location="${classes.dir}/test" />
@@ -497,7 +497,8 @@
         <junit dir="dist" fork="yes" showoutput="no" printsummary="yes">
             <jvmarg value="-Done-jar.verbose=true" />
             <jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-ext-${one-jar.version}.jar" />
-            <classpath>
+            <jvmarg value="-Done-jar.class.path=expand/subdir"/>
+        	<classpath>
                 <fileset file="${basedir}/dist/one-jar-example-ext-${one-jar.version}.jar" />
                 <path location="${classes.dir}/test" />
             </classpath>

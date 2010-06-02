@@ -141,7 +141,6 @@ public class Boot {
     public synchronized static void setClassLoader(JarClassLoader $loader) {
         if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
         loader = $loader;
-        setProperties(loader);
     }
 
 	protected static void VERBOSE(String message) {
@@ -274,7 +273,6 @@ public class Boot {
 		if (url != null) {
 			// Wrap class loaders.
             final JarClassLoader bootLoader = getBootLoader(bootLoaderName);
-            setProperties(bootLoader);
 			bootLoader.load(null);
 			
 			// Read the "Wrap-Class-Loader" property from the wraploader jar file.
@@ -300,7 +298,6 @@ public class Boot {
             setClassLoader(getBootLoader(bootLoaderName, Boot.class.getClassLoader()));
             INFO("using JarClassLoader: " + getClassLoader().getClass().getName());
 		}
-        setProperties(loader);
         
 		mainClass = loader.load(mainClass);
         

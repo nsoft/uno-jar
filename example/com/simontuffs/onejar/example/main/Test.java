@@ -333,6 +333,22 @@ public class Test extends Testable {
     }
     
     /**
+     * Tests the ability to load classes through a classpath argument passed into
+     * the bootstrap loader, e.g. -Done-jar.cp=external.jar
+     * BUG-2845624
+     */
+    public void testExternalFile() throws IOException {
+        count++;
+        // Open and verify copy using classloader.
+        ClassLoader cl = this.getClass().getClassLoader();
+        URL url = cl.getResource("expand-subdir.txt");
+        copy(url.openStream(), null);
+        // Open and verify copy using class.
+        InputStream is = this.getClass().getResourceAsStream("/expand-subdir.txt");
+        copy(is, null);
+    }
+
+    /**
      * Tests the ability to determine the package name for a one-jar loaded class.
      */
     public void testPackageName() {

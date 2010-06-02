@@ -21,6 +21,10 @@ public class SelfTestExternal extends SelfTest {
         Invoker.invoke(test, "testExternal");
     }
 
+    public void testExternalFile() throws Exception {
+        Invoker.invoke(test, "testExternalFile");
+    }
+
     public static TestSuite suite() {
         TestSuite suite = new TestSuite();
         suite.addTestSuite(SelfTestExternal.class);
