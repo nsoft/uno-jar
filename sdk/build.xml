@@ -2,16 +2,19 @@
 
     <property name="one-jar.dist.dir" value="${basedir}"/>   
     
-    <property name="main.dir" location="${basedir}/src/main"/>
-    <property name="lib.dir" location="${basedir}/src/lib"/>
-    <property name="install.dir" location="${basedir}/src/install"/>
+    <property name="src.main.dir" location="${basedir}/src/main"/>
+    <property name="src.lib.dir" location="${basedir}/src/lib"/>
+    <property name="src.install.dir" location="${basedir}/src/install"/>
+	<property name="lib.dir" location="${basedir}/lib"/>
     <property name="build.dir" location="${basedir}/build"/>   
     
     <property name="classes.dir" location="${basedir}/classes"/>   
  
     <target name="init">
-        <mkdir dir="${main.dir}"/>   
-        <mkdir dir="${lib.dir}"/>   
+        <mkdir dir="${src.main.dir}"/>   
+        <mkdir dir="${src.lib.dir}"/> 
+    	<mkdir dir="${lib.dir}"/>
+        <mkdir dir="${classes.dir}/main"/>   
         <mkdir dir="${classes.dir}/lib"/>   
         <mkdir dir="${classes.dir}/src"/>   
         <mkdir dir="${build.dir}"/>   
@@ -22,15 +25,18 @@
     <target name="hello" depends="init">
         <!-- Build lib.jar -->   
         <javac destdir="${classes.dir}/lib">
-            <src path="${lib.dir}" />
+            <src path="${src.lib.dir}" />
         </javac>
         <jar destfile="${build.dir}/lib.jar" >
             <fileset dir="${classes.dir}/lib"/>
         </jar>   
         <!-- Build classes for main.jar -->   
         <javac destdir="${classes.dir}/main">
-            <src path="${main.dir}" />
+            <src path="${src.main.dir}" />
             <classpath path="${build.dir}/lib.jar"/>   
+            <classpath>
+        		<fileset dir="${src.lib.dir}"/>
+            </classpath>
         </javac>
         <!-- Construct the One-JAR file -->   
         <one-jar destfile="hello.jar">
@@ -44,10 +50,14 @@
             </manifest>
             <main>
                 <!-- Construct main.jar from classes and source code -->
-                <fileset dir="${classes.dir}/src"/>
+                <fileset dir="${classes.dir}/main"/>
             </main>
             <lib>
                 <fileset file="${build.dir}/lib.jar" />
+
+            	<!-- This will copy the files in the SDK/lib dir to the lib folder in the jar file-->
+    			<fileset dir="${lib.dir}"/>
+
             </lib>
         </one-jar>
         <echo>
@@ -62,7 +72,7 @@
     	<echo>Building sdk ${one-jar.version}</echo>
         <mkdir dir="${classes.dir}/install"/>   
         <javac destdir="${classes.dir}/install">
-            <src path="${install.dir}" />
+            <src path="${src.install.dir}" />
         </javac>
         <delete file="one-jar-sdk-${one-jar.version}.jar"/>
         <one-jar destfile="one-jar-sdk-${one-jar.version}.jar">
