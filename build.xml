@@ -1,5 +1,8 @@
 <project name="one-jar" default="dist" basedir=".">
-	<property name="src.dir" location="${basedir}/src" />
+    <pathconvert targetos="unix" property="basedir.unix">
+        <path location="${basedir}"/>
+    </pathconvert>
+    <property name="src.dir" location="${basedir}/src" />
 	<property name="ant.dir" location="${basedir}/ant" />
 	<property name="example.dir" location="${basedir}/example" />
 	<property name="test.dir" location="${basedir}/test" />
@@ -13,9 +16,15 @@
     <property name="test.results" value="test-results"/>   
     <property name="test.reports" value="test-reports"/>   
  
-    <property name="one-jar-dll.dir" location="../one-jar-dll"/>   
+    <property name="test.reports.dir" value="${basedir.unix}/${test.reports}"/>
+    <property name="test.results.dir" value="${basedir.unix}/${test.results}"/>
+
+	<property name="one-jar-dll.dir" location="../one-jar-dll"/>   
     <available property="one-jar-dll.exists" file="${one-jar-dll.dir}/build.xml"/>
  
+	<property name="one-jar-guice.dir" location="../one-jar-guice"/>   
+	<available property="one-jar-guice.exists" file="${one-jar-guice.dir}/build.xml"/>
+	 
 	<!-- version number -->
 	<property name="one-jar.version" value="0.97" />
     <!-- 
@@ -418,7 +427,7 @@
 
 	<target name="compile.tests">
 		<mkdir dir="${classes.dir}/test" />
-		<mkdir dir="${test.results}" />
+		<mkdir dir="${test.results.dir}" />
 		<javac destdir="${classes.dir}/test" debug="on" deprecation="off" optimize="off">
 			<src path="${test.dir}" />
 			<classpath>
@@ -429,7 +438,7 @@
 
 	<!-- Test the distribution -->
 	<target name="test" depends="dist,compile.tests" description="Run all regression tests">
-        <delete dir="${test.results}"/>
+        <delete dir="${test.results.dir}"/>
 		<antcall target="test.one-jar-example" />
 		<antcall target="test.one-jar-example-task" />
 		<antcall target="test.one-jar-example-macro" />
@@ -451,7 +460,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest" outfile="${test.results}/one-jar-SelfTest" />
+			<test name="com.simontuffs.onejar.test.SelfTest" todir="${test.results.dir}" outfile="one-jar-SelfTest" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -465,7 +474,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest$Task" outfile="${test.results}/one-jar-SelfTest-task" />
+			<test name="com.simontuffs.onejar.test.SelfTest$Task" todir="${test.results.dir}"  outfile="one-jar-SelfTest-task" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -479,7 +488,7 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.SelfTest$Macro" outfile="${test.results}/one-jar-SelfTest-macro" />
+			<test name="com.simontuffs.onejar.test.SelfTest$Macro" todir="${test.results.dir}" outfile="one-jar-SelfTest-macro" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
@@ -493,7 +502,7 @@
                 <path location="${classes.dir}/test" />
             </classpath>
 
-            <test name="com.simontuffs.onejar.test.SelfTestExternal" outfile="${test.results}/one-jar-SelfTestExt" />
+            <test name="com.simontuffs.onejar.test.SelfTestExternal" todir="${test.results.dir}" outfile="one-jar-SelfTestExt" />
             <formatter type="${formatter}" usefile="yes" />
         </junit>
     </target>
@@ -507,7 +516,7 @@
                 <path location="${classes.dir}/test" />
             </classpath>
 
-            <test name="com.simontuffs.onejar.test.SelfTestSecure" outfile="${test.results}/one-jar-SelfTestSecure" />
+            <test name="com.simontuffs.onejar.test.SelfTestSecure" todir="${test.results.dir}" outfile="one-jar-SelfTestSecure" />
             <formatter type="${formatter}" usefile="yes" />
         </junit>
     </target>
@@ -521,30 +530,43 @@
 				<path location="${classes.dir}/test" />
 			</classpath>
 
-			<test name="com.simontuffs.onejar.test.CommandLine" outfile="${test.results}/one-jar-SelfTest-commandline" />
+			<test name="com.simontuffs.onejar.test.CommandLine" todir="${test.results.dir}" outfile="one-jar-SelfTest-commandline" />
 			<formatter type="${formatter}" usefile="yes" />
 		</junit>
 	</target>
+	
+    <target name="test.one-jar-dll" if="one-jar-dll.exists">
+        <ant antfile="${one-jar-dll.dir}/build.xml" target="test" inheritall="false">
+        	<property name="test.results.dir" location="${test.results.dir}"/>
+        </ant>
+    </target>
+	
+	<target name="test.one-jar-guice" if="one-jar-guice.exists">
+        <ant antfile="${one-jar-guice.dir}/build.xml" target="test" inheritall="false">
+            <property name="test.results.dir" location="${test.results.dir}"/>
+        </ant>
+	</target>
+	
  
     <target name="test.ant.taskdefs" depends="test.ant.taskdef.1,test.ant.taskdef.2,test.ant.taskdef.3">
     </target>   
 
     <!-- Test the Ant one-jar taskdef -->   
     <target name="test.ant.taskdef.1">
-        <mkdir dir="${test.results}"/>   
+        <mkdir dir="${test.results.dir}"/>   
         <!-- Degenerate One-JAR -->   
-        <one-jar destfile="${test.results}/ant-taskdef-1.jar">
+        <one-jar destfile="${test.results.dir}/ant-taskdef-1.jar">
             <main/>   
         </one-jar>
         <delete dir="tmp/ant-taskdef-1"/>
     	<mkdir dir="tmp/ant-taskdef-1"/>
-        <java fork="true" dir="tmp/ant-taskdef-1" jar="${test.results}/ant-taskdef-1.jar" failonerror="true">
+        <java fork="true" dir="tmp/ant-taskdef-1" jar="${test.results.dir}/ant-taskdef-1.jar" failonerror="true">
             <arg line="--one-jar-help"/>
         </java>
     </target>
    
     <target name="test.ant.taskdef.2">
-        <one-jar destfile="${test.results}/ant-taskdef-2.jar">
+        <one-jar destfile="${test.results.dir}/ant-taskdef-2.jar">
             <manifest>
                 <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
                 <attribute name="One-Jar-Expand" value=""/>   
@@ -558,7 +580,7 @@
         <mkdir dir="tmp/ant-taskdef-2"/>
         <!-- <chmod dir="tmp" perm="444"/> -->
     	<!-- Override the manifest setting for One-Jar-Expand-Dir" -->
-        <java fork="true" dir="tmp/ant-taskdef-2" jar="${test.results}/ant-taskdef-2.jar" failonerror="true" inputstring="y">
+        <java fork="true" dir="tmp/ant-taskdef-2" jar="${test.results.dir}/ant-taskdef-2.jar" failonerror="true" inputstring="y">
         	<sysproperty key="one-jar.expand.dir" value="."/>
         </java>
         <available property="test.ant.taskdef.2" file="tmp/ant-taskdef-2/OneJar.class"/>
@@ -567,19 +589,19 @@
 
     <target name="test.ant.taskdef.3">
         <!-- Create and use a manifest file -->
-        <manifest file="${test.results}/manifest.mf">
+        <manifest file="${test.results.dir}/manifest.mf">
             <!-- Remember, One-Jar-Expand is a comma-separated prefix list for path filtering -->   
             <attribute name="One-Jar-Expand" value=""/>   
             <attribute name="One-Jar-Expand-Dir" value="tmp"/>   
             <attribute name="One-Jar-Show-Expand" value="true"/>   
             <attribute name="One-Jar-Confirm-Expand" value="true"/>   
         </manifest>   
-        <one-jar destfile="${test.results}/ant-taskdef-3.jar" manifest="${test.results}/manifest.mf">
+        <one-jar destfile="${test.results.dir}/ant-taskdef-3.jar" manifest="${test.results.dir}/manifest.mf">
             <main/>   
         </one-jar>   
         <delete dir="tmp/ant-taskdef-3"/>  
         <mkdir dir="tmp/ant-taskdef-3"/>
-        <java fork="true" dir="tmp/ant-taskdef-3" jar="${test.results}/ant-taskdef-3.jar" failonerror="true" inputstring="y"/>
+        <java fork="true" dir="tmp/ant-taskdef-3" jar="${test.results.dir}/ant-taskdef-3.jar" failonerror="true" inputstring="y"/>
         <available property="test.ant.taskdef.3" file="tmp/ant-taskdef-3/tmp/OneJar.class"/>
         <fail unless="test.ant.taskdef.3"/>
     </target>   
@@ -605,13 +627,13 @@
     </target>
 
 	<target name="report">
-		<mkdir dir="${test.reports}" />
-		<junitreport todir="${test.reports}">
-			<fileset dir="${test.results}" includes="*SelfTest*.xml" />
-			<report format="noframes" todir="${test.reports}" />
+		<mkdir dir="${test.reports.dir}" />
+		<junitreport todir="${test.reports.dir}">
+			<fileset dir="${test.results.dir}" includes="*SelfTest*.xml" />
+			<report format="noframes" todir="${test.reports.dir}" />
 		</junitreport>
         <echo>***********************************************</echo>
-        <echo>* Report is in ${basedir}/${test.reports}/junit_noframes.html</echo>
+        <echo>* Report is in ${test.reports.dir}/junit_noframes.html</echo>
         <echo>***********************************************</echo>
 	</target>
  
