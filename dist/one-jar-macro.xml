@@ -7,6 +7,7 @@
 		<attribute name="mainmanifest" />
 		<attribute name="onejarboot"/>
 		<element name="main" />
+		<element name="top" optional="true"/>
 		<element name="lib" optional="true"/>
 		<element name="binlib" optional="true"/>
         <element name="wrap" optional="true"/>      
@@ -15,7 +16,11 @@
 			<property name="tmp.jar.dir" value="${tmp.dir}/jars"/>
 			<echo>tmp.jar.dir=${tmp.jar.dir}</echo>
 			<mkdir dir="${tmp.jar.dir}"/>
-			<mkdir dir="${tmp.dir}/main" />
+            <mkdir dir="${tmp.dir}/top" />
+			<copy todir="${tmp.dir}/top">
+				<top/>
+			</copy>
+            <mkdir dir="${tmp.dir}/main" />
 			<copy todir="${tmp.dir}/main" >
 				<main/>
 			</copy>
@@ -49,7 +54,10 @@
 			</jar>
 			<jar destfile="@{destfile}" manifest="@{manifest}">
 				<fileset dir="${tmp.jar.dir}">
-					<include name="**/*" />
+					<include name="**/*"/>
+				</fileset>
+				<fileset dir="${tmp.dir}/top">
+					<include name="**/*"/>
 				</fileset>
 			</jar>
 			<delete dir="${tmp.dir}"/>

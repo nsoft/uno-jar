@@ -397,7 +397,7 @@ public class OneJarTask extends Jar {
             }
             ZipEntry entry = jis.getNextEntry();
             while (entry != null) {
-                if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version")) {
+                if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version") || entry.getName().endsWith("license.txt")) {
                     log("entry=" + entry.getName(), Project.MSG_DEBUG);
                     zOut.putNextEntry(new org.apache.tools.zip.ZipEntry(entry));
                     copy(jis, zOut, false);

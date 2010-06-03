@@ -467,6 +467,8 @@
 		<antcall target="test.one-jar-example-macro" />
         <antcall target="test.one-jar-example-ext" />
         <antcall target="test.one-jar-example-secure" />
+		<antcall target="test.one-jar-dll" />
+		<antcall target="test.one-jar-guice" />
 		<antcall target="test.command-line" />
         <antcall target="test.ant.taskdefs" />   
 		<antcall target="report" />
