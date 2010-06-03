@@ -874,9 +874,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // resource from this jar file.  Only a conflict if we are using a
         // global map and the resource is defined by more than
         // one jar file (default is to map to local jar).
-        byte[] bytes = baos.toByteArray();
         ByteCode existing = (ByteCode)byteCode.get(name);
         if (existing != null) {
+            byte[] bytes = baos.toByteArray();
             // If bytecodes are identical, no real problem.  Likewise if it's in
             // META-INF.
             if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("META-INF")) {
@@ -884,6 +884,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
             }
+            // Speedup GC.
+            bytes = null;
             return true;
         }
         return false;
