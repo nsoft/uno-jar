@@ -880,7 +880,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // If bytecodes are identical, no real problem.  Likewise if it's in
             // META-INF.
             if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("META-INF")) {
-                WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                // TODO: this really needs to be a warning, but there needs to be a way
+                // to shut it down.  INFO it for now.  Ideally we need to provide a 
+                // logging layer (like commons-logging) to allow logging to be delegated.
+                INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
             }
