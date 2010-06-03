@@ -883,7 +883,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // TODO: this really needs to be a warning, but there needs to be a way
                 // to shut it down.  INFO it for now.  Ideally we need to provide a 
                 // logging layer (like commons-logging) to allow logging to be delegated.
-                INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                String message = existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)";
+                if (name.endsWith(".class")) {
+                    // This is probably trouble.
+                    WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                } else {
+                    INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                }
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
             }
