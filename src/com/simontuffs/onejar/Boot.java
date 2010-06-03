@@ -14,6 +14,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -160,7 +161,13 @@ public class Boot {
     }
 
     public static void main(String[] args) throws Exception {
+        String jmx = ManagementFactory.getRuntimeMXBean().getName();
+        System.out.println("jmx=" + jmx);
+        String port = jmx.split("@")[0];
+        Runtime.getRuntime().exec("jconsole " + port);
+        Thread.sleep(5000);
     	run(args);
+    	Thread.sleep(10000);
     }
     
     public static void run(String args[]) throws Exception {
