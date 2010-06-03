@@ -366,6 +366,9 @@ public class OneJarTask extends Jar {
     }
     
     protected void addOneJarBoot(ZipOutputStream zOut) throws IOException {
+        // BUG-2674591: filesetmanifest attribute leads to null zOut: ignore.
+        if (zOut ==null) 
+            return;
         // One-jar bootstrap files
         if (onejar != null) {
             includeZip(onejar, zOut);

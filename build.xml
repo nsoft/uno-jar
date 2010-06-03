@@ -398,6 +398,7 @@
             <manifest>
                 <attribute name="Main-Class" value="com.simontuffs.onejar.Boot"/>
                 <attribute name="One-Jar-Expand" value="src"/>
+                <attribute name="One-Jar-Expand-Dir" value="./one-jar-src-${one-jar.version}"/>
                 <attribute name="One-Jar-Show-Expand" value="true"/>
                 <attribute name="One-Jar-Confirm-Expand" value="true"/>
             </manifest>
@@ -415,6 +416,28 @@
             <property name="one-jar.version" value="${one-jar.version}"/>
         </ant>
         <copy file="${sdk.dir}/one-jar-sdk-${one-jar.version}.jar" todir="${dist.dir}"/>   
+    </target>   
+	
+	<!-- Two part build of one-jar -->
+    <target name="build.source.jar.filesetmanifest">
+        <one-jar destfile="dist/one-jar-source-fsm-${one-jar.version}.jar">
+            <manifest>
+                <attribute name="Main-Class" value="com.simontuffs.onejar.Boot"/>
+            </manifest>
+            <main/>   
+        </one-jar>
+    	<one-jar destfile="dist/one-jar-source-fsm-${one-jar.version}.jar" update="true" filesetmanifest="mergewithoutmain">
+            <main/>   
+    	    <manifest>
+                <attribute name="One-Jar-Expand" value="src"/>
+                <attribute name="One-Jar-Expand-Dir" value="./one-jar-src-${one-jar.version}"/>
+                <attribute name="One-Jar-Show-Expand" value="true"/>
+                <attribute name="One-Jar-Confirm-Expand" value="true"/>
+    	    </manifest>
+    		<fileset dir="${basedir}">
+                <include name="src/**"/>                   
+            </fileset>   
+    	</one-jar>
     </target>   
 
     <target name="build.one-jar-dll" if="one-jar-dll.exists">
