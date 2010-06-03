@@ -1,0 +1,27 @@
+<project name="test-large-jars" default="test-large-jars">
+
+    <property name="one-jar.dist.dir" value="${basedir}/../../dist"/>   
+    <import file="${one-jar.dist.dir}/one-jar-ant-task.xml"/>
+    <echo>java.home=${java.home}</echo>
+
+	<target name="test-large-jars">
+		<mkdir dir="classes"/>
+		<javac destdir="classes">
+			<src path="src"/>
+		</javac>
+    	<one-jar jarfile="test-large-jars.jar">
+            <manifest>
+                <attribute name="One-Jar-Main-Class" value="com.simontuffs.onejar.tests.test_large_jars.FreeMem"/> 
+            </manifest>
+    		<main>
+    		   <fileset dir="classes" includes="**/*.class"/>
+    		</main>
+    		<lib>
+    			<!-- Pick up a bunch of large jars just to stress the VM -->
+    			<fileset dir="${java.home}/lib" includes="*.jar"/>
+    		</lib>
+    	</one-jar>
+		<exec command="java -jar test-large-jars.jar"/>
+	</target>
+	
+</project>
