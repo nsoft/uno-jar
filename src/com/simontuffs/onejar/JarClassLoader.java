@@ -1173,6 +1173,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         } else {
             
             // See if it's a resource in the JAR that can be extracted
+            File tempNativeLib = null;
+            FileOutputStream os = null;
             try {
                 int lastdot = resourcePath.lastIndexOf('.');
                 String suffix = null;
@@ -1180,22 +1182,21 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     suffix = resourcePath.substring(lastdot);
                 }
                 InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
-                if (is == null) 
-                    return null;
-                File tempNativeLib = File.createTempFile(name + "-", suffix);
-                FileOutputStream os = new FileOutputStream(tempNativeLib);
-                copy(is, os);
-                os.close();
                 
-                VERBOSE("Stored native library " + name + " at " + tempNativeLib);
-                
-                tempNativeLib.deleteOnExit();
-                
-                binLibPath.put(resourcePath, tempNativeLib.getPath());
-                
-                result = tempNativeLib.getPath();
-                if (result != null) {
-                    VERBOSE("Found " + result + " in native binary library " + resourcePath);
+                if ( is != null ) {
+                    tempNativeLib = File.createTempFile(name + "-", suffix);
+                    tempNativeLib.deleteOnExit();
+                    os = new FileOutputStream(tempNativeLib);
+                    copy(is, os);
+                    os.close();
+                    VERBOSE("Stored native library " + name + " at " + tempNativeLib);
+                    result = tempNativeLib.getPath();
+                    binLibPath.put(resourcePath, result);
+                } else {
+                    // Library is not in the jar
+                    // Return null by default to search the java.library.path
+                    VERBOSE("No native library at " + resourcePath + 
+                    "java.library.path will be searched instead.");
                 }
             } catch(Throwable e)  {
                 // Couldn't load the library
