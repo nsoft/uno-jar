@@ -10,6 +10,7 @@
 package com.simontuffs.onejar;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -174,20 +175,21 @@ public class Boot {
 		{
 			// Default properties are in resource 'one-jar.properties'.
 			Properties properties = new Properties();
-			String props = "/one-jar.properties";
-			InputStream is = Boot.class.getResourceAsStream(props); 
+			String props = "one-jar.properties";
+			InputStream is = Boot.class.getResourceAsStream("/" + props); 
 			if (is != null) {
 				INFO("loading properties from " + props);
 				properties.load(is);
 			}
 				 
 			// Merge in anything in a local file with the same name.
-			props = "file:one-jar.properties";
-			is = Boot.class.getResourceAsStream(props);
-			if (is != null) {
-				INFO("loading properties from " + props);
-				properties.load(is);
-			} 
+			if (new File(props).exists()) {
+    			is = new FileInputStream(props);
+    			if (is != null) {
+    				INFO("merging properties from " + props);
+    				properties.load(is);
+    			} 
+			}
 			
 			// Set system properties only if not already specified.
 			Enumeration _enum = properties.propertyNames();
@@ -311,12 +313,6 @@ public class Boot {
         	if (bootClass.equals(mainClass))
         		throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
         	
-    		// Set the context classloader in case any classloaders delegate to it.
-    		// Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
-    		// is used to launch the jar application, and attempts to load through
-    		// it would fail if that code is encapsulated inside the one-jar.
-    		Thread.currentThread().setContextClassLoader(loader);
-            
         	Class cls = loader.loadClass(mainClass);
         	
             endTime = System.currentTimeMillis();

@@ -559,6 +559,20 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
     }
     
+	/**
+	 * Override to ensure that this classloader is the thread context classloader
+	 * when used to load a class.  Avoids subtle, nasty problems.
+	 * 
+	 */
+	public Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        // Set the context classloader in case any classloaders delegate to it.
+        // Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
+        // is used to launch the jar application, and attempts to load through
+        // it would fail if that code is encapsulated inside the one-jar.
+        Thread.currentThread().setContextClassLoader(this);
+	    return super.loadClass(name, resolve);
+	}
+	
     /**
      * Locate the named class in a jar-file, contained inside the
      * jar file which was used to load <u>this</u> class.
@@ -980,8 +994,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // Return resources as onejar: protocol URL's, wrapped inside 
                 // jar: protocol, to maximize chance that code which uses 
                 // URLClassLoaders without propagating their handlers will work
-                // property (e.g. Guice).  
-                String path = "onejar:" + entry.codebase + "!/" + resource;
+                // property (e.g. Guice).  Do not use resolved resource name for URL.
+                // Do not strip leading slash -- this causes failure to load from classloader
+                // which is the 'default' Sun classloader behavior.
+                String path = "onejar:" + entry.codebase + "!/" + $resource;
                 URL url = new URL("jar", "", -1, path);
                 return url;
             }

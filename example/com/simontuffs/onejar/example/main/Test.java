@@ -78,6 +78,7 @@ public class Test extends Testable {
 	// intercept and parse references to nested jars.  For example,  
 	public void testLoadCodeSource() throws Exception {
         count++;
+        if (shouldSkip()) return;
 		URL codesource = this.getClass().getProtectionDomain().getCodeSource().getLocation();
 		System.out.println("testLoadCodeSource(): dumping entries in " + codesource);
 		// Can we load from our own codesource (which is a jar file).
@@ -85,7 +86,7 @@ public class Test extends Testable {
         if (is != null) {
     		JarInputStream jis = new JarInputStream(is);
             
-            int count = 0, expected = 26;
+            int count = 0, expected = 29;
     		JarEntry entry = null;
     		while ((entry = jis.getNextJarEntry()) != null) {
     			System.out.println("testLoadCodeSource(): entry=" + entry);
@@ -353,6 +354,7 @@ public class Test extends Testable {
      */
     public void testPackageName() {
         count++;
+        if (shouldSkip()) return;
         Class cls = this.getClass();
         Package pkg = cls.getPackage();
         if (pkg == null) {
@@ -372,12 +374,12 @@ public class Test extends Testable {
         String expect, got;
         expect = "main-manifest.mf Implementation-Title";
         got = pkg.getImplementationTitle();
-        if (!got.equals(expect)) {
+        if (!expect.equals(got)) {
             fail("testPackageName(): Error in implementation title: expected '" + expect + "' got '" + got + "'");
         }
         expect = "main-manifest.mf Specification-Title";
         got = pkg.getSpecificationTitle();
-        if (!got.equals(expect)) {
+        if (!expect.equals(got)) {
             fail("testPackageName(): Error in specification title: expected '" + expect + "' got '" + got + "'");
         }
     }
@@ -412,6 +414,22 @@ public class Test extends Testable {
             fail("testPackageName(): Error in specification title: expected '" + expect + "' got '" + got + "'");
         }
     }
+
+    /**
+     * Exercises the Class.getResource() loader mechanisms.
+     */
+    public void testGetResource() throws IOException {
+        count++;
+        String resource = "resources/resource-1.txt";
+        InputStream is = Test.class.getResource(resource).openStream();
+        if (is == null) {
+            fail("testGetResource(): Error: unable to load " + resource + " using Test.class().getResource().openStream()");
+        } else {
+            System.out.println("testGetResource(): OK: able to load " + resource + " using Test.class().getResource().openStream()");
+        }
+    }
+    
+    
     /**
      * Tests the ability to load a resource using getResourceAsStream based
      * on the class of this object.  A number of users have reported problems
@@ -427,17 +445,35 @@ public class Test extends Testable {
         } else {
             System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getResourceAsStream()");
         }
-        stream = Test.class.getClassLoader().getResourceAsStream("/main-manifest.mf");
+        // Strange but true: this case is supposed to fail (or at least it does with the standard Sun URLClassPath.FileLoader, 
+        // so one-jar will mimic the same.
+        stream = Test.class.getClassLoader().getResourceAsStream(resource);
+        if (stream == null) {
+            System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getClassLoader().getResourceAsStream()");
+        } else {
+            fail("testGetResourceAsStream(): Error: Whoops: unable to load " + resource + " using Test.class.getClassloader().getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
+        }
+        // This should also pass.
+        resource = "main-manifest.mf";
+        stream = Test.class.getClassLoader().getResourceAsStream(resource);
         if (stream == null) {
             fail("testGetResourceAsStream(): Error: Whoops: unable to load " + resource + " using Test.class.getClassloader().getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
         } else {
             System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getClassLoader().getResourceAsStream()");
         }
+        // But this should fail, since the path is relative.
+        stream = Test.class.getResourceAsStream(resource);
+        if (stream != null) {
+            fail("testGetResourceAsStream(): Error: Whoops: incorrect load of " + resource + " using Test.class.getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
+        } else {
+            System.out.println("testGetResourceAsStream(): OK: unable to load " + resource + " using Test.class.getResourceAsStream()");
+        }
+        
         // The following is expected to fail, since the ClassLoader class is
         // part of the Java bootstrap classloader, and should not be able to
         // see into this codebase.
         if (!shouldSkip()) {
-            stream = ClassLoader.class.getResourceAsStream("/main-manifest.mf");
+            stream = ClassLoader.class.getResourceAsStream(resource);
             if (stream != null) {
                 fail("testGetResourceAsStream(): Error: Whoops: should not be able to load /main-manifest.mf using ClassLoader.class.getResourceAsStream()");
             } else {
@@ -454,6 +490,7 @@ public class Test extends Testable {
     
     public void testServices() throws IOException {
         count++;
+        if (shouldSkip()) return;
         ClassLoader loader = getClass().getClassLoader();
         Enumeration services = loader.getResources("META-INF/services/com.simontuffs.onejar.services.IHelloService");
         int count = 0;

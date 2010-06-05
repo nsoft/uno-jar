@@ -1,7 +1,8 @@
 <project name="one-jar" default="dist" basedir=".">
-    <pathconvert targetos="unix" property="basedir.unix">
-        <path location="${basedir}"/>
-    </pathconvert>
+	
+	<property name="one-jar.dir" value="${basedir}"/>
+    <import file="${one-jar.dir}/build.onejar.xml"/>
+
     <property name="src.dir" location="${basedir}/src" />
 	<property name="ant.dir" location="${basedir}/ant" />
 	<property name="example.dir" location="${basedir}/example" />
@@ -25,6 +26,9 @@
 	<property name="one-jar-guice.dir" location="../one-jar-guice"/>   
 	<available property="one-jar-guice.exists" file="${one-jar-guice.dir}/build.xml"/>
 	 
+    <property name="one-jar-spring.dir" location="../one-jar-spring"/>   
+    <available property="one-jar-spring.exists" file="${one-jar-spring.dir}/build.xml"/>
+
 	<!-- version number -->
 	<property name="one-jar.version" value="0.97" />
     <!-- 
@@ -32,7 +36,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc3-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc5-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
@@ -469,9 +473,10 @@
         <antcall target="test.one-jar-example-secure" />
 		<antcall target="test.one-jar-dll" />
 		<antcall target="test.one-jar-guice" />
+        <antcall target="test.one-jar-spring" />
 		<antcall target="test.command-line" />
         <antcall target="test.ant.taskdefs" />   
-		<antcall target="report" />
+		<antcall target="junit.report" />
 	</target>
 	<target name="test.one-jar-example" depends="dist,compile.tests">
 		<echo>********** one-jar-example-${one-jar.version}.jar</echo>
@@ -573,6 +578,11 @@
         </ant>
 	</target>
 	
+    <target name="test.one-jar-spring" if="one-jar-spring.exists">
+        <ant antfile="${one-jar-spring.dir}/build.xml" target="test" inheritall="false">
+            <property name="test.results.dir" location="${test.results.dir}"/>
+        </ant>
+    </target>
  
     <target name="test.ant.taskdefs" depends="test.ant.taskdef.1,test.ant.taskdef.2,test.ant.taskdef.3">
     </target>   
@@ -652,15 +662,5 @@
         <antcall target="compile"/>   
     </target>
 
-	<target name="report">
-		<mkdir dir="${test.reports.dir}" />
-		<junitreport todir="${test.reports.dir}">
-			<fileset dir="${test.results.dir}" includes="*SelfTest*.xml" />
-			<report format="noframes" todir="${test.reports.dir}" />
-		</junitreport>
-        <echo>***********************************************</echo>
-        <echo>* Report is in ${test.reports.dir}/junit_noframes.html</echo>
-        <echo>***********************************************</echo>
-	</target>
  
 </project>

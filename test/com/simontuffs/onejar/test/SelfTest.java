@@ -130,6 +130,10 @@ public class SelfTest extends TestCase {
         Invoker.invoke(test, "testGetResourceAsStream");
     }
     
+    public void testGetResource() throws Exception {
+        Invoker.invoke(test, "testGetResource");
+    }
+    
     public void testServices() throws Exception {
         Invoker.invoke(test, "testServices");
     }
