@@ -977,6 +977,53 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     protected URLStreamHandler oneJarHandler = new Handler();
     
+    // Injectable URL factory.
+    public static interface IURLFactory {
+        public URL getURL(String codebase, String resource) throws MalformedURLException;
+        public URLStreamHandler jarHandler = new URLStreamHandler() {
+            protected URLConnection openConnection(URL url) throws IOException {
+                URLConnection connection = new OneJarURLConnection(url);
+                connection.connect();
+                return connection;
+            }
+        };
+    }
+    
+    // Resolve URL from codebase and resource.  Allow URL factory to be specified by 
+    // user of JarClassLoader.
+    
+    /**
+     * FileURLFactory generates URL's which are resolved relative to the filesystem. 
+     * These are compatible with frameworks like Spring, but require knowledge of the 
+     * location of the one-jar file via Boot.getMyJarPath().
+     */
+    public class FileURLFactory implements IURLFactory {
+        public URL getURL(String codebase, String resource) throws MalformedURLException {
+            String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + "!/" + resource;
+            URL url = new URL("jar", "", -1, path, jarHandler);
+            PRINTLN("FileURLFactory: url=" + url);
+            return url;
+        }
+    }
+    
+    /**
+     * OneJarURLFactory generates URL's which are efficient, using the in-memory bytecode 
+     * to access the resources.
+     * @author simon
+     *
+     */
+    public class OneJarURLFactory implements IURLFactory {
+        public URL getURL(String codebase, String resource) throws MalformedURLException {
+            String base = resource.endsWith(".class")? "": codebase + "/";
+            URL url =  new URL(null,Handler.PROTOCOL + ":/" + base + resource);
+            PRINTLN("OneJarURLFactory: url=" + url);
+            return url;
+        }    
+    }
+    
+    
+    public IURLFactory urlFactory = new FileURLFactory();
+    
     /* (non-Javadoc)
      * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
@@ -992,28 +1039,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             if (resource != null) {
                 // We know how to handle it.
                 ByteCode entry = ((ByteCode) byteCode.get(resource));
-                INFO("findResource() found: " + $resource);
-                // Return resources as onejar: protocol URL's, wrapped inside 
-                // jar: protocol, to maximize chance that code which uses 
-                // URLClassLoaders without propagating their handlers will work
-                // property (e.g. Guice).  Do not use resolved resource name for URL.
-                // Do not strip leading slash -- this causes failure to load from classloader
-                // which is the 'default' Sun classloader behavior.
-                // Note the belt-and-braces approach here, use "onejar" as the URL protocol
-                // *and* provide the handler, in case the Handler class is not on the classpath
-                // [BUG-1949972]
-                // TODO: provide injectable URLStreamHandler factories.
-
-                /*
-                String path = Handler.PROTOCOL + ":" + entry.codebase + "!/" + $resource;
-                // URL url = new URL("jar", "", -1, path);
-                URL url =  new URL(null,Handler.PROTOCOL + ":" + resource, oneJarHandler);
-                */
-                
-                String path = "file:/" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + $resource;
-                URL url = new URL("jar", "", -1, path, jarHandler);
-
-                return url;
+                INFO("findResource() found: " + $resource);                
+                return urlFactory.getURL(entry.codebase, $resource);
             }
             URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
             if (url != null)
@@ -1032,14 +1059,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
     }
     
-    URLStreamHandler jarHandler = new URLStreamHandler() {
-        protected URLConnection openConnection(URL url) throws IOException {
-            URLConnection connection = new OneJarURLConnection(url);
-            connection.connect();
-            return connection;
-        }
-    };
-    
     protected Enumeration findResources(String name) throws IOException {
         INFO("findResources(" + name + ")");
         INFO("findResources: looking in " + jarNames);
@@ -1049,8 +1068,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             String resource = iter.next().toString() + "/" + name;
             ByteCode entry = ((ByteCode) byteCode.get(resource));
             if (byteCode.containsKey(resource)) {
-                String path = "file:/" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + name;
-                URL url = new URL("jar", "", -1, path, jarHandler);
+                URL url = urlFactory.getURL(entry.codebase, name);
                 INFO("findResources(): Adding " + url + " to resources list.");
                 resources.add(url);
             }

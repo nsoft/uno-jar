@@ -48,7 +48,7 @@ public class Handler extends URLStreamHandler {
 				// is only one per one-jar.
 				JarClassLoader cl = Boot.getClassLoader();
 				InputStream is = cl.getByteStream(resource);
-				// sun.awt image loading does not like null input streams rerurned here.
+				// sun.awt image loading does not like null input streams returned here.
 				// Throw IOException (probably better anyway).
 				if (is == null) 
 					throw new IOException("cl.getByteStream() returned null for " + resource);

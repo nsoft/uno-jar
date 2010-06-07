@@ -1,6 +1,8 @@
 <project name="one-jar" default="dist" basedir=".">
 	
 	<property name="one-jar.dir" value="${basedir}"/>
+    <property name="build.dir" location="${basedir}/build" />
+    <property name="classes.dir" location="${build.dir}/ant" />
     <import file="${one-jar.dir}/build.onejar.xml"/>
 
     <property name="src.dir" location="${basedir}/src" />
@@ -8,10 +10,8 @@
 	<property name="example.dir" location="${basedir}/example" />
 	<property name="test.dir" location="${basedir}/test" />
 	<property name="services.dir" location="${basedir}/services" />
-	<property name="build.dir" location="${basedir}/build" />
     <property name="sdk.dir" location="${basedir}/sdk" />   
 
-    <property name="classes.dir" location="${build.dir}/ant" />
 	<property name="dist.dir" location="${basedir}/dist" />
 	<property name="jar.dir" location="${build.dir}/jars" />
     <property name="test.results" value="test-results"/>   
@@ -459,6 +459,7 @@
 			<src path="${test.dir}" />
 			<classpath>
 				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+				<path refid="one-jar.test.libraries"/>
 			</classpath>
 		</javac>
 	</target>

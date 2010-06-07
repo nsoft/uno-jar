@@ -26,7 +26,7 @@
     
     <path id="one-jar.test.libraries">
         <pathelement location="${one-jar.dir}/lib/junit-3.8.1.jar"/>
-        <pathelement location="${classes.dir}/test/" />
+        <pathelement location="${classes.dir}/test" />
     </path>
 
     <import file="${one-jar.dist.dir}/one-jar-ant-task.xml" optional="true" />

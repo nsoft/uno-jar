@@ -449,9 +449,9 @@ public class Test extends Testable {
         // so one-jar will mimic the same.
         stream = Test.class.getClassLoader().getResourceAsStream(resource);
         if (stream == null) {
-            System.out.println("testGetResourceAsStream(): OK: able to load " + resource + " using Test.class.getClassLoader().getResourceAsStream()");
+            System.out.println("testGetResourceAsStream(): OK: unable to load " + resource + " using Test.class.getClassLoader().getResourceAsStream()");
         } else {
-            fail("testGetResourceAsStream(): Error: Whoops: unable to load " + resource + " using Test.class.getClassloader().getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
+            fail("testGetResourceAsStream(): Error: Whoops: able to load " + resource + " using Test.class.getClassloader().getResourceAsStream(). Classloader=" + Test.class.getClassLoader());
         }
         // This should also pass.
         resource = "main-manifest.mf";
@@ -625,9 +625,9 @@ public class Test extends Testable {
            System.out.println("testFindAllManifestMfs(): OK: found 4 or more manifests");
        }
 
-       String expected[] = new String[]{"/wrap/wraploader.jar!/META-INF/MANIFEST.MF", "/main/main.jar!/META-INF/MANIFEST.MF", 
-               "/lib/util.jar!/META-INF/MANIFEST.MF", "/lib/english.jar!/META-INF/MANIFEST.MF", 
-               "/lib/french.jar!/META-INF/MANIFEST.MF", "/lib/german.jar!/META-INF/MANIFEST.MF"
+       String expected[] = new String[]{"/wrap/wraploader.jar", "/main/main.jar", 
+               "/lib/util.jar", "/lib/english.jar", 
+               "/lib/french.jar", "/lib/german.jar"
        };
        for (int i=0; i<expected.length; i++) {
            if (!found.contains(expected[i])) {
