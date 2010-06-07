@@ -86,7 +86,7 @@ public class Test extends Testable {
         if (is != null) {
     		JarInputStream jis = new JarInputStream(is);
             
-            int count = 0, expected = 29;
+            int count = 0, expected = 28;
     		JarEntry entry = null;
     		while ((entry = jis.getNextJarEntry()) != null) {
     			System.out.println("testLoadCodeSource(): entry=" + entry);

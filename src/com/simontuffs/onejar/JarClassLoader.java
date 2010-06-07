@@ -975,6 +975,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return info;
     }
     
+    protected URLStreamHandler oneJarHandler = new Handler();
+    
     /* (non-Javadoc)
      * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
@@ -997,8 +999,20 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // property (e.g. Guice).  Do not use resolved resource name for URL.
                 // Do not strip leading slash -- this causes failure to load from classloader
                 // which is the 'default' Sun classloader behavior.
-                String path = "onejar:" + entry.codebase + "!/" + $resource;
-                URL url = new URL("jar", "", -1, path);
+                // Note the belt-and-braces approach here, use "onejar" as the URL protocol
+                // *and* provide the handler, in case the Handler class is not on the classpath
+                // [BUG-1949972]
+                // TODO: provide injectable URLStreamHandler factories.
+
+                /*
+                String path = Handler.PROTOCOL + ":" + entry.codebase + "!/" + $resource;
+                // URL url = new URL("jar", "", -1, path);
+                URL url =  new URL(null,Handler.PROTOCOL + ":" + resource, oneJarHandler);
+                */
+                
+                String path = "file:/" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + $resource;
+                URL url = new URL("jar", "", -1, path, jarHandler);
+
                 return url;
             }
             URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
@@ -1018,7 +1032,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
     }
     
-    URLStreamHandler zipHandler = new URLStreamHandler() {
+    URLStreamHandler jarHandler = new URLStreamHandler() {
         protected URLConnection openConnection(URL url) throws IOException {
             URLConnection connection = new OneJarURLConnection(url);
             connection.connect();
@@ -1036,7 +1050,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             ByteCode entry = ((ByteCode) byteCode.get(resource));
             if (byteCode.containsKey(resource)) {
                 String path = "file:/" + Boot.getMyJarPath() + "!/" + entry.codebase + "!/" + name;
-                URL url = new URL("jar", "", -1, path, zipHandler);
+                URL url = new URL("jar", "", -1, path, jarHandler);
                 INFO("findResources(): Adding " + url + " to resources list.");
                 resources.add(url);
             }

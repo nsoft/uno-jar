@@ -59,10 +59,10 @@ public class OneJarFile extends JarFile {
                 is.close();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Undefined Error", e);
+            throw new IllegalStateException("Undefined Error", e);
         }
-
-        throw new RuntimeException("Entry not found : " + name);
+        return null;
+        // throw new RuntimeException("Entry not found : " + name);
     }
 
     public Enumeration entries() {
@@ -107,6 +107,8 @@ public class OneJarFile extends JarFile {
     }
 
     public synchronized InputStream getInputStream(ZipEntry ze) throws IOException {
+        if (ze == null)
+            return null;
         try {
             JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
             if (filename.equals(MANIFEST_NAME)) {
