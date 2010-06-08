@@ -26,5 +26,5 @@
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.simontuffs.onejar.test.SelfTestSecure"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="one-jar"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=false&#13;&#10;-Done-jar.jarname=${project_loc}/dist/one-jar-example-0.97.jar"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=false&#13;&#10;-Done-jar.jarname=${workspace_loc}/one-jar/dist/one-jar-example-0.97.jar"/>
 </launchConfiguration>

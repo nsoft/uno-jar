@@ -499,7 +499,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
 
     }
-    
+	
 	protected void loadBytes(JarEntry entry, InputStream is, String jar, String tmp, Manifest man) throws IOException {
         String entryName = entry.getName();
         int index = entryName.lastIndexOf('.');
@@ -512,7 +512,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (entryName.endsWith(CLASS) && index2 > -1) {
             String packageName = entryName.substring(0, index2).replace('/', '.');
             if (getPackage(packageName) == null) {
-                definePackage(packageName, man, null);
+                definePackage(packageName, man, urlFactory.getCodeBase(jar));
             }
         }
         // end patch
@@ -606,17 +606,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // class.
             ProtectionDomain pd = (ProtectionDomain)pdCache.get(bytecode.codebase);
             if (pd == null) {
-                ProtectionDomain cd = JarClassLoader.class.getProtectionDomain();
-                URL url = cd.getCodeSource().getLocation();
                 try {
-                    url = new URL("jar:" + url + "!/" + bytecode.codebase);
+                    URL url = urlFactory.getCodeBase(bytecode.codebase);
+                    
+                    CodeSource source = new CodeSource(url, (Certificate[])null);
+                    pd = new ProtectionDomain(source, null, this, null);
+                    pdCache.put(bytecode.codebase, pd);
                 } catch (MalformedURLException mux) {
-                    mux.printStackTrace(System.out);    			
+                    throw new ClassNotFoundException(name, mux);
                 }
-                
-                CodeSource source = new CodeSource(url, (Certificate[])null);
-                pd = new ProtectionDomain(source, null, this, null);
-                pdCache.put(bytecode.codebase, pd);
             }
             
             // Do it the simple way.
@@ -632,7 +630,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 					// Package found, so check package sealing.
 					if (pkg.isSealed()) {
 						// Verify that code source URL is the same.
-						if (!pkg.isSealed()) {
+						if (!pkg.isSealed(pd.getCodeSource().getLocation())) {
 							throw new SecurityException("sealing violation: package " + pkgname + " is sealed");
 						}
 
@@ -980,13 +978,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // Injectable URL factory.
     public static interface IURLFactory {
         public URL getURL(String codebase, String resource) throws MalformedURLException;
-        public URLStreamHandler jarHandler = new URLStreamHandler() {
-            protected URLConnection openConnection(URL url) throws IOException {
-                URLConnection connection = new OneJarURLConnection(url);
-                connection.connect();
-                return connection;
-            }
-        };
+        public URL getCodeBase(String jar) throws MalformedURLException;
     }
     
     // Resolve URL from codebase and resource.  Allow URL factory to be specified by 
@@ -998,10 +990,26 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * location of the one-jar file via Boot.getMyJarPath().
      */
     public class FileURLFactory implements IURLFactory {
+        public URLStreamHandler jarHandler = new URLStreamHandler() {
+            protected URLConnection openConnection(URL url) throws IOException {
+                URLConnection connection = new OneJarURLConnection(url);
+                connection.connect();
+                return connection;
+            }
+        };
+        // TODO: Unify getURL and getCodeBase, if possible.
         public URL getURL(String codebase, String resource) throws MalformedURLException {
             String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + "!/" + resource;
             URL url = new URL("jar", "", -1, path, jarHandler);
-            PRINTLN("FileURLFactory: url=" + url);
+            INFO("FileURLFactory: url=" + url);
+            return url;
+        }
+        public URL getCodeBase(String jar) throws MalformedURLException {
+            ProtectionDomain cd = JarClassLoader.class.getProtectionDomain();
+            URL url = cd.getCodeSource().getLocation();
+            if (url != null) {
+                url = new URL("jar", "", -1, url + "!/" + jar, jarHandler);
+            }
             return url;
         }
     }
@@ -1015,10 +1023,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public class OneJarURLFactory implements IURLFactory {
         public URL getURL(String codebase, String resource) throws MalformedURLException {
             String base = resource.endsWith(".class")? "": codebase + "/";
-            URL url =  new URL(null,Handler.PROTOCOL + ":/" + base + resource);
-            PRINTLN("OneJarURLFactory: url=" + url);
+            URL url =  new URL(Handler.PROTOCOL + ":/" + base + resource);
+            INFO("OneJarURLFactory: url=" + url);
             return url;
         }    
+        public URL getCodeBase(String jar) throws MalformedURLException {
+            return new URL(Handler.PROTOCOL + ":" + jar);
+        }
     }
     
     
