@@ -275,7 +275,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             }
             URL urls[] = (URL[])list.toArray(new URL[0]);
             Boot.INFO("external URLs=" + Arrays.asList(urls));
-            externalClassLoader = new URLClassLoader(urls);
+            // Careful not to delegate back into this Jar file.
+            externalClassLoader = new URLClassLoader(urls, null);
         }
     }
     
@@ -803,29 +804,35 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      */
     public InputStream getByteStream(String resource) {
         
-        // Delegate to parent classloader first.
-        ClassLoader parent = getParent();
-        if (parent != null) {
-            InputStream is = parent.getResourceAsStream(resource);
-            if (is != null) 
-                return is;
-        }
-    	
-    	VERBOSE("getByteStream(" + resource + ")");
-    	
-    	// Make resource canonical (remove ., .., etc).
-    	resource = canon(resource);
-        
+        VERBOSE("getByteStream(" + resource + ")");
+
         InputStream result = null;
-        // Look up resolving first.  This allows jar-local 
-        // resolution to take place.
-        ByteCode bytecode = (ByteCode)byteCode.get(resolve(resource));
-        if (bytecode == null) {
-            // Try again with an unresolved name.
-            bytecode = (ByteCode)byteCode.get(resource);
+        if (externalClassLoader != null) {
+            result = externalClassLoader.getResourceAsStream(resource);
         }
-        if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
+
+        if (result == null) {
+            // Delegate to parent classloader first.
+            ClassLoader parent = getParent();
+            if (parent != null) {
+                result = parent.getResourceAsStream(resource);
+            }
+        }
         
+    	if (result == null) {
+        	// Make resource canonical (remove ., .., etc).
+        	resource = canon(resource);
+            
+            // Look up resolving first.  This allows jar-local 
+            // resolution to take place.
+            ByteCode bytecode = (ByteCode)byteCode.get(resolve(resource));
+            if (bytecode == null) {
+                // Try again with an unresolved name.
+                bytecode = (ByteCode)byteCode.get(resource);
+            }
+            if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
+    	}
+    	
         // Contributed by SourceForge "ffrog_8" (with thanks, Pierce. T. Wetter III).
         // Handles JPA loading from jars.
         if (result == null) {
@@ -835,9 +842,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 		        result = super.getResourceAsStream(resource);
 	        }
         }
-
-        if (result == null && externalClassLoader != null)
-        	result = externalClassLoader.getResourceAsStream(resource);
 
         // Special case: if we are a wrapping classloader, look up to our
         // parent codebase.  Logic is that the boot JarLoader will have 
@@ -1050,6 +1054,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
     }
     
+    public URL getResource(String name) {
+        // Delegate to external first.
+        if (externalClassLoader != null) {
+            URL url = externalClassLoader.getResource(name);
+            if (url != null)
+                return url;
+        }
+        return super.getResource(name);
+    }
     
     public IURLFactory urlFactory = new FileURLFactory();
     
@@ -1061,6 +1074,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected URL findResource(String $resource) {
         try {
             VERBOSE("findResource(" + $resource + ")");
+            URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
+            if (url != null)
+            {
+                INFO("findResource() found in external: " + $resource);
+                //VERBOSE("findResource(): " + $resource + "=" + url);
+                return url;
+            }
             // Do we have the named resource in our cache?  If so, construct a 
             // 'onejar:' URL so that a later attempt to access the resource
             // will be redirected to our Handler class, and thence to this class.
@@ -1070,13 +1090,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 ByteCode entry = ((ByteCode) byteCode.get(resource));
                 INFO("findResource() found: " + $resource + " for caller " + getCaller() + " in codebase " + entry.codebase);                
                 return urlFactory.getURL(entry.codebase, $resource);
-            }
-            URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
-            if (url != null)
-            {
-                INFO("findResource() found in external: " + $resource);
-                //VERBOSE("findResource(): " + $resource + "=" + url);
-                return url;
             }
             INFO("findResource(): unable to locate " + $resource);
             // If all else fails, return null.
