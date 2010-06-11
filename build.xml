@@ -29,6 +29,9 @@
     <property name="one-jar-spring.dir" location="../one-jar-spring"/>   
     <available property="one-jar-spring.exists" file="${one-jar-spring.dir}/build.xml"/>
 
+    <property name="one-jar-log4j.dir" location="../one-jar-log4j"/>   
+    <available property="one-jar-log4j.exists" file="${one-jar-log4j.dir}/build.xml"/>
+
 	<!-- version number -->
 	<property name="one-jar.version" value="0.97" />
     <!-- 
@@ -475,6 +478,7 @@
 		<antcall target="test.one-jar-dll" />
 		<antcall target="test.one-jar-guice" />
         <antcall target="test.one-jar-spring" />
+		<antcall target="test.one-jar-log4j" />
 		<antcall target="test.command-line" />
         <antcall target="test.ant.taskdefs" />   
 		<antcall target="junit.report" />
@@ -585,6 +589,12 @@
         </ant>
     </target>
  
+    <target name="test.one-jar-log4j" if="one-jar-log4j.exists">
+        <ant antfile="${one-jar-log4j.dir}/build.xml" target="test" inheritall="false">
+            <property name="test.results.dir" location="${test.results.dir}"/>
+        </ant>
+    </target>
+
     <target name="test.ant.taskdefs" depends="test.ant.taskdef.1,test.ant.taskdef.2,test.ant.taskdef.3">
     </target>   
 

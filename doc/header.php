@@ -8,15 +8,20 @@
   			"options" => "Options & Properties", 
   			"gettingstarted" => "Getting Started", 
   			"manifest" => "Manifest Attributes", 
-  			"native" => "Native Libraries"), 
+            "resources" => "Resource Loading",
+  			"native" => "Native Libraries", 
+  			), 
   		"ant" => array(
   			"ant" => "Ant", 
-  			"simple" => "It's Simple.  Really!"), 
+  			"simple" => "It's Simple.  Really!"
+  			), 
   		"downloads" => array(
   			"downloads" => "Downloads", 
-  			"source" => "Source Code"),
+  			"source" => "Source Code"
+  			),
   		"support" => array(
-  			"support" => "Professional Support"),
+  			"support" => "Professional Support"
+  			),
   		"documents" => array(
   			"#info" => "Information", 
   			"whatsnew" => "What's New?", 
@@ -24,7 +29,8 @@
   			"faq" => "FAQ", 
   			"license" => "License", 
   			"ack" => "Acknowledgements", 
-  			"junit-noframes" => "Test Results"), 
+  			"junit-noframes" => "Test Results"
+  			), 
   	);
 
   	function hyperlink($page, $file, $text, $class = "") {

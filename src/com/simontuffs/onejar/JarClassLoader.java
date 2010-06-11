@@ -286,7 +286,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     public String load(String mainClass, String jarName) {
-    	INFO("load("+mainClass+","+jarName+")");
+    	VERBOSE("load("+mainClass+","+jarName+")");
         if (record) {
             new File(recording).mkdirs();
         }
@@ -349,15 +349,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // The META-INF/MANIFEST.MF file can contain a property which names
                 // directories in the JAR to be expanded (comma separated). For example:
                 // One-Jar-Expand: build,tmp,webapps
-                String name = entry.getName();
+                String $entry = entry.getName();
                 if (expandPaths != null) {
                     // TODO: Can't think of a better way to do this right now.  
                     // This code really doesn't need to be optimized anyway.
-                    if (shouldExpand && shouldExpand(expandPaths, name)) {
-                        File dest = new File(tmpdir, name);
+                    if (shouldExpand && shouldExpand(expandPaths, $entry)) {
+                        File dest = new File(tmpdir, $entry);
                         // Override if ZIP file is newer than existing.
                         if (!dest.exists() || dest.lastModified() < entry.getTime()) {
-                            String msg = "Expanding:  " + name;
+                            String msg = "Expanding:  " + $entry;
                             if (showexpand) {
                                 PRINTLN(msg);
                             } else {
@@ -375,7 +375,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             is.close();
                             os.close();
                         } else {
-                            String msg = "Up-to-date: " + name;
+                            String msg = "Up-to-date: " + $entry;
                             if (showexpand) {
                                 PRINTLN(msg);
                             } else {
@@ -385,23 +385,22 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     }
                 }
                 
-                String jar = entry.getName();
-                if (wrapDir != null && jar.startsWith(wrapDir) || jar.startsWith(LIB_PREFIX) || jar.startsWith(MAIN_PREFIX)) {
+                if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(LIB_PREFIX) || $entry.startsWith(MAIN_PREFIX)) {
                     if (wrapDir != null && !entry.getName().startsWith(wrapDir)) continue;
                     // Load it! 
-                    INFO("caching " + jar);
+                    VERBOSE("caching " + $entry);
                     VERBOSE("using jarFile.getInputStream(" + entry + ")");
                     {
                         // Note: loadByteCode consumes the input stream, so make sure its scope
                         // does not extend beyond here.
                         InputStream is = jarFile.getInputStream(entry);
                         if (is == null) 
-                            throw new IOException("Unable to load resource /" + jar + " using " + this);
-						loadByteCode(is, jar, manifest);
+                            throw new IOException("Unable to load resource /" + $entry + " using " + this);
+						loadByteCode(is, $entry, manifest);
                     }
                     
                     // Do we need to look for a main class?
-                    if (jar.startsWith(MAIN_PREFIX)) {
+                    if ($entry.startsWith(MAIN_PREFIX)) {
                         if (mainClass == null) {
                             JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
                             Manifest m = jis.getManifest();
@@ -409,34 +408,36 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             // Is this a jar file with a manifest?
                             if (m != null) {
                                 mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
-                                mainJar = jar;
+                                mainJar = $entry;
                             }
                         } else if (mainJar != null) {
-                            WARNING("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + jar);
+                            WARNING("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + $entry);
                             WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
                         }
                     } 
-                } else if (wrapDir == null && name.startsWith(UNPACK)) {
+                } else if (wrapDir == null && $entry.startsWith(UNPACK)) {
                     // Unpack into a temporary directory which is on the classpath of
                     // the application classloader.  Badly designed code which relies on the
                     // application classloader can be made to work in this way.
-                    InputStream is = this.getClass().getResourceAsStream("/" + jar);
-                    if (is == null) throw new IOException(jar);
+                    InputStream is = this.getClass().getResourceAsStream("/" + $entry);
+                    if (is == null) throw new IOException($entry);
                     // Make a sentinel.
                     File dir = new File(TMP);
-                    File sentinel = new File(dir, jar.replace('/', '.'));
+                    File sentinel = new File(dir, $entry.replace('/', '.'));
                     if (!sentinel.exists()) {
-                        INFO("unpacking " + jar + " into " + dir.getCanonicalPath());
-						loadByteCode(is, jar, TMP, manifest);
+                        INFO("unpacking " + $entry + " into " + dir.getCanonicalPath());
+						loadByteCode(is, $entry, TMP, manifest);
                         sentinel.getParentFile().mkdirs();
                         sentinel.createNewFile();
                     }
-                } else if (name.endsWith(CLASS)) {
+                } else if ($entry.endsWith(CLASS)) {
                     // A plain vanilla class file rooted at the top of the jar file.
 					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
+                    VERBOSE("One-Jar class: " + jarFile.getName() + "!/" + entry.getName());
                 } else {
                     // A resource? 
-                   INFO("resource: " + jarFile.getName() + "!/" + entry.getName());
+                    loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
+                    VERBOSE("One-Jar resource: " + jarFile.getName() + "!/" + entry.getName());
                 }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
@@ -742,7 +743,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 	
     protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd) throws ClassFormatError {
         // Simple, non wrapped class definition.
-    	INFO("defineClass("+name+")");
+    	VERBOSE("defineClass("+name+")");
         return defineClass(name, bytes, 0, bytes.length, pd);
     }
     
@@ -801,6 +802,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * strategy in Java today.
      */
     public InputStream getByteStream(String resource) {
+        
+        // Delegate to parent classloader first.
+        ClassLoader parent = getParent();
+        if (parent != null) {
+            InputStream is = parent.getResourceAsStream(resource);
+            if (is != null) 
+                return is;
+        }
     	
     	VERBOSE("getByteStream(" + resource + ")");
     	
@@ -808,12 +817,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     	resource = canon(resource);
         
         InputStream result = null;
-        // Look up without resolving first.  This allows jar-local 
+        // Look up resolving first.  This allows jar-local 
         // resolution to take place.
-        ByteCode bytecode = (ByteCode)byteCode.get(resource);
+        ByteCode bytecode = (ByteCode)byteCode.get(resolve(resource));
         if (bytecode == null) {
-            // Try again with a resolved name.
-            bytecode = (ByteCode)byteCode.get(resolve(resource));
+            // Try again with an unresolved name.
+            bytecode = (ByteCode)byteCode.get(resource);
         }
         if (bytecode != null) result = new ByteArrayInputStream(bytecode.bytes);
         
@@ -858,9 +867,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected String resolve(String $resource) {
         
         if ($resource.startsWith("/")) $resource = $resource.substring(1);
+        
         String resource = null;
         String caller = getCaller();
-        ByteCode callerCode = (ByteCode)byteCode.get(caller + ".class");
+        ByteCode callerCode = (ByteCode)byteCode.get(caller);
         
         if (callerCode != null) {
             // Jar-local first, then global.
@@ -877,7 +887,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 resource = $resource;
             }
         }
-        VERBOSE("resource " + $resource + " resolved to " + resource);
+        VERBOSE("resource " + $resource + " resolved to " + resource + (callerCode != null? " in codebase " + callerCode.codebase: " (unknown codebase)"));
         return resource;
     }
     
@@ -900,7 +910,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     // This is probably trouble.
                     WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
                 } else {
-                    INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                    INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytes)");
                 }
             } else {
                 VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
@@ -914,17 +924,25 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     
     protected String getCaller() {
+        
+        // TODO: revisit caller determination.
+        /*
         StackTraceElement[] stack = new Throwable().getStackTrace();
         // Search upward until we get to a known class, i.e. one with a non-null
-        // codebase.
-        String caller = null;
+        // codebase.  Skip anything in the com.simontuffs.onejar package to avoid
+        // classloader classes.
         for (int i=0; i<stack.length; i++) {
-            if (byteCode.get(stack[i].getClassName() + ".class") != null) {
-                caller = stack[i].getClassName();
-                break;
+            String cls = stack[i].getClassName().replace(".","/") + ".class";
+            INFO("getCaller(): cls=" + cls);
+            if (byteCode.get(cls) != null) {
+                String caller = stack[i].getClassName();
+                if (!caller.startsWith("com.simontuffs.onejar")) {
+                    return cls;
+                }
             }
         }
-        return caller;
+        */
+        return null;
     }
     
     /**
@@ -1001,7 +1019,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         public URL getURL(String codebase, String resource) throws MalformedURLException {
             String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + "!/" + resource;
             URL url = new URL("jar", "", -1, path, jarHandler);
-            INFO("FileURLFactory: url=" + url);
+            VERBOSE("FileURLFactory: url=" + url);
             return url;
         }
         public URL getCodeBase(String jar) throws MalformedURLException {
@@ -1042,7 +1060,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // and findResources();
     protected URL findResource(String $resource) {
         try {
-            INFO("findResource(" + $resource + ")");
+            VERBOSE("findResource(" + $resource + ")");
             // Do we have the named resource in our cache?  If so, construct a 
             // 'onejar:' URL so that a later attempt to access the resource
             // will be redirected to our Handler class, and thence to this class.
@@ -1050,7 +1068,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             if (resource != null) {
                 // We know how to handle it.
                 ByteCode entry = ((ByteCode) byteCode.get(resource));
-                INFO("findResource() found: " + $resource);                
+                INFO("findResource() found: " + $resource + " for caller " + getCaller() + " in codebase " + entry.codebase);                
                 return urlFactory.getURL(entry.codebase, $resource);
             }
             URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
