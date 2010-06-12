@@ -60,6 +60,7 @@ public class Boot {
     public final static String ONE_JAR_CLASSLOADER = "One-Jar-Class-Loader";
     public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
     public final static String ONE_JAR_DEFAULT_MAIN_JAR = "One-Jar-Default-Main-Jar";
+    public final static String ONE_JAR_MAIN_ARGS = "One-Jar-Main-Args";
 	
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
 	public final static String MAIN_JAR = "main/main.jar";
@@ -236,7 +237,16 @@ public class Boot {
         if (mainJar == null) {
             mainJar = attributes.getValue(ONE_JAR_DEFAULT_MAIN_JAR);
         }
-       
+        
+        String mainargs = attributes.getValue(ONE_JAR_MAIN_ARGS);
+        if (mainargs != null && args.length == 0) {
+            // Replace the args with built-in.  Support escaped whitespace.
+            args = mainargs.split("[^\\\\]\\s");
+            for (int i=0; i<args.length; i++) {
+                args[i] = args[i].replaceAll("\\\\(\\s)", "$1");
+            }
+        }
+        
 		// If no main-class specified, check the manifest of the main jar for
 		// a Boot-Class attribute.
 		if (mainClass == null) {
