@@ -1,5 +1,14 @@
 <project name="one-jar" default="dist" basedir=".">
 	
+    <!-- version number -->
+    <property name="one-jar.version" value="0.97" />
+    <!-- 
+      Additional version information inside .version file, but not encoded into file names 
+      The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
+    -->   
+    <tstamp prefix="time"/>   
+    <property name="one-jar.info" value="-rc6-${time.DSTAMP}-${time.TSTAMP}" />   
+
 	<property name="one-jar.dir" value="${basedir}"/>
     <property name="build.dir" location="${basedir}/build" />
     <property name="classes.dir" location="${build.dir}/ant" />
@@ -37,15 +46,6 @@
 
     <property name="one-jar-args.dir" location="../one-jar-args"/>   
     <available property="one-jar-args.exists" file="${one-jar-args.dir}/build.xml"/>
-
-	<!-- version number -->
-	<property name="one-jar.version" value="0.97" />
-    <!-- 
-      Additional version information inside .version file, but not encoded into file names 
-      The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
-    -->   
-    <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc5-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<!-- jar files -->
 	<property name="boot.jar" value="${dist.dir}/one-jar-boot-${one-jar.version}.jar" />
