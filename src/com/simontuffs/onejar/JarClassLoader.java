@@ -243,6 +243,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
     }
     
+    protected static ThreadLocal current = new ThreadLocal();
     /**
      * Common initialization code: establishes a classloader for delegation
      * to one-jar.class.path resources.
@@ -275,8 +276,59 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             }
             URL urls[] = (URL[])list.toArray(new URL[0]);
             Boot.INFO("external URLs=" + Arrays.asList(urls));
-            // Careful not to delegate back into this Jar file.
-            externalClassLoader = new URLClassLoader(urls, null);
+            // BUG-2833948
+            // Delegate back into this classloader, use ThreadLocal to avoid recursion.
+            externalClassLoader = new URLClassLoader(urls, this) {
+                // Handle recursion for classes, and mutual recursion for resources.
+                final static String LOAD_CLASS = "loadClass():";
+                final static String GET_RESOURCE = "getResource():";
+                final static String FIND_RESOURCE = "findResource():";
+                // Protect entry points which could lead to recursion.  Strangely
+                // inelegant because you can't proxy a class.  Or use closures.
+                public Class loadClass(String name) throws ClassNotFoundException {
+                    if (reentered(LOAD_CLASS + name)) {
+                        throw new ClassNotFoundException(name);
+                    }
+                    System.out.println("externalClassLoader.loadClass(" + name + ")");
+                    Object old = current.get();
+                    current.set(LOAD_CLASS + name);
+                    try {
+                        return super.loadClass(name);
+                    } finally {
+                        current.set(old);
+                    }
+                }
+                public URL getResource(String name) {
+                    if (reentered(GET_RESOURCE + name))
+                        return null;
+                    System.out.println("externalClassLoader.getResource(" + name + ")");
+                    Object old = current.get();
+                    current.set(GET_RESOURCE + name);
+                    try {
+                        return super.getResource(name);
+                    } finally {
+                        current.set(old);
+                    }
+                }
+                public URL findResource(String name) {
+                    if (reentered(FIND_RESOURCE + name)) 
+                        return null;
+                    System.out.println("externalClassLoader.findResource(" + name + ")");
+                    Object old = current.get();
+                    current.set(name);
+                    try {
+                        current.set(FIND_RESOURCE + name);
+                        return super.findResource(name);
+                    } finally {
+                        current.set(old);
+                    }
+                }
+                protected boolean reentered(String name) {
+                    // Defend against null name: not sure about semantics there.
+                    Object old = current.get();
+                    return old != null && old.equals(name);
+                }
+            };
         }
     }
     
@@ -584,7 +636,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         Class cls = null;
         if (externalClassLoader != null) {
             try {
-            return externalClassLoader.loadClass(name);
+                return externalClassLoader.loadClass(name);
             } catch (ClassNotFoundException cnfx) {
                 // continue...
             }
