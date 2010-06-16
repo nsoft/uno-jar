@@ -19,9 +19,12 @@
     <property name="test.reports.dir" value="${basedir.unix}/test-reports"/>
     <property name="test.results.dir" value="${basedir.unix}/test-results"/>
     
+    <import file="${one-jar.dist.dir}/one-jar-ant-task.xml" optional="true" />
+    
     <path id="one-jar.libraries">
         <pathelement location="${one-jar.dir}/lib/junit-3.8.1.jar"/>
         <pathelement location="${one-jar.dir}/dist/one-jar-boot-${one-jar.version}.jar"/>   
+        <pathelement location="${one-jar.ant.jar}"/>   
     </path>
     
     <path id="one-jar.test.libraries">
@@ -29,8 +32,6 @@
         <pathelement location="${classes.dir}/test" />
     </path>
 
-    <import file="${one-jar.dist.dir}/one-jar-ant-task.xml" optional="true" />
-    
     <target name="build.init">
         <mkdir dir="build"/>
         <mkdir dir="${test.reports.dir}"/>

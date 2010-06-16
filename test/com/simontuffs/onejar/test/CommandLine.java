@@ -16,12 +16,12 @@ public class CommandLine extends TestCase {
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }
     
-    public void testOneJarSmoke3() throws Exception {
+    public void testOneJarMacroSmoke3() throws Exception {
         Result result = Invoker.run("java -jar dist/one-jar-example-0.97-macro.jar");
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }
     
-    public void testOneJarSmoke4() throws Exception {
+    public void testOneJarTaskSmoke4() throws Exception {
         Result result = Invoker.run("java -jar dist/one-jar-example-0.97-task.jar");
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }

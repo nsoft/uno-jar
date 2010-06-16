@@ -1,4 +1,4 @@
-package com.simontuffs.onejar.example.main;
+package com.simontuffs.onejar.test;
 
 import java.lang.reflect.Method;
 

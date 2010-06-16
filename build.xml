@@ -7,7 +7,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc6-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc7-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<property name="one-jar.dir" value="${basedir}"/>
     <property name="build.dir" location="${basedir}/build" />
@@ -85,6 +85,14 @@
 
 	<!-- compile the source -->
 	<target name="compile" depends="mkdirs">
+        <javac destdir="${classes.dir}/ant" deprecation="off" optimize="${optimize}" debug="${debug}">
+            <src path="${test.dir}" />
+            <include name="**/Testable.java"/>
+            <include name="**/Invoker.java"/>
+            <classpath>
+                <path location="${classes.dir}/src" />
+            </classpath>
+        </javac>
 		<javac destdir="${classes.dir}/src" deprecation="off" optimize="${optimize}" debug="${debug}">
 			<src path="${src.dir}" />
 		</javac>
@@ -93,6 +101,7 @@
 			<src path="${example.dir}" />
 			<classpath>
 				<path location="${classes.dir}/src" />
+				<path location="${classes.dir}/ant" />
 			</classpath>
 		</javac>
 		<javac destdir="${classes.dir}/ant" deprecation="off" optimize="${optimize}" debug="${debug}">
@@ -118,6 +127,9 @@
 				<include name="**/example/main/**" />
 				<include name="**/example/util/Duplicate*" />
 			</fileset>
+            <fileset dir="${classes.dir}/test">
+                <include name="**/Testable*" />
+            </fileset>
 			<fileset dir="${example.dir}">
 				<include name="**/example/main/**" />
 				<include name="**/example/util/Duplicate*.java" />
@@ -309,6 +321,9 @@
                     <include name="expand/**" />
                     <include name="file.txt" />
                 </fileset>
+                <fileset dir="${classes.dir}/test">
+                    <include name="**/Testable*" />
+                </fileset>
             </top>
 			<main>
 				<fileset dir="${classes.dir}/example">
@@ -364,6 +379,7 @@
                 <include name="expand/**" />
                 <include name="file.txt" />
             </fileset>
+            <zipfileset src="${one-jar.ant.jar}" includes="**/Testable.class"/>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 				<!-- Construct main.jar from classes and source code -->
 				<fileset dir="${classes.dir}/example">

@@ -36,6 +36,7 @@ import com.simontuffs.onejar.Boot;
 import com.simontuffs.onejar.JarClassLoader;
 import com.simontuffs.onejar.example.external.External;
 import com.simontuffs.onejar.example.util.Util;
+import com.simontuffs.onejar.test.Testable;
 
 /**
  * @author simon@simontuffs.com
