@@ -41,7 +41,7 @@
     <target name="junit.report">
         <mkdir dir="${test.reports.dir}" />
         <junitreport todir="${test.reports.dir}">
-            <fileset dir="${test.results.dir}" includes="*SelfTest*.xml" />
+            <fileset dir="${test.results.dir}" includes="*SelfTest*.xml,*Suite.xml" />
             <report format="noframes" todir="${test.reports.dir}" />
         </junitreport>
         <echo>***********************************************</echo>
