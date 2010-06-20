@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2004-2007, P. Simon Tuffs (simon@simontuffs.com)
+ * Copyright (c) 2004-2010, P. Simon Tuffs (simon@simontuffs.com)
  * All rights reserved.
  *
  * See the full license at http://one-jar.sourceforge.net/one-jar-license.html
