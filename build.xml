@@ -83,6 +83,9 @@
 		<mkdir dir="${jar.dir}/external/wrap" />
 	</target>
 
+	<available file="${one-jar.ant.jar}" property="one-jar.ant.jar.available" value="true"/>
+	<echo>one-jar.ant.jar.available=${one-jar.ant.jar.available}</echo>
+
 	<!-- compile the source -->
 	<target name="compile" depends="mkdirs">
         <javac destdir="${classes.dir}/ant" deprecation="off" optimize="${optimize}" debug="${debug}">
@@ -120,7 +123,7 @@
 
 	<!-- Make the jar files -->
 
-	<target name="build.main.jar" depends="init,compile">
+	<target name="build.main.jar" depends="init,compile,compile.tests">
         <delete file="${main.jar}"/>   
 		<jar destfile="${main.jar}" manifest="${example.dir}/main/main-manifest.mf">
 			<fileset dir="${classes.dir}/example">
@@ -195,10 +198,12 @@
 			</fileset>
 			<fileset dir="${src.dir}">
 				<include name="boot-manifest.mf" />
-				<include name="OneJar.*" />
-				<include name="com/**" />
-				<exclude name="**/example/**" />
-				<exclude name="**/Detect*" />
+			</fileset>
+			<fileset dir="${src.dir}/..">
+				<include name="src/OneJar.*" />
+				<include name="src/com/**" />
+				<exclude name="src/**/example/**" />
+				<exclude name="src/**/Detect*" />
 			</fileset>
 			<fileset dir="${basedir}">
 				<include name="doc/*license.txt" />
@@ -214,7 +219,14 @@
 				<include name="**" />
 			</fileset>
 			<fileset dir="${ant.dir}">
-				<include name="**" />
+			    <exclude name="**/*.java" />
+			</fileset>
+			<fileset dir="${ant.dir}/..">
+				<include name="ant/**/*.java"/>
+			</fileset>
+			<fileset dir="${test.dir}/..">
+				<include name="test/**/Invoker.java"/>
+				<include name="test/**/Testable.java"/>
 			</fileset>
 		</jar>
 		<copy todir="${dist.dir}">
@@ -413,6 +425,7 @@
 
 
 	<!-- Make the distribution -->
+	
 	<target name="dist" depends="compile,jar,build.one-jar-example-macro,build.one-jar-example-task,build.sdk,build.one-jar-dll">
 		<copy file="${ant.dir}/one-jar-macro.xml" todir="${dist.dir}" />
 		<copy file="${ant.dir}/one-jar-ant-task.xml" todir="${dist.dir}" />
@@ -478,12 +491,14 @@
 	<property name="formatter" value="xml" />
 
 	<target name="compile.tests">
+		<fail unless="one-jar.ant.jar.available" message="Run the build.ant.jar task first"/>
 		<mkdir dir="${classes.dir}/test" />
 		<mkdir dir="${test.results.dir}" />
 		<javac destdir="${classes.dir}/test" debug="on" deprecation="off" optimize="off">
 			<src path="${test.dir}" />
 			<classpath>
 				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+				<path refid="one-jar.libraries"/>
 				<path refid="one-jar.test.libraries"/>
 			</classpath>
 		</javac>
@@ -693,6 +708,7 @@
 		<!-- delete everything in the classes and jars dir -->
 		<delete dir="${classes.dir}" />
         <delete dir="${jar.dir}" />
+    	<delete dir="expand" />
         <delete deleteonexit="true">
             <fileset dir="${dist.dir}">
                 <exclude name="CVS/**"/>
