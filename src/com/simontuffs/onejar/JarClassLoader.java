@@ -449,7 +449,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                         InputStream is = jarFile.getInputStream(entry);
                         if (is == null) 
                             throw new IOException("Unable to load resource /" + $entry + " using " + this);
-						loadByteCode(is, $entry, manifest);
+						loadByteCode(is, $entry, null);
                     }
                     
                     // Do we need to look for a main class?
@@ -479,7 +479,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     File sentinel = new File(dir, $entry.replace('/', '.'));
                     if (!sentinel.exists()) {
                         INFO("unpacking " + $entry + " into " + dir.getCanonicalPath());
-						loadByteCode(is, $entry, TMP, manifest);
+						loadByteCode(is, $entry, TMP);
                         sentinel.getParentFile().mkdirs();
                         sentinel.createNewFile();
                     }
@@ -528,28 +528,23 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         return false;
     }        
-
-	protected void loadByteCode(InputStream is, String jar, Manifest man) throws IOException {
-		loadByteCode(is, jar, null, man);
-    }
     
-	protected void loadByteCode(InputStream is, String jar, String tmp, Manifest man) throws IOException {
+	protected void loadByteCode(InputStream is, String jar, String tmp) throws IOException {
         JarInputStream jis = new JarInputStream(is);
         JarEntry entry = null;
         // TODO: implement lazy loading of bytecode.
+        Manifest manifest = jis.getManifest();
         while ((entry = jis.getNextJarEntry()) != null) {
             // if (entry.isDirectory()) continue;
-            Manifest jarMan = jis.getManifest();
-            loadBytes(entry, jis, jar, tmp, jarMan);
+            loadBytes(entry, jis, jar, tmp, manifest);
         }
         // Add in a fake manifest entry.
         entry = new JarEntry(Boot.MANIFEST);
-        Manifest manifest = jis.getManifest();
         if (manifest != null) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             manifest.write(baos);
             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray()); 
-            loadBytes(entry, bais, jar, tmp, man);
+            loadBytes(entry, bais, jar, tmp, manifest);
         }
 
     }
@@ -566,7 +561,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (entryName.endsWith(CLASS) && index2 > -1) {
             String packageName = entryName.substring(0, index2).replace('/', '.');
             if (getPackage(packageName) == null) {
-                definePackage(packageName, man, urlFactory.getCodeBase(jar));
+                // Defend against null manifest.
+                if (man != null) {
+                    definePackage(packageName, man, urlFactory.getCodeBase(jar));
+                } else {
+                    definePackage(packageName, null, null, null, null, null, null, null);
+                }
             }
         }
         // end patch
