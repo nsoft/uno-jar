@@ -7,7 +7,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc8-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc9-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<property name="one-jar.dir" value="${basedir}"/>
     <property name="build.dir" location="${basedir}/build" />
@@ -489,6 +489,7 @@
     <target name="build.one-jar-dll" if="one-jar-dll.exists">
         <ant antfile="${one-jar-dll.dir}/build.xml" inheritall="false">
         </ant>
+    	<echo>copy to ${dist.dir}</echo>
         <copy file="${one-jar-dll.dir}/dist/one-jar-dll-${one-jar.version}.jar" todir="${dist.dir}"/>   
     </target>   
     
