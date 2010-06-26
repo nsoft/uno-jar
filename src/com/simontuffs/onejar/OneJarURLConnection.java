@@ -35,13 +35,16 @@ public class OneJarURLConnection extends JarURLConnection {
 	public void connect() throws IOException {
 		String jarWithContent = getEntryName();
 		int separator = jarWithContent.indexOf("!/");
-		String jarFilename = jarWithContent, filename = null;
 		// Handle the case where a URL points to the top-level jar file, i.e. no '!/' separator.
 		if (separator >= 0) {
+	        String jarFilename = jarWithContent, filename = null;
 		    jarFilename = jarWithContent.substring(0, separator++);
 		    filename = jarWithContent.substring(++separator);
+            jarFile = new OneJarFile(Boot.getMyJarPath(), jarFilename, filename);
+		} else {
+		    // Entry in the top-level One-JAR.
+	        jarFile = new JarFile(Boot.getMyJarPath());
 		}
-		jarFile = new OneJarFile(Boot.getMyJarPath(), jarFilename, filename);
 	}
 
 	public InputStream getInputStream() throws IOException {

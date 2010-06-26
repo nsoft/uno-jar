@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -35,6 +34,7 @@ import javax.swing.ImageIcon;
 import com.simontuffs.onejar.Boot;
 import com.simontuffs.onejar.JarClassLoader;
 import com.simontuffs.onejar.example.external.External;
+import com.simontuffs.onejar.example.unique.Unique;
 import com.simontuffs.onejar.example.util.Util;
 import com.simontuffs.onejar.test.Testable;
 
@@ -387,7 +387,7 @@ public class Test extends Testable {
     
     public void testLibPackageName() {
         count++;
-        Class cls = Util.class;
+        Class cls = Unique.class;
         Package pkg = cls.getPackage();
         if (pkg == null) {
             fail("testPackageName(): Error: package is null for " + cls + " loaded by " + 
@@ -407,12 +407,12 @@ public class Test extends Testable {
         expect = "util-manifest.mf Implementation-Title";
         got = pkg.getImplementationTitle();
         if (!got.equals(expect)) {
-            fail("testPackageName(): Error in implementation title: expected '" + expect + "' got '" + got + "'");
+            fail("testPackageName(): Error in implementation title: package=" + packagename + " expected '" + expect + "' got '" + got + "'");
         }
         expect = "util-manifest.mf Specification-Title";
         got = pkg.getSpecificationTitle();
         if (!got.equals(expect)) {
-            fail("testPackageName(): Error in specification title: expected '" + expect + "' got '" + got + "'");
+            fail("testPackageName(): Error in specification title: package=" + packagename + " expected '" + expect + "' got '" + got + "'");
         }
     }
 

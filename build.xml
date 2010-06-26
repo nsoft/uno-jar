@@ -152,9 +152,11 @@
 		<jar destfile="${util.jar}" manifest="${example.dir}/util/util-manifest.mf">
 			<fileset dir="${classes.dir}/example">
 				<include name="**/example/util/**" />
+                <include name="**/example/unique/**" />
 			</fileset>
 			<fileset dir="${example.dir}">
 				<include name="**/example/util/**" />
+                <include name="**/example/unique/**" />
 			</fileset>
 			<fileset dir="${example.dir}/util">
 				<include name="util-manifest.mf" />
@@ -323,8 +325,8 @@
 	<!-- Build the example jar using the one-jar-macro -->
 	<import file="${ant.dir}/one-jar-macro.xml" optional="true" />
 	<target name="build.one-jar-example-macro" depends="jar">
-		<delete file="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" />
-		<one-jar-macro destfile="${dist.dir}/one-jar-example-${one-jar.version}-macro.jar" manifest="${src.dir}/example-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
+		<delete file="${dist.dir}/one-jar-example-macro-${one-jar.version}.jar" />
+		<one-jar-macro destfile="${dist.dir}/one-jar-example-macro-${one-jar.version}.jar" manifest="${src.dir}/example-manifest.mf" mainmanifest="${example.dir}/main/main-manifest.mf" onejarboot="${boot.jar}">
             <top>
     			<fileset dir="${src.dir}">
                     <exclude name="**/Detect*" />
@@ -333,15 +335,15 @@
                     <include name="expand/**" />
                     <include name="file.txt" />
                 </fileset>
-                <fileset dir="${classes.dir}/test">
-                    <include name="**/Testable*" />
-                </fileset>
             </top>
 			<main>
 				<fileset dir="${classes.dir}/example">
 					<include name="**/example/main/**" />
 					<include name="**/example/util/Duplicate*" />
 				</fileset>
+                <fileset dir="${classes.dir}/test">
+                    <include name="**/Testable*" />
+                </fileset>
 				<fileset dir="${example.dir}">
 					<include name="**/example/main/**" />
 					<include name="**/example/util/Duplicate*" />
@@ -369,7 +371,7 @@
     -->
 	<import file="${dist.dir}/one-jar-ant-task.xml" optional="true" />
 	<target name="build.one-jar-example-task" depends="build.boot.jar,build.example.jar">
-		<delete file="dist/one-jar-example-${one-jar.version}-task.jar" />
+		<delete file="dist/one-jar-example-task-${one-jar.version}.jar" />
         <echo>
           If this task fails, it is probably because the OneJarTask class has changed underneath us.
           Re-execute the Ant command.
@@ -380,7 +382,7 @@
 			<fileset file="${jar.dir}/lib/**" />
 	    </path>
 		
-		<one-jar destfile="dist/one-jar-example-${one-jar.version}-task.jar" manifest="${src.dir}/example-manifest.mf">
+		<one-jar destfile="dist/one-jar-example-task-${one-jar.version}.jar" manifest="${src.dir}/example-manifest.mf">
             <fileset dir="${src.dir}">
                 <exclude name="**/Detect*" />
             </fileset>
@@ -391,7 +393,6 @@
                 <include name="expand/**" />
                 <include name="file.txt" />
             </fileset>
-            <zipfileset src="${one-jar.ant.jar}" includes="**/Testable.class"/>
 			<main manifest="${example.dir}/main/main-manifest.mf">
 				<!-- Construct main.jar from classes and source code -->
 				<fileset dir="${classes.dir}/example">
@@ -402,6 +403,9 @@
 					<include name="**/example/main/**" />
 					<include name="**/example/util/Duplicate*" />
 				</fileset>
+                <fileset dir="${classes.dir}/test">
+                    <include name="**/Testable*" />
+                </fileset>
 				<fileset dir="${example.dir}/main">
 					<include name="main-manifest.mf" />
 					<include name="duplicate.txt" />
@@ -539,12 +543,12 @@
 		</junit>
 	</target>
 	<target name="test.one-jar-example-task" depends="dist,compile.tests">
-		<echo>********** one-jar-example-${one-jar.version}-task.jar</echo>
+		<echo>********** one-jar-example-task-${one-jar.version}.jar</echo>
 		<junit fork="yes" showoutput="no" printsummary="yes">
 			<jvmarg value="-Done-jar.verbose=true" />
-			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}-task.jar" />
+			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-task-${one-jar.version}.jar" />
 			<classpath>
-				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
+				<fileset file="${basedir}/dist/one-jar-example-task-${one-jar.version}.jar" />
                 <path refid="one-jar.test.libraries"/>
 			</classpath>
 
@@ -553,12 +557,12 @@
 		</junit>
 	</target>
 	<target name="test.one-jar-example-macro" depends="dist,compile.tests">
-		<echo>********** one-jar-example-${one-jar.version}-macro.jar</echo>
+		<echo>********** one-jar-example-macro-${one-jar.version}.jar</echo>
 		<junit fork="yes" showoutput="no" printsummary="yes">
 			<jvmarg value="-Done-jar.verbose=true" />
 			<jvmarg value="-Done-jar.jarname=${basedir}/dist/one-jar-example-${one-jar.version}.jar" />
 			<classpath>
-				<fileset file="${basedir}/dist/one-jar-example-${one-jar.version}-macro.jar" />
+				<fileset file="${basedir}/dist/one-jar-example-macro-${one-jar.version}.jar" />
                 <path refid="one-jar.test.libraries"/>
 			</classpath>
 

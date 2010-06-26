@@ -534,13 +534,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         JarEntry entry = null;
         // TODO: implement lazy loading of bytecode.
         Manifest manifest = jis.getManifest();
+        if (manifest == null) {
+            WARNING("Null manifest from input stream associated with: " + jar);
+        }
         while ((entry = jis.getNextJarEntry()) != null) {
             // if (entry.isDirectory()) continue;
             loadBytes(entry, jis, jar, tmp, manifest);
         }
         // Add in a fake manifest entry.
-        entry = new JarEntry(Boot.MANIFEST);
         if (manifest != null) {
+            entry = new JarEntry(Boot.MANIFEST);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             manifest.write(baos);
             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray()); 
@@ -1063,7 +1066,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * These are compatible with frameworks like Spring, but require knowledge of the 
      * location of the one-jar file via Boot.getMyJarPath().
      */
-    public class FileURLFactory implements IURLFactory {
+    public static class FileURLFactory implements IURLFactory {
         public URLStreamHandler jarHandler = new URLStreamHandler() {
             protected URLConnection openConnection(URL url) throws IOException {
                 URLConnection connection = new OneJarURLConnection(url);
@@ -1073,9 +1076,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         };
         // TODO: Unify getURL and getCodeBase, if possible.
         public URL getURL(String codebase, String resource) throws MalformedURLException {
-            String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + "!/" + resource;
+            if (!codebase.equals("/")) {
+                codebase = codebase + "!/";
+            } else {
+                codebase = "";
+            }
+            String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + resource;
             URL url = new URL("jar", "", -1, path, jarHandler);
-            VERBOSE("FileURLFactory: url=" + url);
             return url;
         }
         public URL getCodeBase(String jar) throws MalformedURLException {
@@ -1094,11 +1101,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * @author simon
      *
      */
-    public class OneJarURLFactory implements IURLFactory {
+    public static class OneJarURLFactory implements IURLFactory {
         public URL getURL(String codebase, String resource) throws MalformedURLException {
             String base = resource.endsWith(".class")? "": codebase + "/";
             URL url =  new URL(Handler.PROTOCOL + ":/" + base + resource);
-            INFO("OneJarURLFactory: url=" + url);
             return url;
         }    
         public URL getCodeBase(String jar) throws MalformedURLException {
@@ -1116,7 +1122,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return super.getResource(name);
     }
     
-    public IURLFactory urlFactory = new FileURLFactory();
+    protected IURLFactory urlFactory = new FileURLFactory();
+    
+    // Allow override for urlFactory
+    public void setURLFactory(String urlFactory) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+        this.urlFactory = (IURLFactory)loadClass(urlFactory).newInstance();
+    }
+    
+    public IURLFactory getURLFactory() {
+        return urlFactory;
+    }
     
     /* (non-Javadoc)
      * @see java.lang.ClassLoader#findResource(java.lang.String)

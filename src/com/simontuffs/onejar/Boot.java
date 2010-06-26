@@ -61,6 +61,7 @@ public class Boot {
     public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
     public final static String ONE_JAR_DEFAULT_MAIN_JAR = "One-Jar-Default-Main-Jar";
     public final static String ONE_JAR_MAIN_ARGS = "One-Jar-Main-Args";
+    public final static String ONE_JAR_URL_FACTORY = "One-Jar-URL-Factory";
 	
 	public final static String MANIFEST = "META-INF/MANIFEST.MF";
 	public final static String MAIN_JAR = "main/main.jar";
@@ -311,6 +312,12 @@ public class Boot {
             INFO("using JarClassLoader: " + getClassLoader().getClass().getName());
 		}
         
+		// Allow injection of the URL factory.
+		String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
+		if (urlfactory != null) {
+		    loader.setURLFactory(urlfactory);
+		}
+		   
 		mainClass = loader.load(mainClass);
         
         if (mainClass == null && !loader.isExpanded()) 

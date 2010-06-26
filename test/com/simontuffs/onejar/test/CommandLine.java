@@ -17,12 +17,12 @@ public class CommandLine extends TestCase {
     }
     
     public void testOneJarMacroSmoke3() throws Exception {
-        Result result = Invoker.run("java -jar dist/one-jar-example-0.97-macro.jar");
+        Result result = Invoker.run("java -jar dist/one-jar-example-macro-0.97.jar");
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }
     
     public void testOneJarTaskSmoke4() throws Exception {
-        Result result = Invoker.run("java -jar dist/one-jar-example-0.97-task.jar");
+        Result result = Invoker.run("java -jar dist/one-jar-example-task-0.97.jar");
         assertTrue("Expected pass did not occur: " + result, result.status == 0);
     }
 
