@@ -289,7 +289,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     if (reentered(LOAD_CLASS + name)) {
                         throw new ClassNotFoundException(name);
                     }
-                    System.out.println("externalClassLoader.loadClass(" + name + ")");
+                    VERBOSE("externalClassLoader.loadClass(" + name + ")");
                     Object old = current.get();
                     current.set(LOAD_CLASS + name);
                     try {
@@ -301,7 +301,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 public URL getResource(String name) {
                     if (reentered(GET_RESOURCE + name))
                         return null;
-                    System.out.println("externalClassLoader.getResource(" + name + ")");
+                    VERBOSE("externalClassLoader.getResource(" + name + ")");
                     Object old = current.get();
                     current.set(GET_RESOURCE + name);
                     try {
@@ -313,7 +313,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 public URL findResource(String name) {
                     if (reentered(FIND_RESOURCE + name)) 
                         return null;
-                    System.out.println("externalClassLoader.findResource(" + name + ")");
+                    VERBOSE("externalClassLoader.findResource(" + name + ")");
                     Object old = current.get();
                     current.set(name);
                     try {
@@ -1140,13 +1140,21 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // and findResources();
     protected URL findResource(String $resource) {
         try {
-            VERBOSE("findResource(" + $resource + ")");
+            VERBOSE("findResource(\"" + $resource + "\")");
             URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
             if (url != null)
             {
-                INFO("findResource() found in external: " + $resource);
+                INFO("findResource() found in external: \"" + $resource + "\"");
                 //VERBOSE("findResource(): " + $resource + "=" + url);
                 return url;
+            }
+            // Delegate to parent.
+            ClassLoader parent = getParent();
+            if (parent != null) {
+    	        url = parent.getResource($resource);
+    	        if (url != null) {
+    	        	return url;
+    	        }
             }
             // Do we have the named resource in our cache?  If so, construct a 
             // 'onejar:' URL so that a later attempt to access the resource
@@ -1155,10 +1163,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             if (resource != null) {
                 // We know how to handle it.
                 ByteCode entry = ((ByteCode) byteCode.get(resource));
-                INFO("findResource() found: " + $resource + " for caller " + getCaller() + " in codebase " + entry.codebase);                
+                INFO("findResource() found: \"" + $resource + "\" for caller " + getCaller() + " in codebase " + entry.codebase);                
                 return urlFactory.getURL(entry.codebase, $resource);
             }
-            INFO("findResource(): unable to locate " + $resource);
+            INFO("findResource(): unable to locate \"" + $resource + "\"");
             // If all else fails, return null.
             return null;
         } catch (MalformedURLException mux) {
