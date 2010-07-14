@@ -272,9 +272,10 @@ public class Boot {
                 jis.close();
 				mainClass = mainmanifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
 			} else {
-			    // There is no main jar. Warning unless mainJar is empty string.
+			    // There is no main jar. Info unless mainJar is empty string.  
+			    // The load(mainClass) will scan for main jars anyway.
 				if (!"".equals(mainJar)){ 
-                    WARNING("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
+                    INFO("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
 				}
 			}
 		}

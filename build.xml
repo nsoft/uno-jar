@@ -7,7 +7,7 @@
       The final release should use -release-${time.DSTAMP}-${time.TSTAMP} as the info stamp.
     -->   
     <tstamp prefix="time"/>   
-    <property name="one-jar.info" value="-rc10-${time.DSTAMP}-${time.TSTAMP}" />   
+    <property name="one-jar.info" value="-rc11-${time.DSTAMP}-${time.TSTAMP}" />   
 
 	<property name="one-jar.dir" value="${basedir}"/>
     <property name="build.dir" location="${basedir}/build" />
