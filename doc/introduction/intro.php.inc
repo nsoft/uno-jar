@@ -1,37 +1,58 @@
 <h2>Introduction</h2>
-Java developers often come to a point where they wish to deliver their application 
-as a single Jar file.  The Java Runtime Environment supports running a Jar file using the
+<p/>One-JAR provides a comprehensive solution to the problem of shipping a Java application, 
+along with all of its dependency Jars, in a single Jar file without polluting the filesystem
+at runtime. It provides build-tools for Ant and Maven, 
+and can support framework-based applications such as Spring and Guice, or frameworkless applications.
+
+<h3>Key Features</h3>
+<ul>
+    <li>Stateless/Install Free: One-JAR can contain everything needed by an application.</li>
+    <li>Easy: One-JAR tools for Ant & Maven: an SDK and an application generator</li>
+    <li>Invisible: One-JAR works transparently, intercepting resource and class loading and redirecting them back inside the One-JAR</li>
+    <li>No pollution: dependency jars are not expanded into the filesystem at runtime</li>
+    <li>Fast: One-JAR pre-loads all bytecode into memory on startup, making for improved runtime performance.</li>
+    <li>Flexible: One-JAR can expand data-files into the file-system, and can be an installer if you want one</li>
+    <li>Native: can support Native libraries (does require expansion into a temporary directory)</li>
+    <li>Tested: over 140 regression tests with 1500+ lines of test-code in the repository.</li>
+</ul>
+
+<h3>Background</h3>
+<p/>    The Java Runtime Environment supports running a Jar file using the
 following syntax:
 <pre>
 java -jar <i>jarname.jar</i>
 </pre>
 The only requirement of the <i>jarname.jar</i> file is that it contains a manifest attribute
-with the key <code>Main-Class</code> a main class to run.  Suppose the application entry point is the class
-<code>com.mydomain.mypackage.Main</code>.  Add the following line to the <code>META-INF/MANIFEST.MF</code>
+with the key <code>Main-Class</code> a main class to run, for instance in the <code>META-INF/MANIFEST.MF</code>
 file:
 
 <pre>
 Main-Class: com.mydomain.mypackage.Main
 </pre>
 
-So far so good.  But, here's where the problems usually start.  Any non-trivial Java application 
+Any non-trivial Java application 
 is going to rely on any number of supporting Jar files.  For example, using the Apache
 Commons Logging capabilty to do logging an application will need to have the <code>commons-logging.jar</code>
 file on its classpath.
-<p>
-Most developers reasonably assume that putting such a Jar file into their own Jar file, and adding a <code>Class-Path</code>
+Most developers reasonably assume that putting a dependency Jar file into their own Jar file, and adding a <code>Class-Path</code>
 attribute to the <code>META-INF/MANIFEST</code> will do the trick:
 
 </p><pre>
 jarname.jar
 | /META-INF
-| | MANIFEST.MF
-| |  Main-Class: com.mydomain.mypackage.Main
-| |  Class-Path: commons-logging.jar
+| |  MANIFEST.MF
+| |    Main-Class: com.mydomain.mypackage.Main
+| |    <i>Class-Path: commons-logging.jar</i>
 | /com/mydomain/mypackage
-| | Main.class
+| |  Main.class
 | commons-logging.jar
 </pre>
-Unfortunately this is not the case.  The Java classloader does not know how to load classes from a Jar inside a Jar.
-The entries on the <code>Class-Path</code> must be references to files outside the Jar file, defeating the goal of 
-delivering an application in a single Jar file.
+Unfortunately this is does not work.  The Java <code>Launcher$AppClassLoader</code> does not know how to load classes from a Jar 
+inside a Jar with this kind of <code>Class-Path</code>.  Trying to use <code>jar:file:jarname.jar!/commons-logging.jar</code> also 
+leads down a dead-end.  This approach will only work if you install (i.e. scatter) the
+supporting Jar files into the directory where the <code>jarname.jar</code> file is installed.  
+
+<p> Another
+approach is to unpack all dependent Jar files and repack them inside the <code>jarname.jar</code> file.
+This approach tends to be fragile and slow, and can suffer from duplicate resource issues.
+

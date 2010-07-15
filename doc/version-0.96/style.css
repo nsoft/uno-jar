@@ -1,0 +1,23 @@
+h1,h2,h3,h4,i {color:blue; line-height=100%}
+li {margin-top:0.5em;}
+pre, .green {color:green; margin-left:2em; overflow:auto;}
+code {color:darkblue; font-size:100%;}
+body {font-family:verdana,helvetica,arial,sans-serif; }
+a {text-decoration:none}
+a:hover {text-decoration:underline}
+td,th {padding-left:5px; padding-bottom:2px; padding-top:2px; font-size:90%;}
+.pad-top-bottom {padding-top:0.5em; padding-bottom:0.5em};
+.figure {color:blue}
+.indent {margin-left:1em; font-size:85%;}
+.listindent {margin-left:2em; margin-top:0.5em;}
+.half-line {margin-top:0.3em}
+.caution {color:red; border:solid 1px red; padding:0.5em;}
+.note {color:blue; font-style:italic; padding:0.2em}
+.navbar {background-color:lightblue; font-size:100%; margin-top:0.2em;}
+.sidebar {font-size:100%; padding:0.5em; border-style:solid; border-width:1px; border-color:blue; background-color:lightblue; line-height:1.5em; margin-right:0.5em; white-space:nowrap}
+.header {border-bottom:0px; padding-top:0.25em; padding-bottom:0.25em}
+.q {padding-bottom:0.05em; padding-top:1em; color:blue}
+.figure, .fee {color:blue}
+.yesno, .employees, .fee {text-align:center; vertical-align:bottom}
+.error {background-color:red; color:white; border:solid 1px black;  margin:0.5em;}
+.note {color:blue}	

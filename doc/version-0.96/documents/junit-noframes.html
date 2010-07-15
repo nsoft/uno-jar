@@ -1,0 +1,1768 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:stringutils="xalan://org.apache.tools.ant.util.StringUtils">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Unit Test Results</title>
+<style type="text/css">
+      body {
+        font:normal 68% verdana,arial,helvetica;
+        color:#000000;
+      }
+      table tr td, table tr th {
+          font-size: 68%;
+      }
+      table.details tr th{
+        font-weight: bold;
+        text-align:left;
+        background:#a6caf0;
+      }
+      table.details tr td{
+        background:#eeeee0;
+      }
+
+      p {
+        line-height:1.5em;
+        margin-top:0.5em; margin-bottom:1.0em;
+      }
+      h1 {
+        margin: 0px 0px 5px; font: 165% verdana,arial,helvetica
+      }
+      h2 {
+        margin-top: 1em; margin-bottom: 0.5em; font: bold 125% verdana,arial,helvetica
+      }
+      h3 {
+        margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica
+      }
+      h4 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h5 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h6 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      .Error {
+        font-weight:bold; color:red;
+      }
+      .Failure {
+        font-weight:bold; color:purple;
+      }
+      .Properties {
+        text-align:right;
+      }
+      </style>
+<script language="JavaScript" type="text/javascript">
+        var TestCases = new Array();
+        var cur;
+        
+    cur = TestCases['com.simontuffs.onejar.test.CommandLine'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-0.96.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-0.96.jar';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    
+    cur = TestCases['com.simontuffs.onejar.test.SelfTest$Macro'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-0.96-macro.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-0.96.jar';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    
+    cur = TestCases['com.simontuffs.onejar.test.SelfTest$Task'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-0.96.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-0.96-task.jar';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    
+    cur = TestCases['com.simontuffs.onejar.test.SelfTest'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-0.96.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-0.96.jar';
+    
+        cur['one-jar.test.external'] = 'true';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    
+    cur = TestCases['com.simontuffs.onejar.test.SelfTestExternal'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-ext-0.96.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-ext-0.96.jar';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    
+    cur = TestCases['com.simontuffs.onejar.test.SelfTestSecure'] = new Array();
+    
+        cur['ant.build.javac.source'] = '1.3';
+    
+        cur['ant.build.javac.target'] = '1.2';
+    
+        cur['ant.core.lib'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar';
+    
+        cur['ant.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\ant';
+    
+        cur['ant.file'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.file.one-jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build.xml';
+    
+        cur['ant.home'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842';
+    
+        cur['ant.java.version'] = '1.4';
+    
+        cur['ant.library.dir'] = 'C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib';
+    
+        cur['ant.project.name'] = 'one-jar';
+    
+        cur['ant.version'] = 'Apache Ant version 1.7.0 compiled on December 13 2006';
+    
+        cur['awt.toolkit'] = 'sun.awt.windows.WToolkit';
+    
+        cur['basedir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar';
+    
+        cur['boot.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-boot-0.96.jar';
+    
+        cur['build.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build';
+    
+        cur['classes.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant';
+    
+        cur['debug'] = 'on';
+    
+        cur['dist.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['DSTAMP'] = '20070916';
+    
+        cur['eclipse.pdebuild.home'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/./';
+    
+        cur['eclipse.pdebuild.scripts'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/scripts/';
+    
+        cur['eclipse.pdebuild.templates'] = '/C:/work/eclipse-3.3/eclipse-install/plugins/org.eclipse.pde.build_3.3.0.v20070612/templates/';
+    
+        cur['example.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\example';
+    
+        cur['example.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-0.96.jar';
+    
+        cur['example-ext.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist/one-jar-example-ext-0.96.jar';
+    
+        cur['external.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/expand/external.jar';
+    
+        cur['file.encoding'] = 'Cp1252';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '\\';
+    
+        cur['formatter'] = 'xml';
+    
+        cur['jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.Win32GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.awt.windows.WPrinterJob';
+    
+        cur['java.class.path'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist\\one-jar-example-0.96.jar;C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\ant\\test;C:\\Program Files\\Altova\\xmlspy\\XMLSpyInterface.jar;C:\\work\\eclipse-3.1.1\\eclipse\\plugins\\org.junit_3.8.1\\junit.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-launcher.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant.jar;C:\\work\\eclipse-3.3\\eclipse-install\\plugins\\org.apache.ant_1.7.0.v200706080842\\lib\\ant-junit.jar';
+    
+        cur['java.class.version'] = '48.0';
+    
+        cur['java.endorsed.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\endorsed';
+    
+        cur['java.ext.dirs'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\ext';
+    
+        cur['java.home'] = 'C:\\j2sdk1.4.2_04\\jre';
+    
+        cur['java.io.tmpdir'] = 'C:\\DOCUME~1\\simon\\LOCALS~1\\Temp\\';
+    
+        cur['java.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin;.;C:\\WINDOWS\\System32;C:\\WINDOWS;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Program Files\\Java\\jre1.6.0_01\\bin\\client;C:\\Program Files\\Java\\jre1.6.0_01\\bin;C:\\Perl\\bin\\;c:\\jdj1.5.0_03\\bin;c:\\cygwin\\bin;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\Program Files\\Microsoft SQL Server\\80\\Tools\\Binn\\;C:\\Program Files\\cvsnt;C:\\Program Files\\Perforce;%QUARTUS_ROOTDIR%\\bin;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\rainingdata\\tigerlogic\\xdms\\libs\\jre\\bin\\server;C:\\Program Files\\Subversion\\bin;C:\\altera\\61\\modelsim_ae\\win32aloem;c:\\work\\eclipse-3.1.1\\tptp-4.1.0-20051018\\agent\\bin;C:\\jwsdp-1.5\\jwsdp-shared\\bin;C:\\jwsdp-1.4\\jwsdp-shared\\bin;C:\\Sun\\SJSAS-7-1\\bin;C:\\jwsdp-1.3\\jwsdp-shared\\bin;C:\\Program Files\\OpenVPN\\bin';
+    
+        cur['java.runtime.name'] = 'Java(TM) 2 Runtime Environment, Standard Edition';
+    
+        cur['java.runtime.version'] = '1.4.2_04-b05';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.specification.version'] = '1.4';
+    
+        cur['java.util.prefs.PreferencesFactory'] = 'java.util.prefs.WindowsPreferencesFactory';
+    
+        cur['java.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vendor.url'] = 'http://java.sun.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://java.sun.com/cgi-bin/bugreport.cgi';
+    
+        cur['java.version'] = '1.4.2_04';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'Java HotSpot(TM) Client VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.specification.version'] = '1.0';
+    
+        cur['java.vm.vendor'] = 'Sun Microsystems Inc.';
+    
+        cur['java.vm.version'] = '1.4.2_04-b05';
+    
+        cur['line.separator'] = ' ';
+    
+        cur['main.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/main/main.jar';
+    
+        cur['one-jar.dist.dir'] = './dist';
+    
+        cur['one-jar.info'] = '-rc5-20070916-1932';
+    
+        cur['one-jar.jarname'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar/dist/one-jar-example-0.96.jar';
+    
+        cur['one-jar.verbose'] = 'true';
+    
+        cur['one-jar.version'] = '0.96';
+    
+        cur['one-jar-dll.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar-dll';
+    
+        cur['one-jar-dll.exists'] = 'true';
+    
+        cur['optimize'] = 'off';
+    
+        cur['os.arch'] = 'x86';
+    
+        cur['os.name'] = 'Windows XP';
+    
+        cur['os.version'] = '5.1';
+    
+        cur['path.separator'] = ';';
+    
+        cur['sdk.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\sdk';
+    
+        cur['services.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\services';
+    
+        cur['src.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = 'C:\\j2sdk1.4.2_04\\jre\\lib\\rt.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\i18n.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\sunrsasign.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jsse.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\jce.jar;C:\\j2sdk1.4.2_04\\jre\\lib\\charsets.jar;C:\\j2sdk1.4.2_04\\jre\\classes';
+    
+        cur['sun.boot.library.path'] = 'C:\\j2sdk1.4.2_04\\jre\\bin';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = 'pentium i486 i386';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java2d.fontpath'] = '';
+    
+        cur['sun.os.patch.level'] = 'Service Pack 1';
+    
+        cur['test.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\test';
+    
+        cur['test.reports'] = 'test-reports';
+    
+        cur['test.results'] = 'test-results';
+    
+        cur['time.DSTAMP'] = '20070916';
+    
+        cur['time.TODAY'] = 'September 16 2007';
+    
+        cur['time.TSTAMP'] = '1932';
+    
+        cur['tmp.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545';
+    
+        cur['tmp.jar.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\one-jar-1804895545/jars';
+    
+        cur['TODAY'] = 'September 16 2007';
+    
+        cur['TSTAMP'] = '1932';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\dist';
+    
+        cur['user.home'] = 'C:\\Documents and Settings\\simon';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'simon';
+    
+        cur['user.timezone'] = '';
+    
+        cur['user.variant'] = '';
+    
+        cur['util.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/lib/util.jar';
+    
+        cur['wraploader.jar'] = 'C:\\work\\eclipse-workspaces\\workspace-simontuffs\\one-jar\\build\\jars/detect/wrap/wraploader.jar';
+    </script><script language="JavaScript" type="text/javascript">
+        function displayProperties (name) {
+          var win = window.open('','JUnitSystemProperties','scrollbars=1,resizable=1');
+          var doc = win.document;
+          doc.open();
+          doc.write("<html><head><title>Properties of " + name + "</title>");
+          doc.write("<style>")
+          doc.write("body {font:normal 68% verdana,arial,helvetica; color:#000000; }");
+          doc.write("table tr td, table tr th { font-size: 68%; }");
+          doc.write("table.properties { border-collapse:collapse; border-left:solid 1 #cccccc; border-top:solid 1 #cccccc; padding:5px; }");
+          doc.write("table.properties th { text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#eeeeee; }");
+          doc.write("table.properties td { font:normal; text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#fffffff; }");
+          doc.write("h3 { margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica }");
+          doc.write("</style>");
+          doc.write("</head><body>");
+          doc.write("<h3>Properties of " + name + "</h3>");
+          doc.write("<div align=\"right\"><a href=\"javascript:window.close();\">Close</a></div>");
+          doc.write("<table class='properties'>");
+          doc.write("<tr><th>Name</th><th>Value</th></tr>");
+          for (prop in TestCases[name]) {
+            doc.write("<tr><th>" + prop + "</th><td>" + TestCases[name][prop] + "</td></tr>");
+          }
+          doc.write("</table>");
+          doc.write("</body></html>");
+          doc.close();
+          win.focus();
+        }
+      
+      </script>
+</head>
+<body>
+<a name="top"></a>
+<h1>Unit Test Results</h1>
+<table width="100%">
+<tr>
+<td align="left"></td><td align="right">Designed for use with <a href="http://www.junit.org">JUnit</a> and <a href="http://ant.apache.org/ant">Ant</a>.</td>
+</tr>
+</table>
+<hr size="1">
+<h2>Summary</h2>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Tests</th><th>Failures</th><th>Errors</th><th>Success rate</th><th>Time</th>
+</tr>
+<tr valign="top" class="">
+<td>102</td><td>0</td><td>0</td><td>100.00%</td><td>14.062</td>
+</tr>
+</table>
+<table width="95%" border="0">
+<tr>
+<td style="text-align: justify;">
+        Note: <i>failures</i> are anticipated and checked for with assertions while <i>errors</i> are unanticipated.
+        </td>
+</tr>
+</table>
+<hr align="left" width="95%" size="1">
+<h2>Packages</h2>
+        Note: package statistics are not computed recursively, they only sum up all of its testsuites numbers.
+        <table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th width="80%">Name</th><th>Tests</th><th>Errors</th><th>Failures</th><th nowrap="nowrap">Time(s)</th><th nowrap="nowrap">Time Stamp</th><th>Host</th>
+</tr>
+<tr valign="top" class="">
+<td><a href="#com.simontuffs.onejar.test">com.simontuffs.onejar.test</a></td><td>102</td><td>0</td><td>0</td><td>14.062</td><td>2007-09-17T02:33:26</td><td>FRIPP</td>
+</tr>
+</table>
+<hr align="left" width="95%" size="1">
+<a name="com.simontuffs.onejar.test"></a>
+<h3>Package com.simontuffs.onejar.test</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th width="80%">Name</th><th>Tests</th><th>Errors</th><th>Failures</th><th nowrap="nowrap">Time(s)</th><th nowrap="nowrap">Time Stamp</th><th>Host</th>
+</tr>
+<tr valign="top" class="">
+<td><a href="#CommandLine">CommandLine</a></td><td>6</td><td>0</td><td>0</td><td>10.813</td><td>2007-09-17T02:33:26</td><td>FRIPP</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#SelfTest$Macro">SelfTest$Macro</a></td><td>19</td><td>0</td><td>0</td><td>0.578</td><td>2007-09-17T02:33:05</td><td>FRIPP</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#SelfTest$Task">SelfTest$Task</a></td><td>19</td><td>0</td><td>0</td><td>0.328</td><td>2007-09-17T02:32:59</td><td>FRIPP</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#SelfTest">SelfTest</a></td><td>19</td><td>0</td><td>0</td><td>1.125</td><td>2007-09-17T02:32:53</td><td>FRIPP</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#SelfTestExternal">SelfTestExternal</a></td><td>19</td><td>0</td><td>0</td><td>0.500</td><td>2007-09-17T02:33:14</td><td>FRIPP</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#SelfTestSecure">SelfTestSecure</a></td><td>20</td><td>0</td><td>0</td><td>0.718</td><td>2007-09-17T02:33:21</td><td>FRIPP</td>
+</tr>
+</table>
+<a href="#top">Back to top</a>
+<p></p>
+<p></p>
+<hr align="left" width="95%" size="1">
+<a name="CommandLine"></a>
+<h3>TestCase CommandLine</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarSmoke1</td><td>Success</td><td></td><td>0.812</td>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarSmoke2</td><td>Success</td><td></td><td>2.547</td>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarSmoke3</td><td>Success</td><td></td><td>2.031</td>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarSmoke4</td><td>Success</td><td></td><td>1.844</td>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarAlternate1</td><td>Success</td><td></td><td>1.656</td>
+</tr>
+<tr valign="top" class="">
+<td>testOneJarExt</td><td>Success</td><td></td><td>1.719</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.CommandLine');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="SelfTest"></a>
+<h3>TestCase SelfTest</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testUseUtil</td><td>Success</td><td></td><td>0.031</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpResource</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpDuplicateResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpRelativeResource</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassLoader</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceRelativeURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testImageIcon</td><td>Success</td><td></td><td>0.844</td>
+</tr>
+<tr valign="top" class="">
+<td>testLoadCodeSource</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testPackageName</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testGetResourceAsStream</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testServices</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpanded</td><td>Success</td><td></td><td>0.031</td>
+</tr>
+<tr valign="top" class="">
+<td>testContentType</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testHtmlAnchor</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpand</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testLogging</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExternal</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.SelfTest');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="SelfTest$Macro"></a>
+<h3>TestCase SelfTest$Macro</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testUseUtil</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpDuplicateResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpRelativeResource</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassLoader</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceRelativeURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testImageIcon</td><td>Success</td><td></td><td>0.328</td>
+</tr>
+<tr valign="top" class="">
+<td>testLoadCodeSource</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testPackageName</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testGetResourceAsStream</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testServices</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpanded</td><td>Success</td><td></td><td>0.032</td>
+</tr>
+<tr valign="top" class="">
+<td>testContentType</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testHtmlAnchor</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpand</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testLogging</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExternal</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.SelfTest$Macro');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="SelfTest$Task"></a>
+<h3>TestCase SelfTest$Task</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testUseUtil</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpResource</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpDuplicateResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpRelativeResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassLoader</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassURL</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceRelativeURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testImageIcon</td><td>Success</td><td></td><td>0.172</td>
+</tr>
+<tr valign="top" class="">
+<td>testLoadCodeSource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testPackageName</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testGetResourceAsStream</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testServices</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpanded</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testContentType</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testHtmlAnchor</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpand</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testLogging</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExternal</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.SelfTest$Task');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="SelfTestExternal"></a>
+<h3>TestCase SelfTestExternal</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testExternal</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testUseUtil</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpDuplicateResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpRelativeResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassLoader</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceURL</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceRelativeURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testImageIcon</td><td>Success</td><td></td><td>0.250</td>
+</tr>
+<tr valign="top" class="">
+<td>testLoadCodeSource</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testPackageName</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testGetResourceAsStream</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testServices</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpanded</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testContentType</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testHtmlAnchor</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpand</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testLogging</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.SelfTestExternal');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="SelfTestSecure"></a>
+<h3>TestCase SelfTestSecure</h3>
+<table width="95%" cellspacing="2" cellpadding="5" border="0" class="details">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap="nowrap">Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>testSecurityManager</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testUseUtil</td><td>Success</td><td></td><td>0.031</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpDuplicateResource</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testDumpRelativeResource</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassLoader</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testClassURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceURL</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testResourceRelativeURL</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testImageIcon</td><td>Success</td><td></td><td>0.266</td>
+</tr>
+<tr valign="top" class="">
+<td>testLoadCodeSource</td><td>Success</td><td></td><td>0.031</td>
+</tr>
+<tr valign="top" class="">
+<td>testPackageName</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testGetResourceAsStream</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testServices</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpanded</td><td>Success</td><td></td><td>0.047</td>
+</tr>
+<tr valign="top" class="">
+<td>testContentType</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>testHtmlAnchor</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testExpand</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>testLogging</td><td>Success</td><td></td><td>0.015</td>
+</tr>
+<tr valign="top" class="">
+<td>testExternal</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('com.simontuffs.onejar.test.SelfTestSecure');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a>
+</body>
+</html>

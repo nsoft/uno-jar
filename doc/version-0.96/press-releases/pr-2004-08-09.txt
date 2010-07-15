@@ -1,0 +1,37 @@
+Headline:
+
+Deliver Your Java Applications Using One-JAR(TM)
+
+Summary:
+
+Simontuffs.com announced today the immediate availability of One-JAR Version 0.95. 
+One-JAR packages and delivers your complex Java applications as one file, without 
+needing a proprietary installation program.
+
+Body:
+
+Pacific Grove, CA (PRWEB) August 11, 2004 -- SimonTuffs.com announces Version 0.95 
+of One-JAR. One-JAR streamlines the packaging of Java applications that depend on 
+multiple resources (such as other JAR files) into a single file which can be 
+executed directly using the "java -jar" launcher. One-JAR helps eliminate the need 
+for complex operating-system dependent installers and launch scripts, while 
+preserving the boundaries of constituent components within the final distribution. 
+
+One-JAR simplifies configuration control and version management, and helps avoid 
+license issues surrounding the redistribution of third party JAR files in an 
+unmodified form. One-JAR uses a powerful custom classloader to avoid pollution 
+of the file-system with expanded directory trees, keeping the runtime disk 
+footprint compact and efficient. One-JAR also can be used to record and reconstruct 
+the minimal class set needed to support an application, with up to 70% reduction 
+in binary image size.
+
+One-JAR is released under a liberal BSD-styl.e Open Source license on 
+SourceForge.net at: http://one-jar.sourceforge.net. Version 1.0 of One-JAR is 
+anticipated for Q4 2004. 
+
+About Simontuffs.com:
+
+Founded in 2003, Simontuffs.com delivers cutting-edge consulting in the Java, 
+J2EE and Web-Services industries
+ 
+	

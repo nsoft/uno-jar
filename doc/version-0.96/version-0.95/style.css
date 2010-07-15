@@ -1,0 +1,5 @@
+h1,h2,h3, i {color:blue; line-height=100%}
+pre, .green {color:green}
+code {color:darkblue}
+body {font-family:verdana,helvetica,arial,sans-serif; font-size=80%; line-height=150%}
+.figure {color:blue}

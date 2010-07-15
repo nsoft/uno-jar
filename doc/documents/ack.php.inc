@@ -3,6 +3,8 @@
 Thanks to the following contributors for their suggestions and patches towards improving One-JAR:
 
 <ul>
+  <li>Hugo Josephson for the Maven2 plugin, and for plugging holes in my knowledge there</li>
+  <li>Stevo Slavic, for finding and fixing Spring classpath scanning</li>
   <li>Christopher Ottley &amp; Dennis Pfisterer: The native library loading mechanism</li>
   <li>Erik Pragt: for sharing his Comic Reader application and working through a nasty recursion problem</li>
   <li>Geoff Bourne: Cleaning up the one-jar "myName" mechanism and improving cross-platform support.</li>
@@ -13,7 +15,7 @@ Thanks to the following contributors for their suggestions and patches towards i
   <li>Efrain Klein: for suggesting improvements to the argument parsing</li>
   <li>Oleg Astakhov: for pointing out that my documentation was inadequate, and suggesting improvements to it and the code</li>
   <li>Ferenc Hechler: for integrating One-JAR into Fat Jar and Eclipse (<a href="http://fjep.sourceforge.net">http://fjep.sourceforge.net</a>)
-  <li>Everyone else for using it and providing feedback</li>
+  <li>Many others for using it and providing feedback</li>
 </ul>
 
 Please forgive me if I've missed your name from this list, let me know and I'll be happy to acknowledge

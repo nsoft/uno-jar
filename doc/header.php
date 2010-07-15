@@ -1,30 +1,47 @@
 <?php
   	$SITEMAP = array(
   		"#title" => array(
-  			"#onejar" => "One-JAR v0.96"), 
-  		"introduction" => array(
-  			"intro" => "Introduction", 
-  			"opening" => "Opening the JAR", 
-  			"options" => "Options & Properties", 
-  			"gettingstarted" => "Getting Started", 
-  			"manifest" => "Manifest Attributes", 
+  			"#onejar" => "One-JAR v0.97"), 
+  		    "introduction" => array(
+  			"intro" => "Introduction",
+  			),
+  	    "getting-started" => array(
+  	        "quickstart" => "Quick Start", 
+            "one-jar-appgen" => "One-Jar Appgen Details",
+            "ant" => "Ant Taskdef", 
+            # "one-jar-sdk" => "one-jar-sdk", 
+  			# "opening" => "Opening the JAR", 
+  			"sdk" => "SDK", 
+  			),
+  		"details" => array(
+            "options" => "Options & Properties", 
+            "manifest" => "Manifest Attributes", 
             "resources" => "Resource Loading",
-  			"native" => "Native Libraries", 
+            "native" => "Native Libraries",
+  		),
+  		"build-tools" => array(
+  		    "build-tools" => "Build Tools",
+  			"ant" => "Ant",
+            "ant-example" => "Ant Example",
+  			"maven" => "Maven", 
+  			"maven-example" => "Maven Example",
   			), 
-  		"ant" => array(
-  			"ant" => "Ant", 
-  			"simple" => "It's Simple.  Really!"
-  			), 
+  	    "frameworks" => array(
+  	        "frameworks" => "Frameworks", 
+  	        "spring" => "Spring Framework", 
+  	        "guice" => "Guice", 
+  	    ),
   		"downloads" => array(
   			"downloads" => "Downloads", 
   			"source" => "Source Code"
   			),
-  		"support" => array(
-  			"support" => "Professional Support"
+  		"more" => array(
+  			"support" => "Support", 
+            # "one-jar-pro" => "One-JAR Pro", 
   			),
   		"documents" => array(
-  			"#info" => "Information", 
-  			"whatsnew" => "What's New?", 
+  			"#info" => "More Information", 
+  			"whatsnew" => "Releases    ", 
   			"features" => "Key Features", 
   			"faq" => "FAQ", 
   			"license" => "License", 
@@ -35,7 +52,8 @@
 
   	function hyperlink($page, $file, $text, $class = "") {
   		if (!file_exists("$page/$file.php.inc")) {
-  			$style="style='background-color:red; color:white'";
+  		    // return "<span $class>".$text."</span>";
+  		    $style="style='background-color:red; color:white'";
   		}
   		return "<a $class $style href='index.php?page=$page&amp;file=$file'>".$text."</a>";
   	}
@@ -74,15 +92,15 @@
 
 <?php
 	if ($ONEPAGE) {
-		echo "<b><center>Deliver Your Java Application in One-JAR&trade;! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </center></b>";
+		echo "<b><center>Deliver Your Java Application in One-JAR&trade;! Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </b><br/><a href='http://www.simontuffs.com'>http://www.simontuffs.com</a></center>";
 	}
 	if ($ONEPAGE) return;
 ?>
 
 <h1>Deliver Your Java Application in One-JAR&trade;!</h1>
-<b>Copyright 2004-2007 by P. Simon Tuffs, All Rights Reserved.  </b>
-<br/>
-<hr>
+<b>Copyright 2004-2010 by P. Simon Tuffs, All Rights Reserved.  </b> <a href="http://www.simontuffs.com">http://www.simontuffs.com</a><br/>
+
+<hr/>
 <table>
 <tr>
 <td valign="top">

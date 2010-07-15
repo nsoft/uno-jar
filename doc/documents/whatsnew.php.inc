@@ -1,4 +1,19 @@
 <h2>What's New?</h2>
+<h3>One-JAR version 0.97</h3>
+<ul>
+<li>Support for Spring-Framework 3.0.2 and Guice 2.0</li>
+<li>Support for external JDBC drivers</li>
+<li>Template application generator <code>one-jar-appgen</code>
+<li>Default main program arguments</li>
+<li>Support for JavaHelp</li>
+<li>Support for Log4j configuration</li>
+<li>Support for Eclipse, Ant and Maven2 projects</li>
+<li>All feasible outstanding 0.96 Tracker issues resolved</li>
+
+</ul>
+<h3>0.97 Release Notes</h3>
+None.
+<hr/>
 <h3>One-JAR version 0.96</h3>
 <ul>
 <li>Build automation with Ant build taskdef and scripts</li>
@@ -6,11 +21,11 @@
 <li>Support for MIME content-type based on file-types for URL connections</li>
 <li>Support for JNI native librarys (e.g. SWT).</li>
 <li>Support for Java Security Manager</li>
-<li>Extension of the runtime classpath to allow external JAR files using <?=hyperlink("introduction", "options", "one-jar.class.path")?> VM property</li>
+<li>Extension of the runtime classpath to allow external JAR files using <?=hyperlink("details", "options", "one-jar.class.path")?> VM property</li>
 <li>Extensive JUnit regression tests</li>
 </ul>
 
-<h3>Release Notes</h3>
+<h3>0.96 Release Notes</h3>
 One-JAR is pre-release software, hence the release version of 0.96 which is slightly less than 1.0.  
 Consequently, some minor changes have occurred, which may cause minor inconvenience to developers
 who have used the 0.95 release.  
@@ -29,7 +44,7 @@ software.  The release string corresponds to the release-candidate version (rc5)
 <p>Note: the version you download will not have the release-candidate or build-time in its filename, it will contain 
 (as shown here) just the overall version (0.96).
 
-<h3>Changes since 0.95</h3>
+<h3>0.96 Changes since 0.95</h3>
 
 <ul>
 <li>Some VM properties (which were not publically documented) have changed names to make them

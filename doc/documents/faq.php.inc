@@ -33,6 +33,8 @@ Q: Can I modify the source code for my application?
 The <u>only</u> requirement is that you must redistribute the copyright notice and disclaimer contained in the license.
 There are different ways you can satisfy this requirement, for example:
 <ul>
+<li>Include the One-JAR license agreement inside your One-JAR archive.  This is automatic when
+you use the Ant and Maven2 build tools, which put the license in <code>doc/one-jar-license.txt</code></li>
 <li>Include the One-JAR license agreement in your documentation</li>
 <li>Expand the One-JAR license agreement into a directory when your application is executed</li>
 <li>Put a button on your GUI installer which displays the One-JAR license</li>
@@ -50,8 +52,10 @@ Better still, become a contributor to the One-JAR community.
 
 
 </ul>
-Seriously though, since its release in Summer 2004 there have been very few actual questions: 
-basically, One-JAR just works.  
+Seriously though, since its release in Summer 2004 there have been very few issues: 
+basically, One-JAR just works.  The recent release has extended One-JAR to work with frameworks
+such as SpringFramework and Guice which did have specific requirements of the ClassLoader that 
+One-JAR was not supplying.
 
 <h3>Bugs and Support</h3>
 
@@ -62,5 +66,5 @@ Better still, fix it and submit a patch and it will get integrated into the next
 <p>Please submit new FAQ questions (and answers if you have them) to the <a href="http://sourceforge.net/forum/forum.php?forum_id=380844">SourceForge Discussion List</a>.  The
 growing One-JAR community is good at supporting itself.  But please don't expect a real-time response: One-JAR
 really is Open-Source, you should be able to build and support yourself with ease.  If you find yourself
-struggling, please contact us for <?=hyperlink("support", "support", "professional support")?>
+struggling, please contact us for <?=hyperlink("more", "support", "professional support")?>
 
