@@ -1,7 +1,7 @@
 <div class="sidebar">
-<a href="http://www.sourceforge.net/projects/one-jar" target="_blank">
-sourceforge.net/one-jar
-</a>
+<a href="http://www.sourceforge.net/projects/one-jar" target="_blank">sourceforge.net/one-jar</a>
+<br/>
+<a href="https://sourceforge.net/apps/wordpress/one-jar/">One-JAR Blog</a>
 </div><br/>
 
 <?php

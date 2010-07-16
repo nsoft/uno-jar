@@ -7,10 +7,10 @@
   			),
   	    "getting-started" => array(
   	        "quickstart" => "Quick Start", 
-            "one-jar-appgen" => "One-Jar Appgen Details",
             "ant" => "Ant Taskdef", 
             # "one-jar-sdk" => "one-jar-sdk", 
   			# "opening" => "Opening the JAR", 
+            "one-jar-appgen" => "One-Jar Appgen",
   			"sdk" => "SDK", 
   			),
         "downloads" => array(

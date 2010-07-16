@@ -6,6 +6,7 @@ and can support framework-based applications such as Spring and Guice, or framew
 
 <h3>Key Features</h3>
 <ul>
+    <li>Cleaner class-loader delegation model, allows classes (including main) to be at the top-level of the One-JAR</li>
     <li>Stateless/Install Free: One-JAR can contain everything needed by an application.</li>
     <li>Easy: One-JAR tools for Ant & Maven: an SDK and an application generator</li>
     <li>Invisible: One-JAR works transparently, intercepting resource and class loading and redirecting them back inside the One-JAR</li>
@@ -13,7 +14,7 @@ and can support framework-based applications such as Spring and Guice, or framew
     <li>Fast: One-JAR pre-loads all bytecode into memory on startup, making for improved runtime performance.</li>
     <li>Flexible: One-JAR can expand data-files into the file-system, and can be an installer if you want one</li>
     <li>Native: can support Native libraries (does require expansion into a temporary directory)</li>
-    <li>Tested: over 140 regression tests with 1500+ lines of test-code in the repository.</li>
+    <li><?=hyperlink("documents","junit-noframes","Tested")?>: over 140 regression tests with 1500+ lines of test-code in the repository.</li>
 </ul>
 
 <h3>Background</h3>

@@ -1,6 +1,6 @@
 <h2>One-JAR Appgen</h2>
-<i>Caution -- Advanced Topic Ahead: </i>
-
+<i>Caution -- Advanced Topic Ahead: this information is not required to use the Appgen capability. </i>
+<p/>
 The One-JAR Application Generator (one-jar-appgen) creates a fully-functional One-JAR Eclipse/Ant
 project, based on the structure of a template project.  This is similar in nature to the way that
 Grails lets you build projects using code-generators that can be customized by changing template 

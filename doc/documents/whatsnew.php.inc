@@ -1,6 +1,7 @@
 <h2>What's New?</h2>
 <h3>One-JAR version 0.97</h3>
 <ul>
+<li>Cleaner class-loader delegation model, allows classes (including main) to be at the top-level of the One-JAR</li>
 <li>Support for Spring-Framework 3.0.2 and Guice 2.0</li>
 <li>Support for external JDBC drivers</li>
 <li>Template application generator <code>one-jar-appgen</code>
