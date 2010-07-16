@@ -13,6 +13,11 @@
   			# "opening" => "Opening the JAR", 
   			"sdk" => "SDK", 
   			),
+        "downloads" => array(
+            "downloads" => "Downloads", 
+            "build" =>"Build Tree",
+            "source" => "Source Code"
+            ),
   		"details" => array(
             "options" => "Options & Properties", 
             "manifest" => "Manifest Attributes", 
@@ -31,10 +36,6 @@
   	        "spring" => "Spring Framework", 
   	        "guice" => "Guice", 
   	    ),
-  		"downloads" => array(
-  			"downloads" => "Downloads", 
-  			"source" => "Source Code"
-  			),
   		"more" => array(
   			"support" => "Support", 
             # "one-jar-pro" => "One-JAR Pro", 
@@ -98,7 +99,8 @@
 ?>
 
 <h1>Deliver Your Java Application in One-JAR&trade;!</h1>
-<b>Copyright 2004-2010 by P. Simon Tuffs, All Rights Reserved.  </b> <a href="http://www.simontuffs.com">http://www.simontuffs.com</a><br/>
+<b>Copyright 2004-2010 by P. Simon Tuffs, All Rights Reserved.  </b> <a href="http://www.simontuffs.com">http://www.simontuffs.com</a>
+<br/>
 
 <hr/>
 <table>

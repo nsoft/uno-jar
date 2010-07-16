@@ -17,8 +17,10 @@ the One-JAR SourceForge CVS page:
     <a href="http://sourceforge.net/cvs/?group_id=111153">http://sourceforge.net/cvs/?group_id=111153</a>.
 </pre>
 
-<p>Web-based viewing access is available here: 
+<p>Web-based viewing of the HEAD of the tree is available here: 
 
 <pre>
-    <a href="http://one-jar.cvs.sourceforge.net/one-jar/one-jar/">http://one-jar.cvs.sourceforge.net/one-jar/one-jar/</a>
+    <a href="http://one-jar.cvs.sourceforge.net/one-jar/">http://one-jar.cvs.sourceforge.net/one-jar/</a>
 </pre>
+
+<p/>Switch to the <a href="http://one-jar.cvs.sourceforge.net/viewvc/one-jar/?pathrev=version_0_9_7_RC11">version_0_9_7_RC11</a> version tag if you wish to work with stable code.

@@ -30,11 +30,12 @@ sourceforge.net/one-jar
 </div>
 <br/>
 <div class='sidebar header'>
-Documentation</div><div class='sidebar'>
+Other Documentation</div><div class='sidebar'>
 <a href="http://www-128.ibm.com/developerworks/java/library/j-onejar/">IBM&nbsp;DeveloperWorks</a>
 <br/><a href="version-0.96/">Version 0.96</a>
 <br/><a href="version-0.95/">Version 0.95</a>
 </div>
+<!--
 <br/>
 <div class="sidebar header">Quick Links</div>
 <div class="sidebar">
@@ -42,4 +43,5 @@ Documentation</div><div class='sidebar'>
 <br/><a href="http://www.simontuffs.com" target="_blank">www.simontuffs.com</a>
 <br/>
 <a href="http://sourceforge.net/projects/one-jar"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=111153&amp;type=10" width="80" height="15" alt="Get One-JAR(TM) at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a></a>
+-->
 </div>
