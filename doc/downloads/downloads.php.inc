@@ -40,11 +40,27 @@ The following downloads are available in the distribution:
     </tr>
 		
 </table>
-<p class="caution">
-Note: the executable Jar files are command-line tools: do not try to execute them on Windows by double-clicking
-the file since you may get unexpected results.  Open a DOS command shell and execute them
-using the <code>java -jar</code> command.
-</p>
+<p/>
+<div class="caution">
+Note: these executable Jar files are command-line tools: do not try to execute them on Windows by double-clicking
+the file since you may get unexpected results (silent execution).  Open a command shell and execute them
+using the <code>java -jar</code> command.  
+<p>If you wish to double-click and launch a 
+<code>.jar</code> file as a command-line window you can apply the following file-association to your Windows system.  With Administrator privileges:
+<pre>
+C:\> assoc .jar=jarfile
+C:\> ftype jarfile=cmd.exe /k java.exe -jar "%1" %*
+</pre>
+This basically associates .jar files with java.exe through a command window which will remain
+on exit.  Alternatively, to bypass the command window:
+<pre>
+C:\> assoc .jar=jarfile
+C:\> ftype jarfile=javaw.exe -jar "%1" %*
+</pre>
+  
+<p/>You might also find the <a href="http://www.jonelo.de/java/jarfix/">JarFix</a> tool to be useful.
+</div>
+
 <h3>Which One Do I Need?</h3>
 <ul>
 <li>For a quick demo of One-JAR in action, download and run <?=download($root, "one-jar-example")?>.

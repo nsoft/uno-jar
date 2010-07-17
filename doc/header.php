@@ -4,6 +4,7 @@
   			"#onejar" => "One-JAR v0.97"), 
   		    "introduction" => array(
   			"intro" => "Introduction",
+  			"background" => "Background", 
   			),
   	    "getting-started" => array(
   	        "quickstart" => "Quick Start", 
@@ -16,7 +17,8 @@
         "downloads" => array(
             "downloads" => "Downloads", 
             "build" =>"Build Tree",
-            "source" => "Source Code"
+            "source" => "Source Code",
+            "0.98_rcs" => "0.98 Pre-Release",
             ),
   		"details" => array(
             "options" => "Options & Properties", 
