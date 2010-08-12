@@ -14,6 +14,6 @@
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/french"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/german"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="lib/ant-1.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/ant-1.8.0.jar" sourcepath="/disks/work/apache-ant-1.8.0-src"/>
 	<classpathentry kind="output" path="bin/default"/>
 </classpath>

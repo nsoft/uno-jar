@@ -26,12 +26,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.security.AccessController;
 import java.security.CodeSource;
+import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
@@ -47,7 +51,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.jar.Attributes.Name;
@@ -72,6 +75,17 @@ import java.util.regex.Pattern;
  */
 public class JarClassLoader extends ClassLoader implements IProperties {
     
+    public final static String PROPERTY_PREFIX = "one-jar.";
+    public final static String P_INFO = PROPERTY_PREFIX + "info";
+    public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
+    public final static String P_JARNAMES = PROPERTY_PREFIX + "jar.names";
+    public final static String P_RECORD = PROPERTY_PREFIX + "record";
+    // System properties.
+    public final static String P_EXPAND_DIR = JarClassLoader.PROPERTY_PREFIX + "expand.dir";
+    public final static String P_PATH_SEPARATOR = "|";
+    public final static String P_ONE_JAR_CLASS_PATH = JarClassLoader.PROPERTY_PREFIX + "class.path";
+    public final static String MANIFEST = "META-INF/MANIFEST.MF";
+
     public final static String LIB_PREFIX = "lib/";
     public final static String BINLIB_PREFIX = "binlib/";
     public final static String MAIN_PREFIX = "main/";
@@ -92,6 +106,23 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected boolean noExpand, expanded;
     protected ClassLoader externalClassLoader;
     
+    protected String oneJarPath;
+    
+    public String getOneJarPath() {
+        return oneJarPath;
+    }
+
+    public void setOneJarPath(String oneJarPath) throws MalformedURLException {
+        URL url;
+        try {
+            url = new URL(oneJarPath);
+        } catch (MalformedURLException x) {
+            url = new URL("file:" + oneJarPath);
+        }
+        System.out.println("oneJarPath=" + url);
+        this.oneJarPath = url.toString();
+    }
+
     static {
         // Add our 'onejar:' protocol handler, but leave open the 
         // possibility of a subsequent class taking over the 
@@ -169,7 +200,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(String $wrap) {
         wrapDir = $wrap;
         delegateToParent = wrapDir == null;
-        Boot.setProperties(this);
+        setProperties(this);
         init();
     }
     
@@ -238,7 +269,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public JarClassLoader(ClassLoader parent) {
         super(parent);
         delegateToParent = true;
-        Boot.setProperties(this);
+        setProperties(this);
         init();
         // System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
     }
@@ -249,9 +280,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * to one-jar.class.path resources.
      */
     protected void init() {
-        String classpath = System.getProperty(Boot.P_ONE_JAR_CLASS_PATH);
+        String classpath = System.getProperty(JarClassLoader.P_ONE_JAR_CLASS_PATH);
         if (classpath != null) {
-            String tokens[] = classpath.split("\\" + Boot.P_PATH_SEPARATOR);
+            String tokens[] = classpath.split("\\" + JarClassLoader.P_PATH_SEPARATOR);
             List list = new ArrayList();
             for (int i=0; i<tokens.length; i++) {
                 String path = tokens[i];
@@ -264,78 +295,78 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     	// URLClassLoader searches in a directory if and only if the path ends with '/':
                     	// toURI() takes care of adding the trailing slash in this case so everything's ok
                         list.add(new File(_path).toURI().toURL());
-                    } catch (MalformedURLException ignore) {
-                        Boot.WARNING("Unable to parse external path: " + path);
-                    } catch (IOException ignore) {
-                    	Boot.WARNING("Unable to parse external path: " + path);                   
-                    } catch (IllegalArgumentException ignore) {
-                    	// won't happen File.toURI() returns an absolute URI
-                    	Boot.WARNING("Unable to parse external path: " + path);
+                    } catch (Exception ignore) {
+                        WARNING("Unable to parse external path: " + path + ":- " + ignore);
                     }
                 }
             }
-            URL urls[] = (URL[])list.toArray(new URL[0]);
-            Boot.INFO("external URLs=" + Arrays.asList(urls));
+            final URL urls[] = (URL[])list.toArray(new URL[0]);
+            INFO("external URLs=" + Arrays.asList(urls));
             // BUG-2833948
             // Delegate back into this classloader, use ThreadLocal to avoid recursion.
-            externalClassLoader = new URLClassLoader(urls, this) {
-                // Handle recursion for classes, and mutual recursion for resources.
-                final static String LOAD_CLASS = "loadClass():";
-                final static String GET_RESOURCE = "getResource():";
-                final static String FIND_RESOURCE = "findResource():";
-                // Protect entry points which could lead to recursion.  Strangely
-                // inelegant because you can't proxy a class.  Or use closures.
-                public Class loadClass(String name) throws ClassNotFoundException {
-                    if (reentered(LOAD_CLASS + name)) {
-                        throw new ClassNotFoundException(name);
+            externalClassLoader = (URLClassLoader)AccessController.doPrivileged(
+                new PrivilegedAction() {
+                    public Object run() {
+                        return new URLClassLoader(urls, JarClassLoader.this) {
+                            // Handle recursion for classes, and mutual recursion for resources.
+                            final static String LOAD_CLASS = "loadClass():";
+                            final static String GET_RESOURCE = "getResource():";
+                            final static String FIND_RESOURCE = "findResource():";
+                            // Protect entry points which could lead to recursion.  Strangely
+                            // inelegant because you can't proxy a class.  Or use closures.
+                            public Class loadClass(String name) throws ClassNotFoundException {
+                                if (reentered(LOAD_CLASS + name)) {
+                                    throw new ClassNotFoundException(name);
+                                }
+                                VERBOSE("externalClassLoader.loadClass(" + name + ")");
+                                Object old = current.get();
+                                current.set(LOAD_CLASS + name);
+                                try {
+                                    return super.loadClass(name);
+                                } finally {
+                                    current.set(old);
+                                }
+                            }
+                            public URL getResource(String name) {
+                                if (reentered(GET_RESOURCE + name))
+                                    return null;
+                                VERBOSE("externalClassLoader.getResource(" + name + ")");
+                                Object old = current.get();
+                                current.set(GET_RESOURCE + name);
+                                try {
+                                    return super.getResource(name);
+                                } finally {
+                                    current.set(old);
+                                }
+                            }
+                            public URL findResource(String name) {
+                                if (reentered(FIND_RESOURCE + name)) 
+                                    return null;
+                                VERBOSE("externalClassLoader.findResource(" + name + ")");
+                                Object old = current.get();
+                                current.set(name);
+                                try {
+                                    current.set(FIND_RESOURCE + name);
+                                    return super.findResource(name);
+                                } finally {
+                                    current.set(old);
+                                }
+                            }
+                            protected boolean reentered(String name) {
+                                // Defend against null name: not sure about semantics there.
+                                Object old = current.get();
+                                return old != null && old.equals(name);
+                            }
+                        };
                     }
-                    VERBOSE("externalClassLoader.loadClass(" + name + ")");
-                    Object old = current.get();
-                    current.set(LOAD_CLASS + name);
-                    try {
-                        return super.loadClass(name);
-                    } finally {
-                        current.set(old);
-                    }
-                }
-                public URL getResource(String name) {
-                    if (reentered(GET_RESOURCE + name))
-                        return null;
-                    VERBOSE("externalClassLoader.getResource(" + name + ")");
-                    Object old = current.get();
-                    current.set(GET_RESOURCE + name);
-                    try {
-                        return super.getResource(name);
-                    } finally {
-                        current.set(old);
-                    }
-                }
-                public URL findResource(String name) {
-                    if (reentered(FIND_RESOURCE + name)) 
-                        return null;
-                    VERBOSE("externalClassLoader.findResource(" + name + ")");
-                    Object old = current.get();
-                    current.set(name);
-                    try {
-                        current.set(FIND_RESOURCE + name);
-                        return super.findResource(name);
-                    } finally {
-                        current.set(old);
-                    }
-                }
-                protected boolean reentered(String name) {
-                    // Defend against null name: not sure about semantics there.
-                    Object old = current.get();
-                    return old != null && old.equals(name);
-                }
-            };
+                });
+                
         }
     }
     
     public String load(String mainClass) {
         // Hack: if there is a one-jar.jarname property, use it.
-        String jarname = Boot.getMyJarPath();
-        return load(mainClass, jarname);
+        return load(mainClass, oneJarPath);
     }
     
     public String load(String mainClass, String jarName) {
@@ -345,17 +376,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         try {
             if (jarName == null) {
-                jarName = Boot.getMyJarPath();
+                jarName = oneJarPath;
             }
-            JarFile jarFile = new JarFile(jarName);
-            Enumeration _enum = jarFile.entries();
-            Manifest manifest = jarFile.getManifest();
+            JarInputStream jis = new JarInputStream(new URL(jarName).openConnection().getInputStream());
+            Manifest manifest = jis.getManifest();
             String expandPaths[] = null;
             // TODO: Allow a destination directory (relative or absolute) to 
             // be specified like this:
             // One-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
-            String expanddir = System.getProperty(Boot.P_EXPAND_DIR);
+            String expanddir = System.getProperty(JarClassLoader.P_EXPAND_DIR);
             if (expanddir == null) {
             	expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
             }
@@ -369,7 +399,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             
             // Make a note of this location in the VM system properties in case applications need to know
             // where the expanded files are.
-            System.setProperty(Boot.P_EXPAND_DIR, expanddir);
+            System.setProperty(JarClassLoader.P_EXPAND_DIR, expanddir);
             
             boolean shouldExpand = true;
             File tmpdir = new File(expanddir);
@@ -395,9 +425,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             if (showexpand) {
                 PRINTLN("Expanding to: " + tmpdir.getAbsolutePath());
             }
-            while (_enum.hasMoreElements()) {
-                JarEntry entry = (JarEntry)_enum.nextElement();
-                if (entry.isDirectory()) continue;
+            JarEntry entry;
+            while ((entry = (JarEntry)jis.getNextEntry()) != null) {
+                if (entry.isDirectory()) 
+                    continue;
                 
                 // The META-INF/MANIFEST.MF file can contain a property which names
                 // directories in the JAR to be expanded (comma separated). For example:
@@ -422,10 +453,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                                 parent.mkdirs();
                             }
                             VERBOSE("using jarFile.getInputStream(" + entry + ")");
-                            InputStream is = jarFile.getInputStream(entry);
                             FileOutputStream os = new FileOutputStream(dest); 
-                            copy(is, os);
-                            is.close();
+                            copy(jis, os);
                             os.close();
                         } else {
                             String msg = "Up-to-date: " + $entry;
@@ -437,30 +466,26 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                         }
                     }
                 }
-                
                 if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(LIB_PREFIX) || $entry.startsWith(MAIN_PREFIX)) {
-                    if (wrapDir != null && !entry.getName().startsWith(wrapDir)) continue;
+                    if (wrapDir != null && !entry.getName().startsWith(wrapDir)) 
+                        continue;
                     // Load it! 
                     VERBOSE("caching " + $entry);
                     VERBOSE("using jarFile.getInputStream(" + entry + ")");
                     {
                         // Note: loadByteCode consumes the input stream, so make sure its scope
                         // does not extend beyond here.
-                        InputStream is = jarFile.getInputStream(entry);
-                        if (is == null) 
-                            throw new IOException("Unable to load resource /" + $entry + " using " + this);
-						loadByteCode(is, $entry, null);
+						loadByteCode(jis, $entry, null);
                     }
                     
                     // Do we need to look for a main class?
                     if ($entry.startsWith(MAIN_PREFIX)) {
                         if (mainClass == null) {
-                            JarInputStream jis = new JarInputStream(jarFile.getInputStream(entry));
-                            Manifest m = jis.getManifest();
-                            jis.close();
+                            JarInputStream mis = new JarInputStream(jis);
+                            Manifest m = mis.getManifest();
                             // Is this a jar file with a manifest?
                             if (m != null) {
-                                mainClass = jis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+                                mainClass = mis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
                                 mainJar = $entry;
                             }
                         } else if (mainJar != null) {
@@ -485,12 +510,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     }
                 } else if ($entry.endsWith(CLASS)) {
                     // A plain vanilla class file rooted at the top of the jar file.
-					loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
-                    VERBOSE("One-Jar class: " + jarFile.getName() + "!/" + entry.getName());
+					loadBytes(entry, jis, "/", null, manifest);
+                    VERBOSE("One-Jar class: " + jarName + "!/" + entry.getName());
                 } else {
                     // A resource? 
-                    loadBytes(entry, jarFile.getInputStream(entry), "/", null, manifest);
-                    VERBOSE("One-Jar resource: " + jarFile.getName() + "!/" + entry.getName());
+                    loadBytes(entry, jis, "/", null, manifest);
+                    VERBOSE("One-Jar resource: " + jarName + "!/" + entry.getName());
                 }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
@@ -503,7 +528,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return mainClass;
     }
     
-    public String replaceProps(Map replace, String string) {
+    public static String replaceProps(Map replace, String string) {
 		Pattern pat = Pattern.compile("\\$\\{([^\\}]*)");
 		Matcher mat = pat.matcher(string);
 		boolean found = mat.find();
@@ -513,11 +538,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 			props.put(prop, replace.get(prop));
 			found = mat.find();
 		}
-		Set keys = props.keySet();
-		Iterator iter = props.keySet().iterator();
+		Iterator iter = props.entrySet().iterator();
 		while (iter.hasNext()) {
-			String prop = (String)iter.next();
-			string = string.replace("${" + prop + "}", (String)props.get(prop));
+		    Map.Entry entry = (Map.Entry)iter.next();
+			string = string.replace("${" + entry.getKey() + "}", (String)entry.getValue());
 		}
 		return string;
     }
@@ -543,7 +567,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         // Add in a fake manifest entry.
         if (manifest != null) {
-            entry = new JarEntry(Boot.MANIFEST);
+            entry = new JarEntry(JarClassLoader.MANIFEST);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             manifest.write(baos);
             ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray()); 
@@ -626,7 +650,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
         // is used to launch the jar application, and attempts to load through
         // it would fail if that code is encapsulated inside the one-jar.
-        Thread.currentThread().setContextClassLoader(this);
+	    AccessController.doPrivileged(new PrivilegedAction() {
+	        public Object run() {
+	            Thread.currentThread().setContextClassLoader(JarClassLoader.this);
+	            return null;
+	        }
+	    });
 	    return super.loadClass(name, resolve);
 	}
 	
@@ -964,7 +993,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // TODO: this really needs to be a warning, but there needs to be a way
                 // to shut it down.  INFO it for now.  Ideally we need to provide a 
                 // logging layer (like commons-logging) to allow logging to be delegated.
-                String message = existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)";
                 if (name.endsWith(".class")) {
                     // This is probably trouble.
                     WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
@@ -1064,9 +1092,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     /**
      * FileURLFactory generates URL's which are resolved relative to the filesystem. 
      * These are compatible with frameworks like Spring, but require knowledge of the 
-     * location of the one-jar file via Boot.getMyJarPath().
+     * location of the one-jar file via oneJarPath.
      */
     public static class FileURLFactory implements IURLFactory {
+        JarClassLoader jcl;
+        public FileURLFactory(JarClassLoader jcl) {
+            this.jcl = jcl;
+        }
         public URLStreamHandler jarHandler = new URLStreamHandler() {
             protected URLConnection openConnection(URL url) throws IOException {
                 URLConnection connection = new OneJarURLConnection(url);
@@ -1081,7 +1113,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             } else {
                 codebase = "";
             }
-            String path = "file:/" + Boot.getMyJarPath() + "!/" + codebase + resource;
+            String path = "file:/" + jcl.getOneJarPath() + "!/" + codebase + resource;
             URL url = new URL("jar", "", -1, path, jarHandler);
             return url;
         }
@@ -1102,6 +1134,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      *
      */
     public static class OneJarURLFactory implements IURLFactory {
+        public OneJarURLFactory(JarClassLoader jcl) {
+            // Argument not used.
+        }
         public URL getURL(String codebase, String resource) throws MalformedURLException {
             String base = resource.endsWith(".class")? "": codebase + "/";
             URL url =  new URL(Handler.PROTOCOL + ":/" + base + resource);
@@ -1122,11 +1157,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return super.getResource(name);
     }
     
-    protected IURLFactory urlFactory = new FileURLFactory();
+    protected IURLFactory urlFactory = new FileURLFactory(this);
     
     // Allow override for urlFactory
-    public void setURLFactory(String urlFactory) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-        this.urlFactory = (IURLFactory)loadClass(urlFactory).newInstance();
+    public void setURLFactory(String urlFactory) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+        Class factory = loadClass(urlFactory);
+        try {
+            // With single JarClassLoader parameter?
+            Constructor ctor = factory.getConstructor(new Class[]{JarClassLoader.class});
+            this.urlFactory = (IURLFactory)ctor.newInstance(new Object[]{JarClassLoader.this});
+        } catch (NoSuchMethodException x) {
+            // Default constructor?
+            this.urlFactory = (IURLFactory)loadClass(urlFactory).newInstance();
+        }
     }
     
     public IURLFactory getURLFactory() {
@@ -1370,9 +1413,35 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     protected void promptForConfirm(File location) {
-        PRINTLN("Do you want to allow '" + Boot.getMyJarName() + "' to expand files into the file-system at the following location?");
+        PRINTLN("Do you want to allow '" + oneJarPath + "' to expand files into the file-system at the following location?");
         PRINTLN("  " + location);
         PRINT("Answer y(es) to expand files, n(o) to continue without expanding, or q(uit) to exit: ");
+    }
+
+    public void setProperties(IProperties jarloader) {
+        INFO("setProperties(" + jarloader + ")");
+        if (JarClassLoader.getProperty(JarClassLoader.P_RECORD)) {
+            jarloader.setRecord(true);
+            jarloader.setRecording(System.getProperty(JarClassLoader.P_RECORD));
+        } 
+        if (JarClassLoader.getProperty(JarClassLoader.P_JARNAMES)) {
+            jarloader.setRecord(true);
+            jarloader.setFlatten(false);
+        }
+        if (JarClassLoader.getProperty(JarClassLoader.P_VERBOSE)) {
+            jarloader.setVerbose(true);
+            jarloader.setInfo(true);
+            verbose = true;
+        } 
+        if (JarClassLoader.getProperty(JarClassLoader.P_INFO)) {
+            jarloader.setInfo(true);
+            info = true;
+        } 
+        
+    }
+
+    public static boolean getProperty(String key) {
+        return Boolean.valueOf(System.getProperty(key, "false")).booleanValue();
     }
     
 }

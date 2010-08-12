@@ -37,7 +37,7 @@ The use of Ant is not required: a One-JAR archive is simple to build using just 
 <code>jar</code> tool using the following steps.
 <ol>
 <li>Create a working directory to act as the "root" of the one-jar with <code>main</code>, <code>lib</code> sub-directories.</li>
-<li>Copy your main application jar file into <code>root/main</code> and library dependencies into <code>root/rlib</code></li>
+<li>Copy your main application jar file into <code>root/main</code> and library dependencies into <code>root/lib</code></li>
 <li>Unjar the <code>one-jar-boot-0.97.jar</code> file into the root directory, and delete the "src" tree</li>
 <li>Edit the boot-manifest.mf file and add a new line: <code>One-Jar-Main-Class: your-main-class</code>
 <li>cd root; jar -cvfm ../one-jar.jar boot-manifest.mf .</li>

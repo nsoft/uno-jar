@@ -1,5 +1,5 @@
-<h2>SDK Path</h2>
-Note: this path is deprecated in favor of the Application Generator
+<h2>SDK Approach</h2>
+Note: this approach is deprecated in favor of the Application Generator
 <p/>
 To get started building an application using One-JAR, download the <a href="index.php?page=downloads&amp;file=downloads">One-JAR Software Developers Kit</a>.
 The kit is a One-JAR executable, which contains all the pieces needed to assemble One-JAR applications (and can also re-assemble itself).  When 

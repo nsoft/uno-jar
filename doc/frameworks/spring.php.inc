@@ -26,7 +26,7 @@ Note: these are .tar.gz files, so will need to be unpacked twice to get to the c
 <ol>
 <li>Change to the <code>one-jar</code> directory and build using <code>$ ant</code></li>
 <li>Change to the <code>one-jar-spring</code> directory and build using <code>$ ant</code></li>
-<li>Run the example using <code>$ ant run.one-jar-spring-scan</a></li>
+<li>Run the example using <code>$ ant run.one-jar-spring-scan</code></li>
 <li>Run a JUnit test case using <code>$ ant test.one-jar-spring-scan</code></li>
 <li>Generate an HTML report for the JUnit test using <code>$ ant junit.report</code>. Examine
 the report in a web-browser from the <code>test-reports</code> directory.</li>

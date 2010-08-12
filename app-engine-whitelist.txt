@@ -1,0 +1,43 @@
+This report was created by the Google App Engine Java Compatibility Analyzer
+http://www.ltech.com/cloud/google-app-engine/java-compatibility-analyzer
+21 files found...
+============
+1. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Boot$IJarPath.class: 2 dependencies, all compatible.
+2. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$FileURLFactory.class: Compatibility Warning, uses java.net.URLStreamHandler which is not found on the Google App Engine White List
+3. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$OneJarURLFactory.class: 8 dependencies, all compatible.
+4. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\OneJar.class: 10 dependencies, all compatible.
+5. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\IProperties.class: 2 dependencies, all compatible.
+6. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$1.class: Compatibility Warning, uses java.net.URLStreamHandler which is not found on the Google App Engine White List
+7. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$2.class: 7 dependencies, all compatible.
+8. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Boot$2.class: 14 dependencies, all compatible.
+9. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\OneJarURLConnection.class: 12 dependencies, all compatible.
+10. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Boot$1.class: 13 dependencies, all compatible.
+11. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$4.class: 6 dependencies, all compatible.
+12. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\DetectClassLoader.class: 17 dependencies, all compatible.
+13. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$5.class: 5 dependencies, all compatible.
+14. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Boot$3.class: 11 dependencies, all compatible.
+15. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader.class: Compatibility Warning, uses java.io.FileOutputStream which is not found on the Google App Engine White List
+16. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader.class: Compatibility Warning, uses java.net.URLStreamHandler which is not found on the Google App Engine White List
+17. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$ByteCode.class: 5 dependencies, all compatible.
+18. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Handler.class: Compatibility Warning, uses java.net.URLStreamHandler which is not found on the Google App Engine White List
+19. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\JarClassLoader$IURLFactory.class: 4 dependencies, all compatible.
+20. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\Handler$1.class: 11 dependencies, all compatible.
+21. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\OneJarFile$2.class: 10 dependencies, all compatible.
+22. C:\eclipse\projects\com.simontuffs\one-jar\build\eclipse\src\com\simontuffs\onejar\OneJarFile$1.class: 4 dependencies, all compatible.
+===Summary===
+elapsed time: 00:00
+ 
+.jar files:
+# of files analyzed: 0
+# of compatibility issues found: 0
+# of ignored references: 0
+ 
+.war files:
+# of files analyzed: 0
+# of compatibility issues found: 0
+# of ignored references: 0
+ 
+.class files:
+# of files analyzed: 21
+# of compatibility issues found: 5
+# of ignored references: 10

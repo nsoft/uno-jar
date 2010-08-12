@@ -1,6 +1,6 @@
 <project>
     <!--  Capture essential paths for use by other projects -->
-    <property name="one-jar.version" value="0.97" />
+    <property name="one-jar.version" value="0.98" />
     <pathconvert targetos="unix" property="basedir.unix">
         <path location="${basedir}"/>
     </pathconvert>

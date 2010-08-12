@@ -30,12 +30,12 @@
 		$PREV = $prev["description"];
 	
 		if ($NEXT) {	
-			$NEXT = "<a style='text-align:right' href='index.php?page=".$next["page"]."&amp;file=".$next["file"]."'>$NEXT&gt;&gt;</a>";
+			$NEXT = "<a style='text-align:right' href='index.php?page=".$next["page"]."&amp;file=".$next["file"]."' title='Next topic'>$NEXT&gt;&gt;</a>";
 		} else {
 			$NEXT = $curr["description"];
 		}
 		if ($PREV) {
-			$PREV = "<a href='index.php?page=".$prev["page"]."&amp;file=".$prev["file"]."'>&lt;&lt;$PREV</a>";
+			$PREV = "<a href='index.php?page=".$prev["page"]."&amp;file=".$prev["file"]."' title='Previous topic'>&lt;&lt;$PREV</a>";
 		} else {
 			$PREV = $curr["description"];
 		}
@@ -58,26 +58,26 @@
 			}
 			if ($prevpage) {
 				$PREV = reset($SITEMAP[$prevpage]);
-				$PREV = "<a href='index.php?page=".$prevpage."&amp;onepage=true'>&lt;&lt;$PREV</a>";
+				$PREV = "<a href='index.php?page=".$prevpage."&amp;onepage=true' title='Previous topic'>&lt;&lt;$PREV</a>";
 			} else {
 				$PREV = reset($SITEMAP[$currpage]);
 			}
 			if ($nextpage) {
 				$NEXT = reset($SITEMAP[$nextpage]);
-				$NEXT = "<a href='index.php?page=".$nextpage."&amp;onepage=true'>$NEXT&gt;&gt;</a>";
+				$NEXT = "<a href='index.php?page=".$nextpage."&amp;onepage=true' title='Next topic'>$NEXT&gt;&gt;</a>";
 			} else {
 				$NEXT = "";
 			}
 			$CURR = reset($SITEMAP[$currpage]);
 			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE'>$CURR</a>";
 		} else {
-			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE&amp;onepage=true'>Print Layout</a>";
+			$LAYOUT = "<a href='index.php?page=$PAGE&amp;file=$FILE&amp;onepage=true' title='Show page in layout suitable for printing'>Print Layout</a>";
 		}
 	}
 	
 ?>
 
-<table class="navbar" width="100%"><tr><td width="33%"> <?php echo $PREV; ?> </td><td align="center" width="33%"><?php echo $LAYOUT; ?></td><td align="right"> <?php echo $NEXT; ?> </td></tr></table>
+<table class="navbar" width="100%"><tr><td width="33%"> <?php echo $PREV; ?> </td><td align="center" width="33%"><a href='index.php' title='Goto index page'>Home</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo $LAYOUT; ?></td><td align="right"> <?php echo $NEXT; ?> </td></tr></table>
 
 <?php	
 	if (!$onepage) {

@@ -1,6 +1,7 @@
-h1,h2,h3,h4,i {color:blue; line-height=100%}
+h1,h2,h3,h4,i {color:blue; line-height=100%; }
+h2,h3 {border-bottom: 1px solid #ccc;}
 li {margin-top:0.5em;}
-pre, .green {color:green; margin-left:2em; overflow:auto; font-size:110%;}
+pre, .green {color:DarkGreen; margin-left:2em; overflow:auto; font-size:110%;}
 code {color:darkblue; font-size:120%;}
 body {font-family:verdana,helvetica,arial,sans-serif; font-size:90%; }
 a {text-decoration:none}

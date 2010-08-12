@@ -37,6 +37,7 @@ public class SelfTest extends TestCase {
                 }
             });
             Boot.setClassLoader(loader);
+            loader.setOneJarPath(Boot.getMyJarPath());
             // loader.setVerbose(true);
             loader.load(null);
             test = loader.loadClass("com.simontuffs.onejar.example.main.Test").newInstance();

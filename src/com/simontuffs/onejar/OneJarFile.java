@@ -111,12 +111,12 @@ public class OneJarFile extends JarFile {
             return null;
         try {
             JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
-            if (filename.equals(MANIFEST_NAME)) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                is.getManifest().write(baos);
-                return new ByteArrayInputStream(baos.toByteArray());
-            }
             try {
+                if (filename.equals(MANIFEST_NAME)) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    is.getManifest().write(baos);
+                    return new ByteArrayInputStream(baos.toByteArray());
+                }
                 JarEntry entry;
                 while ((entry = is.getNextJarEntry()) != null) {
                     if (entry.getName().equals(ze.getName())) {

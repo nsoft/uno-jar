@@ -21,10 +21,10 @@
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry containerPath=&quot;org.eclipse.jdt.launching.JRE_CONTAINER&quot; javaProject=&quot;one-jar&quot; path=&quot;1&quot; type=&quot;4&quot;/&gt;&#13;&#10;"/>
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry containerPath=&quot;JUNIT_HOME/junit.jar&quot; path=&quot;3&quot; type=&quot;3&quot;/&gt;&#13;&#10;"/>
 <listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/one-jar/build/eclipse/test&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#13;&#10;"/>
-<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/one-jar/dist/one-jar-example-macro-0.97.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#13;&#10;"/>
+<listEntry value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#13;&#10;&lt;runtimeClasspathEntry internalArchive=&quot;/one-jar/dist/one-jar-example-macro-0.98.jar&quot; path=&quot;3&quot; type=&quot;2&quot;/&gt;&#13;&#10;"/>
 </listAttribute>
 <booleanAttribute key="org.eclipse.jdt.launching.DEFAULT_CLASSPATH" value="false"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="com.simontuffs.onejar.test.SelfTest"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="one-jar"/>
-<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=true &#13;&#10;-Done-jar.jarname=${workspace_loc}one-jar/dist/one-jar-example-macro-0.97.jar"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Done-jar.verbose=true &#13;&#10;-Done-jar.jarname=${workspace_loc}one-jar/dist/one-jar-example-macro-0.98.jar"/>
 </launchConfiguration>

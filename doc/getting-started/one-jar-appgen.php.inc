@@ -8,7 +8,7 @@ documents.
 
 <p/>The default project  template is contained inside the <code>one-jar-appgen-0.97.jar/one-jar-$project$.jar</code> file
 and it has the following directory structure: 
-<br/><img src="one-jar-project.jpg"/>
+<p/><img src="one-jar-project.jpg"/>
 <p/>The key elements of this template are:
 <ul>
 <li>src -- Source-code for the main program</li>

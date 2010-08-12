@@ -13,7 +13,8 @@ developed by simontuffs.com:
 <table align="center" cellpadding="20">
 	<tr>
         <td>
-        <a href="http://sourceforge.net/projects/one-jar"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=111153&amp;type=10" width="80" height="15" alt="Get One-JAR(TM) at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a></a>
+        <a href="http://sourceforge.net/projects/one-jar">
+        <img src="http://sflogo.sourceforge.net/sflogo.php?group_id=111153&amp;type=16" width="150" height="40" alt="Get One-JAR(TM) at SourceForge.net. Fast, secure and Free Open Source software downloads" /></a></a>
 		</td>
 		<td><a href="http://soap-stone.sourceforge.net" target="_blank"><img
 			src="http://soap-stone.sourceforge.net/soap-stone.jpg" border="0"

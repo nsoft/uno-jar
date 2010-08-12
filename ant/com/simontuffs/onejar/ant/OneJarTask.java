@@ -136,7 +136,24 @@ public class OneJarTask extends Jar {
             filesets.add(fileset);
         }
     }
-
+    
+    /**
+     * Default constructor.
+     */
+    public OneJarTask() {
+        super();
+    }
+    
+    /**
+     *  Constructor for use outside Ant: creates a wrapping project and gives it a name.
+     */
+    public OneJarTask(String project) {
+        super();
+        setTaskName("one-jar");
+        setProject(new Project());
+        getProject().setName(project);
+    }
+    
     public void setBootManifest(File manifest) {
         log("setBootManifest(" + manifest + ")", Project.MSG_VERBOSE);
         super.setManifest(manifest);
@@ -386,7 +403,7 @@ public class OneJarTask extends Jar {
             java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
             try {
                 // Specify our Created-By and Main-Class attributes as overrides.
-                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.97 Ant taskdef"));
+                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.98 Ant taskdef"));
                 manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS, jattributes.getValue(MAIN_CLASS)));
                 if (oneJarMainClass != null) {
                     manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));
@@ -395,6 +412,7 @@ public class OneJarTask extends Jar {
             } catch (ManifestException mx) {
                 throw new BuildException(mx);
             }
+            super.initZipOutputStream(zOut);
             ZipEntry entry = jis.getNextEntry();
             while (entry != null) {
                 if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version") || entry.getName().endsWith("license.txt")) {
@@ -424,14 +442,12 @@ public class OneJarTask extends Jar {
         // Sanity Checks.
         checkMain();
         checkManifest();
+
+        // Add com.simontuffs.onejar classes
+        addOneJarBoot(zOut);
         
         // Add main/main.jar
         addMain(zOut);
-        
-        // Add com.simontuffs.onejar classes
-        addOneJarBoot(zOut);
-        // Write manifest.
-        super.initZipOutputStream(zOut);
         
     }
     
