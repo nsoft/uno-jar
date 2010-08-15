@@ -1113,7 +1113,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             } else {
                 codebase = "";
             }
-            String path = "file:/" + jcl.getOneJarPath() + "!/" + codebase + resource;
+            String path = jcl.getOneJarPath() + "!/" + codebase + resource;
             URL url = new URL("jar", "", -1, path, jarHandler);
             return url;
         }

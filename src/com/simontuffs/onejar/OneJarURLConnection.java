@@ -50,5 +50,10 @@ public class OneJarURLConnection extends JarURLConnection {
 	public InputStream getInputStream() throws IOException {
 		return jarFile.getInputStream(jarFile.getJarEntry(getEntryName()));
 	}
+	
+	public int getContentLength() {
+	    // Return the size of the jarfile.
+	    return jarFile.size();
+	}
 
 }

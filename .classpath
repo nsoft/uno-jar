@@ -10,6 +10,7 @@
 	<classpathentry kind="src" path="tests/test-large-jars/src"/>
 	<classpathentry kind="src" output="build/eclipse/example" path="example/main"/>
 	<classpathentry exported="true" kind="lib" path="lib/junit-3.8.1.jar" sourcepath="/org.junit"/>
+	<classpathentry kind="lib" path="dist/one-jar-example-0.98.jar"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/english"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/french"/>
 	<classpathentry excluding="META-INF/**" kind="src" output="build/eclipse/services" path="services/german"/>
