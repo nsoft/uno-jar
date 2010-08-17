@@ -20,7 +20,9 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
+import java.security.CodeSource;
 import java.security.PrivilegedAction;
+import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -385,6 +387,14 @@ public class Boot {
             } catch (Exception ignore) {
                 ignore.printStackTrace();
             }
+        }
+        if (myJarPath == null) {
+            Class cls = Boot.class;
+            ProtectionDomain pDomain = cls.getProtectionDomain();
+            CodeSource cSource = pDomain.getCodeSource();
+            myJarPath = cSource.getLocation().toString(); 
+            System.out.println("myJarPath=" + myJarPath);
+            return myJarPath;
         }
         if (myJarPath == null) {
             try {

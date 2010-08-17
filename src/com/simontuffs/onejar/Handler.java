@@ -46,6 +46,8 @@ public class Handler extends URLStreamHandler {
 			public InputStream getInputStream() throws IOException {
 				// Use the Boot classloader to get the resource.  There
 				// is only one per one-jar.
+			    // TODO: this is unacceptable coupling with Boot.  The classloader
+			    // needs to be injected somehow.
 				JarClassLoader cl = Boot.getClassLoader();
 				InputStream is = cl.getByteStream(resource);
 				// sun.awt image loading does not like null input streams returned here.
