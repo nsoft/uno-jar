@@ -50,12 +50,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.Attributes;
+import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.jar.Attributes.Name;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -78,6 +79,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String PROPERTY_PREFIX = "one-jar.";
     public final static String P_INFO = PROPERTY_PREFIX + "info";
     public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
+    public final static String P_SILENT = PROPERTY_PREFIX + "silent";
     public final static String P_JARNAMES = PROPERTY_PREFIX + "jar.names";
     public final static String P_RECORD = PROPERTY_PREFIX + "record";
     // System properties.
@@ -106,6 +108,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected boolean noExpand, expanded;
     protected ClassLoader externalClassLoader;
     
+    private static final Logger LOGGER = Logger.getLogger("JarClassLoader");
+    
     protected String oneJarPath;
     
     public String getOneJarPath() {
@@ -119,7 +123,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         } catch (MalformedURLException x) {
             url = new URL("file:" + oneJarPath);
         }
-        System.out.println("oneJarPath=" + url);
+        LOGGER.info("oneJarPath=" + url);
         this.oneJarPath = url.toString();
     }
 
@@ -135,24 +139,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
     }
     
-    protected String PREFIX() {
-        return "JarClassLoader: ";
-    }
-    
     protected String NAME() {
         return (name != null? "'" + name + "' ": "");
-    }
-    
-    protected void VERBOSE(String message) {
-        if (verbose) System.out.println(PREFIX() + NAME() + message);
-    }
-    
-    protected void WARNING(String message) {
-        System.err.println(PREFIX() + "Warning: " + NAME() + message); 
-    }
-    
-    protected void INFO(String message) {
-        if (info) System.out.println(PREFIX() + "Info: " + NAME() + message);
     }
     
     protected void PRINTLN(String message) {
@@ -170,8 +158,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected Map binLibPath = Collections.synchronizedMap(new HashMap());
     protected Set jarNames = Collections.synchronizedSet(new HashSet());
     
+    
     protected boolean record = false, flatten = false, unpackFindResource = false;
-    protected boolean verbose = false, info = false;
     protected String recording = RECORDING;
     
     protected String jarName, mainJar, wrapDir;
@@ -296,12 +284,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     	// toURI() takes care of adding the trailing slash in this case so everything's ok
                         list.add(new File(_path).toURI().toURL());
                     } catch (Exception ignore) {
-                        WARNING("Unable to parse external path: " + path + ":- " + ignore);
+                        LOGGER.warning("Unable to parse external path: " + path + ":- " + ignore);
                     }
                 }
             }
             final URL urls[] = (URL[])list.toArray(new URL[0]);
-            INFO("external URLs=" + Arrays.asList(urls));
+            LOGGER.info("external URLs=" + Arrays.asList(urls));
             // BUG-2833948
             // Delegate back into this classloader, use ThreadLocal to avoid recursion.
             externalClassLoader = (URLClassLoader)AccessController.doPrivileged(
@@ -318,7 +306,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                                 if (reentered(LOAD_CLASS + name)) {
                                     throw new ClassNotFoundException(name);
                                 }
-                                VERBOSE("externalClassLoader.loadClass(" + name + ")");
+                                LOGGER.fine("externalClassLoader.loadClass(" + name + ")");
                                 Object old = current.get();
                                 current.set(LOAD_CLASS + name);
                                 try {
@@ -330,7 +318,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             public URL getResource(String name) {
                                 if (reentered(GET_RESOURCE + name))
                                     return null;
-                                VERBOSE("externalClassLoader.getResource(" + name + ")");
+                                LOGGER.fine("externalClassLoader.getResource(" + name + ")");
                                 Object old = current.get();
                                 current.set(GET_RESOURCE + name);
                                 try {
@@ -342,7 +330,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             public URL findResource(String name) {
                                 if (reentered(FIND_RESOURCE + name)) 
                                     return null;
-                                VERBOSE("externalClassLoader.findResource(" + name + ")");
+                                LOGGER.fine("externalClassLoader.findResource(" + name + ")");
                                 Object old = current.get();
                                 current.set(name);
                                 try {
@@ -370,7 +358,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     
     public String load(String mainClass, String jarName) {
-    	VERBOSE("load("+mainClass+","+jarName+")");
+    	LOGGER.fine("load("+mainClass+","+jarName+")");
         if (record) {
             new File(recording).mkdirs();
         }
@@ -405,7 +393,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             File tmpdir = new File(expanddir);
             if (noExpand == false && expand != null) {
                 expanded = true;
-                VERBOSE(EXPAND + "=" + expand);
+                LOGGER.fine(EXPAND + "=" + expand);
                 expandPaths = expand.split(",");
                 boolean getconfirm = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(CONFIRM_EXPAND));
                 if (getconfirm) {
@@ -445,14 +433,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             if (showexpand) {
                                 PRINTLN(msg);
                             } else {
-                                INFO(msg);
+                                LOGGER.info(msg);
                             }
-                            if (dest.exists()) INFO("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
+                            if (dest.exists()) LOGGER.info("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
                             File parent = dest.getParentFile();
                             if (parent != null) {
                                 parent.mkdirs();
                             }
-                            VERBOSE("using jarFile.getInputStream(" + entry + ")");
+                            LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
                             FileOutputStream os = new FileOutputStream(dest); 
                             copy(jis, os);
                             os.close();
@@ -461,7 +449,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                             if (showexpand) {
                                 PRINTLN(msg);
                             } else {
-                                VERBOSE(msg);
+                                LOGGER.fine(msg);
                             }
                         }
                     }
@@ -470,12 +458,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     if (wrapDir != null && !entry.getName().startsWith(wrapDir)) 
                         continue;
                     // Load it! 
-                    VERBOSE("caching " + $entry);
-                    VERBOSE("using jarFile.getInputStream(" + entry + ")");
+                    LOGGER.fine("caching " + $entry);
+                    LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
                     {
                         // Note: loadByteCode consumes the input stream, so make sure its scope
                         // does not extend beyond here.
-						loadByteCode(jis, $entry, null);
+			loadByteCode(jis, $entry, null);
                     }
                     
                     // Do we need to look for a main class?
@@ -489,8 +477,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                                 mainJar = $entry;
                             }
                         } else if (mainJar != null) {
-                            WARNING("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + $entry);
-                            WARNING("The main class " + mainClass + " from " + mainJar + " will be used");
+                            LOGGER.warning("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + $entry);
+                            LOGGER.warning("The main class " + mainClass + " from " + mainJar + " will be used");
                         }
                     } 
                 } else if (wrapDir == null && $entry.startsWith(UNPACK)) {
@@ -503,26 +491,26 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     File dir = new File(TMP);
                     File sentinel = new File(dir, $entry.replace('/', '.'));
                     if (!sentinel.exists()) {
-                        INFO("unpacking " + $entry + " into " + dir.getCanonicalPath());
-						loadByteCode(is, $entry, TMP);
+                        LOGGER.info("unpacking " + $entry + " into " + dir.getCanonicalPath());
+			loadByteCode(is, $entry, TMP);
                         sentinel.getParentFile().mkdirs();
                         sentinel.createNewFile();
                     }
                 } else if ($entry.endsWith(CLASS)) {
                     // A plain vanilla class file rooted at the top of the jar file.
 					loadBytes(entry, jis, "/", null, manifest);
-                    VERBOSE("One-Jar class: " + jarName + "!/" + entry.getName());
+                    LOGGER.fine("One-Jar class: " + jarName + "!/" + entry.getName());
                 } else {
                     // A resource? 
                     loadBytes(entry, jis, "/", null, manifest);
-                    VERBOSE("One-Jar resource: " + jarName + "!/" + entry.getName());
+                    LOGGER.fine("One-Jar resource: " + jarName + "!/" + entry.getName());
                 }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
             // for determining a main class.
             
         } catch (IOException iox) {
-            System.err.println("Unable to load resource: " + iox);
+            LOGGER.severe("Unable to load resource: " + iox);
             iox.printStackTrace(System.err);
         }
         return mainClass;
@@ -559,7 +547,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // TODO: implement lazy loading of bytecode.
         Manifest manifest = jis.getManifest();
         if (manifest == null) {
-            WARNING("Null manifest from input stream associated with: " + jar);
+            LOGGER.warning("Null manifest from input stream associated with: " + jar);
         }
         while ((entry = jis.getNextJarEntry()) != null) {
             // if (entry.isDirectory()) continue;
@@ -617,24 +605,24 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             // they are cached inside the VM until the classloader is released.
             if (type.equals("class")) {
                 if (alreadyCached(entryName, jar, baos)) return;
-				byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
-                VERBOSE("cached bytes for class " + entryName);
+		byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
+                LOGGER.fine("cached bytes for class " + entryName);
             } else {
                 // Another kind of resource.  Cache this by name, and also prefixed
                 // by the jar name.  Don't duplicate the bytes.  This allows us
                 // to map resource lookups to either jar-local, or globally defined.
                 String localname = jar + "/" + entryName;
-				byteCode.put(localname, new ByteCode(localname, entry.getName(), baos, jar, man));
+		byteCode.put(localname, new ByteCode(localname, entry.getName(), baos, jar, man));
                 // Keep a set of jar names so we can do multiple-resource lookup by name
                 // as in findResources().
                 jarNames.add(jar);
-                VERBOSE("cached bytes for local name " + localname);
+                LOGGER.fine("cached bytes for local name " + localname);
                 // Only keep the first non-local entry: this is like classpath where the first
                 // to define wins.  
                 if (alreadyCached(entryName, jar, baos)) return;
 
                 byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
-                VERBOSE("cached bytes for entry name " + entryName);
+                LOGGER.fine("cached bytes for entry name " + entryName);
                 
             }
         }
@@ -680,11 +668,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         
         // Look up the class in the byte codes.
         // Translate path?
-        VERBOSE("findClass(" + name + ")");
+        LOGGER.fine("findClass(" + name + ")");
         String cache = name.replace('.', '/') + CLASS;
         ByteCode bytecode = (ByteCode)byteCode.get(cache);
         if (bytecode != null) {
-            VERBOSE("found " + name + " in codebase '" + bytecode.codebase + "'");
+            LOGGER.fine("found " + name + " in codebase '" + bytecode.codebase + "'");
             if (record) {
                 record(bytecode);
             }
@@ -738,7 +726,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 			
             return defineClass(name, bytes, pd);
         }
-        VERBOSE(name + " not found");
+        LOGGER.fine(name + " not found");
         throw new ClassNotFoundException(name);
         
     }
@@ -828,7 +816,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 	
     protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd) throws ClassFormatError {
         // Simple, non wrapped class definition.
-    	VERBOSE("defineClass("+name+")");
+    	LOGGER.fine("defineClass("+name+")");
         return defineClass(name, bytes, 0, bytes.length, pd);
     }
     
@@ -839,14 +827,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         File file = new File(dir, fileName);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
-            VERBOSE("" + file);
+            LOGGER.fine("" + file);
             try {
                 FileOutputStream fos = new FileOutputStream(file);
                 fos.write(bytecode.bytes);
                 fos.close();
                 
             } catch (IOException iox) {
-                System.err.println(PREFIX() + "unable to record " + file + ": " + iox);
+                LOGGER.severe("unable to record " + file + ": " + iox);
             }
             
         }
@@ -888,7 +876,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      */
     public InputStream getByteStream(String resource) {
         
-        VERBOSE("getByteStream(" + resource + ")");
+        LOGGER.fine("getByteStream(" + resource + ")");
 
         InputStream result = null;
         if (externalClassLoader != null) {
@@ -922,7 +910,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (result == null) {
 	        if (jarNames.contains(resource)) {
 		        // resource wanted is an actual jar
-	        	INFO("loading resource file directly" + resource);
+	        	LOGGER.info("loading resource file directly" + resource);
 		        result = super.getResourceAsStream(resource);
 	        }
         }
@@ -943,7 +931,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 				result = parentClassLoader.getResourceAsStream(resource);
 			}
         }
-        VERBOSE("getByteStream(" + resource + ") -> " + result);
+        LOGGER.fine("getByteStream(" + resource + ") -> " + result);
         return result;
     }
     
@@ -975,7 +963,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 resource = $resource;
             }
         }
-        VERBOSE("resource " + $resource + " resolved to " + resource + (callerCode != null? " in codebase " + callerCode.codebase: " (unknown codebase)"));
+        LOGGER.fine("resource " + $resource + " resolved to " + resource + (callerCode != null? " in codebase " + callerCode.codebase: " (unknown codebase)"));
         return resource;
     }
     
@@ -995,12 +983,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 // logging layer (like commons-logging) to allow logging to be delegated.
                 if (name.endsWith(".class")) {
                     // This is probably trouble.
-                    WARNING(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+                    LOGGER.warning(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
                 } else {
-                    INFO(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytes)");
+                    LOGGER.info(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytes)");
                 }
             } else {
-                VERBOSE(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
+                LOGGER.fine(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
             }
             // Speedup GC.
             bytes = null;
@@ -1020,7 +1008,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // classloader classes.
         for (int i=0; i<stack.length; i++) {
             String cls = stack[i].getClassName().replace(".","/") + ".class";
-            INFO("getCaller(): cls=" + cls);
+            LOGGER.INFO("getCaller(): cls=" + cls);
             if (byteCode.get(cls) != null) {
                 String caller = stack[i].getClassName();
                 if (!caller.startsWith("com.simontuffs.onejar")) {
@@ -1055,27 +1043,31 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return record;
     }
     
+    public void setVerbose(boolean verbose) {
+	if (verbose) {
+	    Logger.setLevel(Logger.LOGLEVEL_VERBOSE);
+	} else {
+	    Logger.setLevel(Logger.LOGLEVEL_INFO);
+	}
+    }
+
+    public void setInfo(boolean info) {
+	Logger.setLevel(Logger.LOGLEVEL_INFO);
+    }
+
+    public void setSilent(boolean silent) {
+	if (silent) {
+	    Logger.setLevel(Logger.LOGLEVEL_NONE);
+	} else {
+	    Logger.setLevel(Logger.LOGLEVEL_INFO);
+	}
+    }
+    
     public void setFlatten(boolean $flatten) {
         flatten = $flatten;
     }
     public boolean isFlatten() {
         return flatten;
-    }
-    
-    public void setVerbose(boolean $verbose) {
-        verbose = $verbose;
-        if (verbose) info = true;
-    }
-    
-    public boolean getVerbose() {
-        return verbose;
-    }
-    
-    public void setInfo(boolean $info) {
-        info = $info;
-    }
-    public boolean getInfo() {
-        return info;
     }
     
     protected URLStreamHandler oneJarHandler = new Handler();
@@ -1249,12 +1241,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // and findResources();
     protected URL findResource(String $resource) {
         try {
-            VERBOSE("findResource(\"" + $resource + "\")");
+            LOGGER.fine("findResource(\"" + $resource + "\")");
             URL url = externalClassLoader!=null ? externalClassLoader.getResource($resource) : null;
             if (url != null)
             {
-                INFO("findResource() found in external: \"" + $resource + "\"");
-                //VERBOSE("findResource(): " + $resource + "=" + url);
+                LOGGER.info("findResource() found in external: \"" + $resource + "\"");
+                //LOGGER.VERBOSE("findResource(): " + $resource + "=" + url);
                 return url;
             }
             // Delegate to parent.
@@ -1272,22 +1264,22 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             if (resource != null) {
                 // We know how to handle it.
                 ByteCode entry = ((ByteCode) byteCode.get(resource));
-                INFO("findResource() found: \"" + $resource + "\" for caller " + getCaller() + " in codebase " + entry.codebase);                
+                LOGGER.info("findResource() found: \"" + $resource + "\" for caller " + getCaller() + " in codebase " + entry.codebase);                
                 return urlFactory.getURL(entry.codebase, $resource);
             }
-            INFO("findResource(): unable to locate \"" + $resource + "\"");
+            LOGGER.info("findResource(): unable to locate \"" + $resource + "\"");
             // If all else fails, return null.
             return null;
         } catch (MalformedURLException mux) {
-            WARNING("unable to locate " + $resource + " due to " + mux);
+            LOGGER.warning("unable to locate " + $resource + " due to " + mux);
         }
         return null;
         
     }
     
     protected Enumeration findResources(String name) throws IOException {
-        INFO("findResources(" + name + ")");
-        INFO("findResources: looking in " + jarNames);
+        LOGGER.info("findResources(" + name + ")");
+        LOGGER.info("findResources: looking in " + jarNames);
         Iterator iter = jarNames.iterator();
         final List resources = new ArrayList();
         while (iter.hasNext()) {
@@ -1295,7 +1287,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             ByteCode entry = ((ByteCode) byteCode.get(resource));
             if (byteCode.containsKey(resource)) {
                 URL url = urlFactory.getURL(entry.codebase, name);
-                INFO("findResources(): Adding " + url + " to resources list.");
+                LOGGER.info("findResources(): Adding " + url + " to resources list.");
                 resources.add(url);
             }
         }
@@ -1366,14 +1358,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
          if (binlibResolver != defaultBinlibResolver && binlib == null)
              binlib = defaultBinlibResolver.find(BINLIB_PREFIX);
          
-	     VERBOSE("Using arch-specific native library path: " + binlib); 
+	     LOGGER.fine("Using arch-specific native library path: " + binlib); 
 	     
 	     String retValue = findTheLibrary(binlib, name); 
 	     if (retValue != null) { 
-	    	 VERBOSE("Found in arch-specific directory!"); 
+	    	 LOGGER.fine("Found in arch-specific directory!"); 
 	    	 return retValue; 
 	     } else { 
-	    	 VERBOSE("Search in standard native directory!"); 
+	    	 LOGGER.fine("Search in standard native directory!"); 
 	    	 return findTheLibrary(BINLIB_PREFIX, name); 
 	     } 
      } 
@@ -1421,19 +1413,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                     os = new FileOutputStream(tempNativeLib);
                     copy(is, os);
                     os.close();
-                    VERBOSE("Stored native library " + name + " at " + tempNativeLib);
+                    LOGGER.fine("Stored native library " + name + " at " + tempNativeLib);
                     result = tempNativeLib.getPath();
                     binLibPath.put(resourcePath, result);
                 } else {
                     // Library is not in the jar
                     // Return null by default to search the java.library.path
-                    VERBOSE("No native library at " + resourcePath + 
+                    LOGGER.fine("No native library at " + resourcePath + 
                     "java.library.path will be searched instead.");
                 }
             } catch(Throwable e)  {
                 // Couldn't load the library
                 // Return null by default to search the java.library.path
-                WARNING("Unable to load native library: " + e);
+                LOGGER.warning("Unable to load native library: " + e);
             }
             
         }
@@ -1459,7 +1451,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
 
     public void setProperties(IProperties jarloader) {
-        INFO("setProperties(" + jarloader + ")");
+        LOGGER.info("setProperties(" + jarloader + ")");
         if (JarClassLoader.getProperty(JarClassLoader.P_RECORD)) {
             jarloader.setRecord(true);
             jarloader.setRecording(System.getProperty(JarClassLoader.P_RECORD));
@@ -1470,14 +1462,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
         if (JarClassLoader.getProperty(JarClassLoader.P_VERBOSE)) {
             jarloader.setVerbose(true);
-            jarloader.setInfo(true);
-            verbose = true;
         } 
         if (JarClassLoader.getProperty(JarClassLoader.P_INFO)) {
             jarloader.setInfo(true);
-            info = true;
         } 
-        
+        if (JarClassLoader.getProperty(JarClassLoader.P_SILENT)) {
+            jarloader.setSilent(true);
+        }
     }
 
     public static boolean getProperty(String key) {

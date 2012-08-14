@@ -11,11 +11,15 @@ package com.simontuffs.onejar;
 
 import java.security.ProtectionDomain;
 
+
 /**
  * @author simon
  *
  */
 public class DetectClassLoader extends JarClassLoader {
+  
+    private static final Logger LOGGER = Logger.getLogger("DetectClassLoader");
+        
 
 	public DetectClassLoader(String $wrap) {
 		super($wrap);
@@ -30,7 +34,7 @@ public class DetectClassLoader extends JarClassLoader {
 	 */
 	protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd)
 		throws ClassFormatError {
-		INFO("DetectClassLoader.defineClass("+name+")");
+	    LOGGER.info("DetectClassLoader.defineClass("+name+")");
 		// Use the superclass to define the class, then check and see
 		// whether it is a classloader.  Too late to do anything but issue
 		// a warning, but better a warning than failed class-loads with no
@@ -40,10 +44,10 @@ public class DetectClassLoader extends JarClassLoader {
 		if (ClassLoader.class.isAssignableFrom(cls)) {
 			// If the classloader defines loadClass, problems ahead?
 			try {
-				if (cls.getMethod("loadClass", new Class[]{String.class}) != null) {    	
-					WARNING(name + " is a ClassLoader");
-					WARNING("loaded from codesource " + pd.getCodeSource());
-					WARNING("and declared 'loadClass(String)'. It may not be able to load classes without being modified.");
+			        if (cls.getMethod("loadClass", new Class[]{String.class}) != null) {    	
+				    LOGGER.warning(name + " is a ClassLoader");
+				    LOGGER.warning("loaded from codesource " + pd.getCodeSource());
+				    LOGGER.warning("and declared 'loadClass(String)'. It may not be able to load classes without being modified.");
 				}
 			} catch (SecurityException e) {
 				e.printStackTrace();
@@ -51,8 +55,8 @@ public class DetectClassLoader extends JarClassLoader {
 			}
 			try {
 				if (cls.getMethod("loadClass", new Class[]{String.class, Boolean.TYPE}) != null) {    	
-					WARNING(name + " is a ClassLoader");
-					WARNING("and declared 'loadClass(String, boolean)'. It may not be able to load classes without being modified.");
+				    LOGGER.warning(name + " is a ClassLoader");
+				    LOGGER.warning("and declared 'loadClass(String, boolean)'. It may not be able to load classes without being modified.");
 				}
 			} catch (SecurityException e) {
 				e.printStackTrace();
@@ -62,8 +66,5 @@ public class DetectClassLoader extends JarClassLoader {
 		return cls;
 	}
 
-	protected String PREFIX() {
-		return "DetectClassLoader: ";
-	}
 
 }

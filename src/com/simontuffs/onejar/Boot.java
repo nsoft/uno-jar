@@ -12,6 +12,7 @@ package com.simontuffs.onejar;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,10 +48,13 @@ import java.util.zip.ZipFile;
  *                                for use as a classpath.
  *   -Done-jar.jar.names          Record loaded classes, preserve jar structure
  *   -Done-jar.verbose            Run the JarClassLoader in verbose mode.
+ *   -Done-jar.silent             Run the JarClassLoader in silent mode.
  * </pre>
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
 public class Boot {
+  
+    private final static Logger LOGGER = Logger.getLogger("Boot");
     
     /**
      * The name of the manifest attribute which controls which class 
@@ -89,6 +93,7 @@ public class Boot {
         JarClassLoader.P_JARNAMES,   "true:  Recorded classes are kept in directories corresponding to their jar names.\n" + 
                       "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
         JarClassLoader.P_VERBOSE,    "true:  Print verbose classloading information", 
+        JarClassLoader.P_SILENT,     "true:  Dont' print any classloading information",
         JarClassLoader.P_INFO,       "true:  Print informative classloading information", 
         P_STATISTICS, "true:  Shows statistics about the One-Jar Classloader",
         P_JARPATH,    "Full path of the one-jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
@@ -104,7 +109,7 @@ public class Boot {
     
     protected static String mainJar;
     
-    protected static boolean info, verbose, statistics;
+    protected static boolean statistics = true;
     protected static String myJarPath;
     
     protected static long startTime = System.currentTimeMillis();
@@ -139,18 +144,6 @@ public class Boot {
         loader.setOneJarPath(Boot.getMyJarPath());
     }
 
-    protected static void VERBOSE(String message) {
-        if (verbose) System.out.println("Boot: " + message);
-    }
-    
-    protected static void WARNING(String message) {
-        System.err.println("Boot: Warning: " + message); 
-    }
-    
-    protected static void INFO(String message) {
-        if (info) System.out.println("Boot: Info: " + message);
-    }
-    
     protected static void PRINTLN(String message) {
         System.out.println("Boot: " + message);
     }
@@ -163,51 +156,16 @@ public class Boot {
         
         args = processArgs(args);
         
+        initializeLogging();
         statistics = JarClassLoader.getProperty(Boot.P_STATISTICS);
 
         // Is the main class specified on the command line?  If so, boot it.
         // Otherwise, read the main class out of the manifest.
         String mainClass = null;
         
-        {
-            // Default properties are in resource 'one-jar.properties'.
-            Properties properties = new Properties();
-            String props = "one-jar.properties";
-            InputStream is = Boot.class.getResourceAsStream("/" + props); 
-            try {
-                if (is != null) {
-                    INFO("loading properties from " + props);
-                    properties.load(is);
-                }
-            } finally {
-                if (is != null) is.close();
-            }
-                 
-            // Merge in anything in a local file with the same name.
-            try {
-                if (new File(props).exists()) {
-                    try {
-                        is = new FileInputStream(props);
-                        if (is != null) {
-                            INFO("merging properties from " + props);
-                            properties.load(is);
-                        } 
-                    } finally {
-                        if (is != null) is.close();
-                    }
-                }
-            } catch (SecurityException x) {
-                INFO(x.toString());
-            }
-            // Set system properties only if not already specified.
-            Enumeration _enum = properties.propertyNames();
-            while (_enum.hasMoreElements()) {
-                String name = (String)_enum.nextElement();
-                if (System.getProperty(name) == null) {
-                    System.setProperty(name, properties.getProperty(name));
-                }
-            }
-        }       
+        initializeProperties();
+        // Reinitialze Logging (property file could have other loglevel set)
+        initializeLogging();
 
         try {
             if (Boolean.valueOf(System.getProperty(P_SHOW_PROPERTIES, "false")).booleanValue()) {
@@ -218,14 +176,12 @@ public class Boot {
                 
                 for (int i=0; i<keys.length; i++) {
                     String key = keys[i];
-                    System.out.println(key + "=" + props.get(key));
+                    PRINTLN(key + "=" + props.get(key));
                 }
             }
 
             // Process developer properties:
-            if (mainClass == null) {
-                mainClass = System.getProperty(P_MAIN_CLASS);
-            }
+            mainClass = System.getProperty(P_MAIN_CLASS);
         
             if (mainJar == null) {
                 String app = System.getProperty(P_MAIN_APP);
@@ -236,7 +192,7 @@ public class Boot {
                 }
             }
         } catch (SecurityException x) {
-            WARNING(x.toString());
+            LOGGER.warning(x.toString());
         }
         // Pick some things out of the top-level JAR file.
         String jar = getMyJarPath();
@@ -266,7 +222,7 @@ public class Boot {
             if (mainClass == null) {
                 mainClass = attributes.getValue(BOOT_CLASS);
                 if (mainClass != null) {
-                    WARNING("The manifest attribute " + BOOT_CLASS + " is deprecated in favor of the attribute " + ONE_JAR_MAIN_CLASS);
+                    LOGGER.warning("The manifest attribute " + BOOT_CLASS + " is deprecated in favor of the attribute " + ONE_JAR_MAIN_CLASS);
                 }
             } 
         }
@@ -286,7 +242,7 @@ public class Boot {
                 // There is no main jar. Info unless mainJar is empty string.  
                 // The load(mainClass) will scan for main jars anyway.
                 if (!"".equals(mainJar)){ 
-                    INFO("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
+                    LOGGER.info("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
                 }
             }
         }
@@ -309,12 +265,12 @@ public class Boot {
                 final String wrapLoader = wis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
                 jis.close();
                 if (wrapLoader == null) {
-                    WARNING(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
+                    LOGGER.warning(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
                 } else {
-                    INFO("using " + wrapLoader);
+                    LOGGER.info("using " + wrapLoader);
                     JarClassLoader wrapped = getWrapLoader(bootLoader, wrapLoader);
                     if (wrapped == null) {
-                        WARNING("Unable to instantiate " + wrapLoader + " from " + WRAP_DIR + ": using default JarClassLoader");
+                        LOGGER.warning("Unable to instantiate " + wrapLoader + " from " + WRAP_DIR + ": using default JarClassLoader");
                         wrapped = getBootLoader(null);
                     }
                     setClassLoader(wrapped);
@@ -322,7 +278,7 @@ public class Boot {
             }
         } else {
             setClassLoader(getBootLoader(bootLoaderName, Boot.class.getClassLoader()));
-            INFO("using JarClassLoader: " + getClassLoader().getClass().getName());
+            LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
         }
         
         // Allow injection of the URL factory.
@@ -360,6 +316,61 @@ public class Boot {
         }
     }
 
+    private static void initializeProperties() throws IOException,
+	    FileNotFoundException {
+	{
+            // Default properties are in resource 'one-jar.properties'.
+            Properties properties = new Properties();
+            String props = "one-jar.properties";
+            InputStream is = Boot.class.getResourceAsStream("/" + props); 
+	    try {
+
+		if (is != null) {
+		    LOGGER.fine("loading properties from " + props);
+		    properties.load(is);
+		}
+	    } finally {
+		if (is != null)
+		    is.close();
+	    }
+                 
+            // Merge in anything in a local file with the same name.
+            try {
+                if (new File(props).exists()) {
+                    try {
+                        is = new FileInputStream(props);
+                        if (is != null) {
+                            LOGGER.fine("merging properties from " + props);
+                            properties.load(is);
+                        } 
+                    } finally {
+                        if (is != null) is.close();
+                    }
+                }
+            } catch (SecurityException x) {
+                LOGGER.warning(x.toString());
+            }
+            // Set system properties only if not already specified.
+            Enumeration _enum = properties.propertyNames();
+            while (_enum.hasMoreElements()) {
+                String name = (String)_enum.nextElement();
+                if (System.getProperty(name) == null) {
+                    System.setProperty(name, properties.getProperty(name));
+                }
+            }
+        }
+    }
+    
+    private static void initializeLogging() {
+	if (Boolean.valueOf(System.getProperty(JarClassLoader.P_VERBOSE, "false")).booleanValue()) {
+	    Logger.setLevel(Logger.LOGLEVEL_VERBOSE);
+	} else if (Boolean.valueOf(System.getProperty(JarClassLoader.P_INFO, "false")).booleanValue()) {
+	    Logger.setLevel(Logger.LOGLEVEL_INFO);
+	} else if (Boolean.valueOf(System.getProperty(JarClassLoader.P_SILENT, "false")).booleanValue()) {
+	    Logger.setLevel(Logger.LOGLEVEL_NONE);
+	}
+    }
+
     public static void showTime() {
         long endtime = System.currentTimeMillis();
         if (statistics) {
@@ -381,7 +392,7 @@ public class Boot {
         try {
             myJarPath = System.getProperty(P_JARPATH);
         } catch (SecurityException x) {
-            INFO(x.toString());
+            LOGGER.warning(x.toString());
         }
         if (myJarPath == null) {
             try {
@@ -401,7 +412,7 @@ public class Boot {
             ProtectionDomain pDomain = cls.getProtectionDomain();
             CodeSource cSource = pDomain.getCodeSource();
             myJarPath = cSource.getLocation().toString(); 
-            System.out.println("myJarPath=" + myJarPath);
+            LOGGER.info("myJarPath=" + myJarPath);
             return myJarPath;
         }
         if (myJarPath == null) {
@@ -413,7 +424,7 @@ public class Boot {
                 String jars[] =jarname.split(System.getProperty("path.separator"));
                 for (int i=0; i<jars.length; i++) {
                     jarname = jars[i];
-                    VERBOSE("Checking " + jarname + " as One-Jar file");
+                    LOGGER.fine("Checking " + jarname + " as One-Jar file");
                     // Allow for URL based paths, as well as file-based paths.  File
                     InputStream is = null;
                     try {
@@ -442,7 +453,7 @@ public class Boot {
                 }
             } catch (Exception x) {
                 x.printStackTrace();
-                WARNING("jar=" + myJarPath + " loaded from " + P_JAVA_CLASS_PATH /* + " (" + System.getProperty(P_JAVA_CLASS_PATH) + ")" */);
+                LOGGER.warning("jar=" + myJarPath + " loaded from " + P_JAVA_CLASS_PATH /* + " (" + System.getProperty(P_JAVA_CLASS_PATH) + ")" */);
             }
         }
         if (myJarPath == null) {
@@ -455,7 +466,7 @@ public class Boot {
     
     public static void setMyJarPath(String url) {
         myJarPath = url;
-        System.out.println("setMyJarPath(" + url + ")");
+        LOGGER.fine("setMyJarPath(" + url + ")");
     }
     
     public static JarEntry findJarEntry(JarInputStream jis, String name) throws IOException {
@@ -472,7 +483,7 @@ public class Boot {
         Enumeration entries = zip.entries();
         while (entries.hasMoreElements()) {
             ZipEntry entry = (ZipEntry) entries.nextElement();
-            VERBOSE(("findZipEntry(): entry=" + entry.getName()));
+            LOGGER.fine(("findZipEntry(): entry=" + entry.getName()));
             if (entry.getName().equals(name)) 
                 return entry;
         }
@@ -505,7 +516,7 @@ public class Boot {
 
     public static String[] processArgs(String args[]) throws Exception {
         // Check for arguments which matter to us, and strip them.
-        VERBOSE("processArgs(" + Arrays.asList(args) + ")");
+        LOGGER.fine("processArgs(" + Arrays.asList(args) + ")");
         ArrayList list = new ArrayList();
         for (int a=0; a<args.length; a++) {
             String argument = args[a];
@@ -556,7 +567,7 @@ public class Boot {
                                 Constructor ctor = cls.getConstructor(new Class[]{String.class});
                                 return ctor.newInstance(new Object[]{WRAP_DIR});
                             } catch (Exception x) {
-                                WARNING("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
+                                LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
                             }
                         }
                         return new JarClassLoader(WRAP_DIR);
@@ -576,7 +587,7 @@ public class Boot {
                             Constructor ctor = cls.getConstructor(new Class[]{ClassLoader.class});
                             return ctor.newInstance(new Object[]{Boot.class.getClassLoader()});
                         } catch (Exception x) {
-                            WARNING("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
+                            LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
                         }
                     }
                     return new JarClassLoader(Boot.class.getClassLoader());
@@ -594,7 +605,7 @@ public class Boot {
                         Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
                         return ctor.newInstance(new Object[]{bootLoader});
                     } catch (Throwable t) {
-                        WARNING(t.toString());
+                        LOGGER.warning(t.toString());
                     }
                     return null;
                 }
@@ -608,5 +619,5 @@ public class Boot {
     public static long getStartTime() {
         return startTime;
     }
-    
+
 }
