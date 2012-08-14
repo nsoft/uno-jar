@@ -1086,6 +1086,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         public URL getCodeBase(String jar) throws MalformedURLException;
     }
     
+    // Injectable binary library resolver.  E.g suppose you want to place all windows
+    // binaries in /binlib/windows, and all redhat-9-i386 binaries in /binlib/redhat/i386/9
+    // then you would inject a resolver that checked os.name, os.arch, and os.version, 
+    // and for redhat-9-i386 returned "redhat/i386/9", for any os.name starting with 
+    // "windows" returned "windows".
+    public static interface IBinlibResolver {
+        public String find(String prefix);
+    }
+    
     // Resolve URL from codebase and resource.  Allow URL factory to be specified by 
     // user of JarClassLoader.
     
@@ -1176,6 +1185,63 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         return urlFactory;
     }
     
+    protected IBinlibResolver defaultBinlibResolver = new IBinlibResolver() {
+        // Default implementation handles the legacy one-jar cases.
+        public String find(String prefix) {
+            final String os = System.getProperty("os.name").toLowerCase(); 
+            final String arch = System.getProperty("os.arch").toLowerCase(); 
+            
+            final String BINLIB_LINUX32_PREFIX = prefix + "linux32/"; 
+            final String BINLIB_LINUX64_PREFIX = prefix + "linux64/"; 
+            final String BINLIB_MACOSX_PREFIX = prefix + "macosx/"; 
+            final String BINLIB_WINDOWS32_PREFIX = prefix + "windows32/"; 
+            final String BINLIB_WINDOWS64_PREFIX = prefix + "windows64/"; 
+            
+            String binlib = null; 
+            
+            // Mac 
+            if (os.startsWith("mac os x")) { 
+                //TODO Nood arch detection on mac 
+                binlib = BINLIB_MACOSX_PREFIX; 
+            // Windows
+            } else if (os.startsWith("windows")) { 
+                if (arch.equals("x86")) { 
+                    binlib = BINLIB_WINDOWS32_PREFIX; 
+                } else { 
+                    binlib = BINLIB_WINDOWS64_PREFIX; 
+                } 
+            // So it have to be Linux 
+            } else { 
+                if (arch.equals("i386")) { 
+                    binlib = BINLIB_LINUX32_PREFIX; 
+                } else { 
+                    binlib = BINLIB_LINUX64_PREFIX; 
+                } 
+            }
+            return binlib;
+        }
+    };
+    
+    
+    protected IBinlibResolver binlibResolver = defaultBinlibResolver;
+    
+    // Allow override for urlFactory
+    public void setBinlibResolver(String resolver) throws ClassNotFoundException, IllegalAccessException, InstantiationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+        Class cls = loadClass(resolver);
+        try {
+            // With single JarClassLoader parameter?
+            Constructor ctor = cls.getConstructor(new Class[]{JarClassLoader.class});
+            this.binlibResolver = (IBinlibResolver)ctor.newInstance(new Object[]{JarClassLoader.this});
+        } catch (NoSuchMethodException x) {
+            // Default constructor?
+            this.binlibResolver = (IBinlibResolver)loadClass(resolver).newInstance();
+        }
+    }
+    
+    public IBinlibResolver getBinlibResolver() {
+        return binlibResolver;
+    }
+
     /* (non-Javadoc)
      * @see java.lang.ClassLoader#findResource(java.lang.String)
      */
@@ -1295,37 +1361,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * @author Sebastian Just 
      */ 
      protected String findLibrary(String name) { 
-	     final String os = System.getProperty("os.name").toLowerCase(); 
-	     final String arch = System.getProperty("os.arch").toLowerCase(); 
 	     
-	     final String BINLIB_LINUX32_PREFIX = BINLIB_PREFIX + "linux32/"; 
-	     final String BINLIB_LINUX64_PREFIX = BINLIB_PREFIX + "linux64/"; 
-	     final String BINLIB_MACOSX_PREFIX = BINLIB_PREFIX + "macosx/"; 
-	     final String BINLIB_WINDOWS32_PREFIX = BINLIB_PREFIX + "windows32/"; 
-	     final String BINLIB_WINDOWS64_PREFIX = BINLIB_PREFIX + "windows64/"; 
-	     
-	     String binlib = null; 
-	     
-	     // Mac 
-	     if (os.startsWith("mac os x")) { 
-		     //TODO Nood arch detection on mac 
-		     binlib = BINLIB_MACOSX_PREFIX; 
-		 // Windows
-	     } else if (os.startsWith("windows")) { 
-		     if (arch.equals("x86")) { 
-		    	 binlib = BINLIB_WINDOWS32_PREFIX; 
-		     } else { 
-		    	 binlib = BINLIB_WINDOWS64_PREFIX; 
-		     } 
-		 // So it have to be Linux 
-	     } else { 
-		     if (arch.equals("i386")) { 
-		    	 binlib = BINLIB_LINUX32_PREFIX; 
-		     } else { 
-		    	 binlib = BINLIB_LINUX64_PREFIX; 
-		     } 
-	     }//TODO Need some work for solaris
-	     
+         String binlib = binlibResolver.find(BINLIB_PREFIX);
+         if (binlibResolver != defaultBinlibResolver && binlib == null)
+             binlib = defaultBinlibResolver.find(BINLIB_PREFIX);
+         
 	     VERBOSE("Using arch-specific native library path: " + binlib); 
 	     
 	     String retValue = findTheLibrary(binlib, name); 

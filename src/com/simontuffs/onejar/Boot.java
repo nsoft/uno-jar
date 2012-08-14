@@ -63,6 +63,7 @@ public class Boot {
     public final static String ONE_JAR_DEFAULT_MAIN_JAR = "One-Jar-Default-Main-Jar";
     public final static String ONE_JAR_MAIN_ARGS = "One-Jar-Main-Args";
     public final static String ONE_JAR_URL_FACTORY = "One-Jar-URL-Factory";
+    public final static String ONE_JAR_BINLIB_RESOLVER = "One-Jar-Binlib-Resolver";
     
     public final static String MAIN_JAR = "main/main.jar";
 
@@ -130,10 +131,12 @@ public class Boot {
      * This is the single point of entry for setting the "loader" member.  It checks to 
      * make sure programming errors don't call it more than once.
      * @param $loader
+     * @throws MalformedURLException 
      */
-    public synchronized static void setClassLoader(JarClassLoader $loader) {
+    public synchronized static void setClassLoader(JarClassLoader $loader) throws MalformedURLException {
         if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
         loader = $loader;
+        loader.setOneJarPath(Boot.getMyJarPath());
     }
 
     protected static void VERBOSE(String message) {
@@ -326,6 +329,11 @@ public class Boot {
         String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
         if (urlfactory != null) {
             loader.setURLFactory(urlfactory);
+        }
+        
+        String resolver = attributes.getValue(ONE_JAR_BINLIB_RESOLVER);
+        if (resolver != null) {
+            loader.setBinlibResolver(resolver);
         }
            
         loader.setOneJarPath(getMyJarPath());
