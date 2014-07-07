@@ -29,7 +29,7 @@ public final class Logger {
   public static final int LOGLEVEL_VERBOSE = 5;
   
   // Loglevel for all loggers.
-  private static int loglevel = LOGLEVEL_INFO;
+  private static int loglevel = LOGLEVEL_NONE;
   
   private final String prefix;
   
