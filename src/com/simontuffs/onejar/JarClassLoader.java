@@ -164,18 +164,18 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     protected String jarName, mainJar, wrapDir;
     protected boolean delegateToParent;
-    
+
     protected static class ByteCode {
-		public ByteCode(String $name, String $original, ByteArrayOutputStream baos, String $codebase, Manifest $manifest) {
+        public ByteCode(String $name, String $original, ByteArrayOutputStream baos, String $codebase, Manifest $manifest) {
             name = $name;
             original = $original;
             bytes = baos.toByteArray();
             codebase = $codebase;
-			manifest = $manifest;
+            manifest = $manifest;
         }
         public byte bytes[];
         public String name, original, codebase;
-		public Manifest manifest;
+        public Manifest manifest;
     }
     
     
@@ -192,7 +192,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         init();
     }
     
-    /**
+    // this documentation appears to have become out of date
+    // TODO: figure out what it was all about...
+    
+    /*
      * The main constructor for the Jar-capable classloader.
      * @param $record	If true, the JarClassLoader will record all used classes
      * 					into a recording directory (called 'recording' by default)
@@ -254,7 +257,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * in the manifest.  
      *       
      */
-    public JarClassLoader(ClassLoader parent) {
+
+  /**
+   * The main constructor for the Jar-capable classloader.
+   * @param parent The parent for this class loader.
+   */
+  public JarClassLoader(ClassLoader parent) {
         super(parent);
         delegateToParent = true;
         setProperties(this);
@@ -638,14 +646,21 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
         // is used to launch the jar application, and attempts to load through
         // it would fail if that code is encapsulated inside the one-jar.
-	    AccessController.doPrivileged(new PrivilegedAction() {
-	        public Object run() {
-	            Thread.currentThread().setContextClassLoader(JarClassLoader.this);
-	            return null;
-	        }
-	    });
+      if (!isJarClassLoaderAParent(Thread.currentThread().getContextClassLoader())) {
+          AccessController.doPrivileged(new PrivilegedAction() {
+              public Object run() {
+                  Thread.currentThread().setContextClassLoader(JarClassLoader.this);
+                  return null;
+              }
+          });
+      }
 	    return super.loadClass(name, resolve);
 	}
+	
+	public boolean isJarClassLoaderAParent(ClassLoader loader) {
+      return loader instanceof JarClassLoader 
+          || loader.getParent() != null && isJarClassLoaderAParent(loader.getParent());
+  }
 	
     /**
      * Locate the named class in a jar-file, contained inside the
@@ -937,7 +952,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     
     /**
      * Resolve a resource name.  Look first in jar-relative, then in global scope.
-     * @param resource
+     * @param $resource
      * @return
      */
     protected String resolve(String $resource) {
@@ -1380,7 +1395,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * @param name the (system specific) name of the requested library
      * @param BINLIB_PREFIX the (system specific) folder to search in
      * @return the full pathname to the requested library, or null
-     * @see Runtime#loadLibrary()
+     * @see Runtime#loadLibrary(String)
      * @since 1.2
      */
     protected String findTheLibrary(String BINLIB_PREFIX, String name) {
