@@ -1,20 +1,26 @@
 plugins {
   id 'java'
 }
-
-task executableUnoJar {
-  doLast {
-    ant.taskdef(resource: 'com/needhamsoftware/unojar/antlib.xml')    {
-      classpath {
-        fileset(dir: 'libs', includes: '*.jar')
-      }
-
-    }
-  }
+configurations {
+  unojar
 }
 
 dependencies {
-
   testCompile 'junit:junit:4.12'
+  unojar  project(path: ':ant', configuration: 'antjar')
 }
 
+task testJar1 {
+  doLast {
+    ant.taskdef(uri:'antlib:com.needhamsoftware.unojar',classpath: configurations.unojar.asPath)
+
+    ant.unojar(destFile:'build/testjar1.jar') {
+      fileset(dir:'build/classes/java/test') {
+        include '**/TestMain.class'
+      }
+      manifest {
+
+      }
+    }
+  }
+}
