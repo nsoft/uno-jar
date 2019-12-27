@@ -5,8 +5,8 @@
             nonavbar="false" noindex="false" splitindex="true"
             author="true" version="true" nodeprecatedlist="false"
             nodeprecated="false"
-            packagenames="com.simontuffs.onejar.example.util,com.simontuffs.onejar.example.main"
-            sourcefiles="src\com\simontuffs\onejar\Boot.java,src\com\simontuffs\onejar\DetectClassLoader.java,src\com\simontuffs\onejar\JarClassLoader.java"
+            packagenames="com.needhamsoftware.unojar.example.util,com.needhamsoftware.unojar.example.main"
+            sourcefiles="src\main\java\com\needhamsoftware\unojar\Boot.java,src\main\java\com\needhamsoftware\unojar\DetectClassLoader.java,src\main\java\com\needhamsoftware\unojar\JarClassLoader.java"
             sourcepath="src;example"
             classpath="classes;D:\work\javaassist-2.6\javassist.jar" doctitle="One-Jar"/>
     </target>

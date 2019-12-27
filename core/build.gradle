@@ -1,0 +1,20 @@
+plugins {
+  id 'java'
+}
+
+task executableUnoJar {
+  doLast {
+    ant.taskdef(resource: 'com/needhamsoftware/unojar/antlib.xml')    {
+      classpath {
+        fileset(dir: 'libs', includes: '*.jar')
+      }
+
+    }
+  }
+}
+
+dependencies {
+
+  testCompile 'junit:junit:4.12'
+}
+
