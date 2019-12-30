@@ -1,6 +1,5 @@
-package com.simontuffs.onejar.test;
+package com.needhamsoftware.unojar;
 
-import com.simontuffs.onejar.test.Invoker.Result;
 import junit.framework.TestCase;
 import org.junit.Test;
 
@@ -8,7 +7,7 @@ public class CommandLine extends TestCase {
 
     @Test
     public void testOneJarSmoke1() throws Exception {
-        Result result = Invoker.run("java -jar dist/one-jar-boot-0.98.jar");
+        Invoker.Result result = Invoker.run("java -jar dist/one-jar-boot-0.98.jar");
         assertFalse("Expected failure did not occur: " + result, result.status == 0);
     }
 //

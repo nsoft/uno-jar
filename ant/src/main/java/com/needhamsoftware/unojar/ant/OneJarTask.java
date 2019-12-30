@@ -70,7 +70,7 @@ public class OneJarTask extends Jar {
     }
 
     public static class MainJars extends Task {
-        protected List filesets = new ArrayList();
+        List<ZipFileSet> filesets = new ArrayList<>();
         protected String app;
         public void addFileSet(ZipFileSet fileset) {
             log("MainJar.addFileSet() ", Project.MSG_VERBOSE);
@@ -377,11 +377,13 @@ public class OneJarTask extends Jar {
             return;
         // One-jar bootstrap files
         if (onejar != null) {
+            // this path seems to assume the user is adding their own manifest at a later time
+            // the manifest from the specified jar is not copied.
             includeZip(onejar, zOut);
         } else {
             // Pick up default one-jar boot files as a resource relative to
             // this class.
-            String ONE_JAR_BOOT = "one-jar-boot.jar";
+            String ONE_JAR_BOOT = "/core.jar";
             InputStream is = OneJarTask.class.getResourceAsStream(ONE_JAR_BOOT);
             if (is == null)
                 throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
@@ -392,7 +394,7 @@ public class OneJarTask extends Jar {
             java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
             try {
                 // Specify our Created-By and Main-Class attributes as overrides.
-                manifest.addConfiguredAttribute(new Attribute("Created-By", "One-Jar 0.98 Ant taskdef"));
+                manifest.addConfiguredAttribute(new Attribute("Created-By", "uno-jar 0.99 Ant taskdef"));
                 manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS, jattributes.getValue(MAIN_CLASS)));
                 if (oneJarMainClass != null) {
                     manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));

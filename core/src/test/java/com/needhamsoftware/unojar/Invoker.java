@@ -2,7 +2,7 @@
  * Created on May 20, 2005
  *
  */
-package com.simontuffs.onejar.test;
+package com.needhamsoftware.unojar;
 
 import java.io.BufferedReader;
 import java.io.IOException;

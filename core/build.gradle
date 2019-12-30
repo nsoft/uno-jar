@@ -9,18 +9,30 @@ dependencies {
   testCompile 'junit:junit:4.12'
   unojar  project(path: ':ant', configuration: 'antjar')
 }
+ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
+configurations.unojar.each { File f ->
+  antClassLoader.addURL(f.toURI().toURL())
+}
+
+jar {
+  manifest {
+    attributes("Main-Class": "com.needhamsoftware.unojar.Boot")
+  }
+  from('../') {
+    include 'LICENSE.txt'
+    include 'NOTICE.txt'
+  }
+}
 
 task testJar1 {
   doLast {
-    ant.taskdef(uri:'antlib:com.needhamsoftware.unojar',classpath: configurations.unojar.asPath)
+    ant.taskdef(uri:'antlib:com.needhamsoftware.unojar')
 
     ant.unojar(destFile:'build/testjar1.jar') {
       fileset(dir:'build/classes/java/test') {
         include '**/TestMain.class'
       }
-      manifest {
 
-      }
     }
   }
 }

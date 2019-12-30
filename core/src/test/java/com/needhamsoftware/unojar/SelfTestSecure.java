@@ -1,4 +1,4 @@
-package com.simontuffs.onejar.test;
+package com.needhamsoftware.unojar;
 
 import org.junit.Ignore;
 
