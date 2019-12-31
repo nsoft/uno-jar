@@ -2,18 +2,36 @@ import java.text.SimpleDateFormat
 
 plugins {
     id 'java'
+    id 'maven-publish'
     id 'com.palantir.git-version' version '0.12.2'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 sourceCompatibility = 1.11
 version = '0.99-SNAPSHOT'
 
 dependencies {
-    compile project(':core')
-    compile 'org.apache.ant:ant:1.10.1'
+    implementation 'com.needhamsoftware.unojar:core:' + project.version
+    compile 'org.apache.ant:ant:1.10.7'
+}
+
+task copyCore(type:Copy) {
+    dependsOn ':core:jar'
+    from '' + projectDir + "/../core/build/libs/core-" + project.version + ".jar"
+    into  '' + projectDir + "/build"
+    rename ("core-" + project.version + ".jar", "core.jar")
 }
 
 jar {
+    dependsOn copyCore
     def gitDetails = versionDetails();
     setArchiveFileName 'uno-jar-ant.jar'
     manifest {
@@ -26,14 +44,23 @@ jar {
                 'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
         )
     }
-    from('' + projectDir + "/../core/build/libs") {
-        include "core.jar"
-    }
 
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.needhamsoftware.unojar'
+            artifactId 'ant'
+            version project.version
+            from components.java
+        }
+    }
+}
+
 task copyCoreJar (type:Copy) {
-    from '' + projectDir + "/../core/build/libs/core.jar"
+    dependsOn copyCore
+    from '' + projectDir + "/build/core.jar"
     into '' + projectDir + "/build/classes/java/main/com/needhamsoftware/unojar/ant"
 }
 

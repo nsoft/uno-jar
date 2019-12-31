@@ -56,12 +56,12 @@ public class Boot {
      * be in any of the contained jar files.
      */
     public final static String BOOT_CLASS = "Boot-Class";
-    public final static String ONE_JAR_CLASSLOADER = "One-Jar-Class-Loader";
-    public final static String ONE_JAR_MAIN_CLASS = "One-Jar-Main-Class";
-    public final static String ONE_JAR_DEFAULT_MAIN_JAR = "One-Jar-Default-Main-Jar";
-    public final static String ONE_JAR_MAIN_ARGS = "One-Jar-Main-Args";
-    public final static String ONE_JAR_URL_FACTORY = "One-Jar-URL-Factory";
-    public final static String ONE_JAR_BINLIB_RESOLVER = "One-Jar-Binlib-Resolver";
+    public final static String ONE_JAR_CLASSLOADER = "Uno-Jar-Class-Loader";
+    public final static String ONE_JAR_MAIN_CLASS = "Uno-Jar-Main-Class";
+    public final static String ONE_JAR_DEFAULT_MAIN_JAR = "Uno-Jar-Default-Main-Jar";
+    public final static String ONE_JAR_MAIN_ARGS = "Uno-Jar-Main-Args";
+    public final static String ONE_JAR_URL_FACTORY = "Uno-Jar-URL-Factory";
+    public final static String ONE_JAR_BINLIB_RESOLVER = "Uno-Jar-Binlib-Resolver";
 
     public final static String MAIN_JAR = "main/main.jar";
 
@@ -77,8 +77,8 @@ public class Boot {
     public final static String P_JARPATH = JarClassLoader.PROPERTY_PREFIX + "jar.path";
     public final static String P_JAVA_CLASS_PATH = "java.class.path";
     // Command-line arguments
-    public final static String A_HELP    = "--one-jar-help";
-    public final static String A_VERSION = "--one-jar-version";
+    public final static String A_HELP    = "--uno-jar-help";
+    public final static String A_VERSION = "--uno-jar-version";
 
     public final static String[] HELP_PROPERTIES = {
         P_MAIN_CLASS, "Specifies the name of the class which should be executed \n(via public static void main(String[])",

@@ -34,7 +34,8 @@ import java.util.zip.ZipFile;
  * The One-Jar Ant task.  Extends &lt;jar>
  *
  */
-public class OneJarTask extends Jar {
+public class UnoJarTask extends Jar {
+    public static final List<Object> DEBUGTMP = new ArrayList<>();
 
     public static final int BUFFER_SIZE = 8192;
     public static final String META_INF_MANIFEST = "META-INF/MANIFEST.MF";
@@ -129,14 +130,14 @@ public class OneJarTask extends Jar {
     /**
      * Default constructor.
      */
-    public OneJarTask() {
+    public UnoJarTask() {
         super();
     }
 
     /**
      *  Constructor for use outside Ant: creates a wrapping project and gives it a name.
      */
-    public OneJarTask(String project) {
+    public UnoJarTask(String project) {
         super();
         setTaskName("one-jar");
         setProject(new Project());
@@ -383,8 +384,8 @@ public class OneJarTask extends Jar {
         } else {
             // Pick up default one-jar boot files as a resource relative to
             // this class.
-            String ONE_JAR_BOOT = "/core.jar";
-            InputStream is = OneJarTask.class.getResourceAsStream(ONE_JAR_BOOT);
+            String ONE_JAR_BOOT = "core.jar";
+            InputStream is = UnoJarTask.class.getResourceAsStream(ONE_JAR_BOOT);
             if (is == null)
                 throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
             // Pull the manifest out and use it.

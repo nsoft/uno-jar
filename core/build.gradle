@@ -1,6 +1,29 @@
+import org.codehaus.groovy.runtime.DefaultGroovyMethods
+
+import java.text.SimpleDateFormat
+
+
+import  org.apache.tools.ant.taskdefs.Manifest
+
+
 plugins {
   id 'java'
+  id 'maven-publish'
+  id 'com.palantir.git-version' version '0.12.2'
 }
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
+
+sourceCompatibility = 1.11
+version = '0.99-SNAPSHOT'
+
+configurations.all {
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 configurations {
   unojar
 }
@@ -9,14 +32,20 @@ dependencies {
   testCompile 'junit:junit:4.12'
   unojar  project(path: ':ant', configuration: 'antjar')
 }
-ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
-configurations.unojar.each { File f ->
-  antClassLoader.addURL(f.toURI().toURL())
-}
+
+def gitDetails = versionDetails();
 
 jar {
   manifest {
-    attributes("Main-Class": "com.needhamsoftware.unojar.Boot")
+    attributes(
+            "Main-Class"     : "com.needhamsoftware.unojar.Boot",
+            'Built-By'       : System.properties['user.name'],
+            'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+            'Build-Revision' : version + ' ('+gitDetails.gitHashFull+')' + (gitDetails.isCleanTag ? '' : '(with uncommitted files)') ,
+            'Created-By'     : "Gradle ${gradle.gradleVersion}",
+            'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+            'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+    )
   }
   from('../') {
     include 'LICENSE.txt'
@@ -24,15 +53,60 @@ jar {
   }
 }
 
-task testJar1 {
-  doLast {
-    ant.taskdef(uri:'antlib:com.needhamsoftware.unojar')
-
-    ant.unojar(destFile:'build/testjar1.jar') {
-      fileset(dir:'build/classes/java/test') {
-        include '**/TestMain.class'
-      }
-
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      groupId 'com.needhamsoftware.unojar'
+      artifactId 'core'
+      version project.version
+      from components.java
     }
   }
+}
+
+
+ClassLoader antClassLoader = org.apache.tools.ant.Project.class.classLoader
+configurations.unojar.each { File f ->
+  antClassLoader.addURL(f.toURI().toURL())
+}
+
+task libtestJar (type:Jar) {
+  from ('build/classes/java/test')  {
+    include '**/LibTest.class'
+  }
+  archiveName "libtest.jar"
+}
+
+task testJar1 (dependsOn: [testClasses, libtestJar, ':ant:jar']) {
+
+  def ujjar =  new URL('file://' + project.configurations.unojar.find { it.name.startsWith("uno-jar-ant")})
+  println '' + ujjar + ' ' + new File(ujjar.toURI().toString()).exists()
+
+  doLast {
+    ant.taskdef( name: "unojar",   classpath:ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
+
+    def mf = Manifest.getDefaultManifest()
+    mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMain"))
+    mkdir("$projectDir/build/unojar/" + name)
+    def mff = new File("$projectDir/build/unojar/" + name + "/manifest.mf")
+    mff.write "" + mf;
+
+    ant.unojar(destFile:'build/testjar1.jar', manifest: mff ) {
+
+      main {
+        fileset(dir:'build/classes/java/test') {
+          include(name: '**/TestMain.class')
+        }
+      }
+      lib {
+        fileset(dir:'build/libs') {
+          include(name: 'libtest.jar')
+        }
+      }
+      // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
+      // manifest and then proceeds to throw it away. Many hours died to bring us this information...
+    }
+  }
+
+  test.dependsOn testJar1
 }
