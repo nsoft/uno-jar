@@ -1,0 +1,75 @@
+import java.text.SimpleDateFormat
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id 'com.palantir.git-version' version '0.12.2'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+sourceCompatibility = 1.11
+version = '0.99-SNAPSHOT'
+
+dependencies {
+    implementation 'com.needhamsoftware.unojar:core:' + project.version
+    compile 'org.apache.ant:ant:1.10.7'
+}
+
+task copyCore(type:Copy) {
+    dependsOn ':core:jar'
+    from '' + projectDir + "/../core/build/libs/core-" + project.version + ".jar"
+    into  '' + projectDir + "/build"
+    rename ("core-" + project.version + ".jar", "core.jar")
+}
+
+jar {
+    dependsOn copyCore
+    def gitDetails = versionDetails();
+    setArchiveFileName 'uno-jar-ant.jar'
+    manifest {
+        attributes(
+                'Built-By'       : System.properties['user.name'],
+                'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Revision' : version + ' ('+gitDetails.gitHashFull+')' + (gitDetails.isCleanTag ? '' : '(with uncommitted files)') ,
+                'Created-By'     : "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk'      : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'       : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+        )
+    }
+
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.needhamsoftware.unojar'
+            artifactId 'ant'
+            version project.version
+            from components.java
+        }
+    }
+}
+
+task copyCoreJar (type:Copy) {
+    dependsOn copyCore
+    from '' + projectDir + "/build/core.jar"
+    into '' + projectDir + "/build/classes/java/main/com/needhamsoftware/unojar/ant"
+}
+
+jar.dependsOn(copyCoreJar)
+
+configurations {
+    antjar
+}
+
+artifacts {
+    antjar jar
+}

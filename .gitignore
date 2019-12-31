@@ -2,3 +2,5 @@ build
 /.idea/
 *.iml
 dist
+.gradle
+**/out/

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<antlib>
+  <typedef name="unojar" classname="com.needhamsoftware.unojar.ant.UnoJarTask"/>
+</antlib>
