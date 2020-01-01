@@ -1,4 +1,4 @@
-<project name="one-jar" default="testAntTask" basedir="." xmlns:ns="antlib:com.needhamsoftware.unojar.ant">
+<project name="uno-jar" default="testAntTask" basedir="." xmlns:ns="antlib:com.needhamsoftware.unojar.ant">
 
   <!-- TESTING ONLY: This does not build the project. It merely tests that the ant task actually works
        in an ant build. This is not meant to do anything else useful -->
@@ -7,8 +7,8 @@
     <fileset dir="ant/build" includes="libs/*.jar"/>
   </path>
 
-  <fileset id="test.files" dir="${basedir}/core/build/classes/java/test" includes="com/needhamsoftware/unojar/TestMain.class"/>
-  <fileset id="test.lib.files" dir="${basedir}/core/build/classes/java/test" includes="com/needhamsoftware/unojar/LibTest.class"/>
+  <fileset id="test.files" dir="${basedir}/tests/build/classes/java/test" includes="com/needhamsoftware/unojar/TestMain.class"/>
+  <fileset id="test.lib.files" dir="${basedir}/tests/build/classes/java/test" includes="com/needhamsoftware/unojar/LibTest.class"/>
 
   <target name="testAntTask" depends="build.boot.jar, build.lib.test.jar">
     <taskdef uri="antlib:com.needhamsoftware.unojar.ant"
@@ -18,7 +18,7 @@
         <fileset refid="test.files"/>
       </ns:main>
       <ns:manifest>
-        <attribute name="One-Jar-Main-Class" value="com.needhamsoftware.unojar.TestMain"/>
+        <attribute name="Uno-Jar-Main-Class" value="com.needhamsoftware.unojar.TestMain"/>
       </ns:manifest>
       <ns:lib>
         <fileset dir="build" includes="libTest.jar"/>
