@@ -7,7 +7,7 @@
  * under doc/one-jar-license.txt
  */
 
-/**
+/*
  * Many thanks to the following for their contributions to One-Jar:
  *
  * Contributor: Christopher Ottley <xknight@users.sourceforge.net>
@@ -54,7 +54,7 @@ import java.util.regex.Pattern;
  */
 public class JarClassLoader extends ClassLoader implements IProperties {
 
-    public final static String PROPERTY_PREFIX = "one-jar.";
+    public final static String PROPERTY_PREFIX = "uno-jar.";
     public final static String P_INFO = PROPERTY_PREFIX + "info";
     public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
     public final static String P_SILENT = PROPERTY_PREFIX + "silent";
@@ -72,10 +72,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public final static String RECORDING = "recording";
     public final static String TMP = "tmp";
     public final static String UNPACK = "unpack";
-    public final static String EXPAND = "One-Jar-Expand";
-    public final static String EXPAND_DIR = "One-Jar-Expand-Dir";
-    public final static String SHOW_EXPAND = "One-Jar-Show-Expand";
-    public final static String CONFIRM_EXPAND = "One-Jar-Confirm-Expand";
+    public final static String EXPAND = "Uno-Jar-Expand";
+    public final static String EXPAND_DIR = "Uno-Jar-Expand-Dir";
+    public final static String SHOW_EXPAND = "Uno-Jar-Show-Expand";
+    public final static String CONFIRM_EXPAND = "Uno-Jar-Confirm-Expand";
     public final static String CLASS = ".class";
 
     public final static String NL = System.getProperty("line.separator");
@@ -182,7 +182,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * @param $flatten  Whether to flatten out the recorded classes (i.e. eliminate
      * 					the jar-file name from the recordings).
      *
-     * Example: Given the following layout of the one-jar.jar file
+     * Example: Given the following layout of the uno-jar.jar file
      * <pre>
      *    /
      *    /META-INF
@@ -229,7 +229,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      *
      * </ul>
      * Flatten mode is intended for when you want to create a super-jar which can
-     * be launched directly without using one-jar's launcher.  Run your application
+     * be launched directly without using uno-jar's launcher.  Run your application
      * under all possible scenarios to collect the actual classes which are loaded,
      * then jar them all up, and point to the main class with a "Main-Class" entry
      * in the manifest.
@@ -251,7 +251,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     protected static ThreadLocal current = new ThreadLocal();
     /**
      * Common initialization code: establishes a classloader for delegation
-     * to one-jar.class.path resources.
+     * to uno-jar.class.path resources.
      */
     protected void init() {
         String classpath = System.getProperty(JarClassLoader.P_ONE_JAR_CLASS_PATH);
@@ -339,7 +339,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
 
     public String load(String mainClass) {
-        // Hack: if there is a one-jar.jarname property, use it.
+        // Hack: if there is a uno-jar.jarname property, use it.
         return load(mainClass, oneJarPath);
     }
 
@@ -357,7 +357,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             String expandPaths[] = null;
             // TODO: Allow a destination directory (relative or absolute) to
             // be specified like this:
-            // One-Jar-Expand: build=../expanded
+            // Uno-Jar-Expand: build=../expanded
             String expand = manifest.getMainAttributes().getValue(EXPAND);
             String expanddir = System.getProperty(JarClassLoader.P_EXPAND_DIR);
             if (expanddir == null) {
@@ -406,7 +406,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
                 // The META-INF/MANIFEST.MF file can contain a property which names
                 // directories in the JAR to be expanded (comma separated). For example:
-                // One-Jar-Expand: build,tmp,webapps
+                // Uno-Jar-Expand: build,tmp,webapps
                 String $entry = entry.getName();
                 if (expandPaths != null) {
                     // TODO: Can't think of a better way to do this right now.
@@ -485,11 +485,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 } else if ($entry.endsWith(CLASS)) {
                     // A plain vanilla class file rooted at the top of the jar file.
 					loadBytes(entry, jis, "/", null, manifest);
-                    LOGGER.fine("One-Jar class: " + jarName + "!/" + entry.getName());
+                    LOGGER.fine("Uno-Jar class: " + jarName + "!/" + entry.getName());
                 } else {
                     // A resource?
                     loadBytes(entry, jis, "/", null, manifest);
-                    LOGGER.fine("One-Jar resource: " + jarName + "!/" + entry.getName());
+                    LOGGER.fine("Uno-Jar resource: " + jarName + "!/" + entry.getName());
                 }
             }
             // If mainClass is still not defined, return null.  The caller is then responsible
@@ -555,7 +555,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         int index = entryName.lastIndexOf('.');
         String type = entryName.substring(index+1);
 
-        // agattung: patch (for one-jar 0.95)
+        // agattung: patch (for One-Jar 0.95)
         // add package handling to avoid NullPointer exceptions
         // after calls to getPackage method of this ClassLoader
         int index2 = entryName.lastIndexOf('/', index-1);
@@ -623,7 +623,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // Set the context classloader in case any classloaders delegate to it.
         // Otherwise it would default to the sun.misc.Launcher$AppClassLoader which
         // is used to launch the jar application, and attempts to load through
-        // it would fail if that code is encapsulated inside the one-jar.
+        // it would fail if that code is encapsulated inside the uno-jar.
       if (!isJarClassLoaderAParent(Thread.currentThread().getContextClassLoader())) {
           AccessController.doPrivileged(new PrivilegedAction() {
               public Object run() {
@@ -855,7 +855,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
      * converts a file path such as foo/bar/Class.class into a name like foo.bar.Class,
      * and it strips leading '/' characters e.g. converting '/foo' to 'foo'.
      * All of which is a nuisance, since we wish to do a lookup on the original
-     * name of the resource as present in the One-Jar jar files.
+     * name of the resource as present in the Uno-Jar jar files.
      * The other way is more direct, i.e. this.getClass().getClassLoader().getResourceAsStream().
      * Then we get the name unmangled, and can deal with it directly.
      *
@@ -1086,7 +1086,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     /**
      * FileURLFactory generates URL's which are resolved relative to the filesystem.
      * These are compatible with frameworks like Spring, but require knowledge of the
-     * location of the one-jar file via oneJarPath.
+     * location of the uno-jar file via unoJarPath.
      */
     public static class FileURLFactory implements IURLFactory {
         JarClassLoader jcl;
@@ -1171,7 +1171,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
 
     protected IBinlibResolver defaultBinlibResolver = new IBinlibResolver() {
-        // Default implementation handles the legacy one-jar cases.
+        // Default implementation handles the legacy uno-jar cases.
         public String find(String prefix) {
             final String os = System.getProperty("os.name").toLowerCase();
             final String arch = System.getProperty("os.arch").toLowerCase();

@@ -36,13 +36,13 @@ import java.util.zip.ZipFile;
  * <p>
  * Developer time JVM properties:
  * <pre>
- *   -Done-jar.main.class={name}  Use named class as main class to run.
- *   -Done-jar.record[=recording] Record loaded classes into "recording" directory.
+ *   -Duno-jar.main.class={name}  Use named class as main class to run.
+ *   -Duno-jar.record[=recording] Record loaded classes into "recording" directory.
  *                                Flatten jar.names into directory tree suitable
  *                                for use as a classpath.
- *   -Done-jar.jar.names          Record loaded classes, preserve jar structure
- *   -Done-jar.verbose            Run the JarClassLoader in verbose mode.
- *   -Done-jar.silent             Run the JarClassLoader in silent mode.
+ *   -Duno-jar.jar.names          Record loaded classes, preserve jar structure
+ *   -Duno-jar.verbose            Run the JarClassLoader in verbose mode.
+ *   -Duno-jar.silent             Run the JarClassLoader in silent mode.
  * </pre>
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
@@ -89,8 +89,8 @@ public class Boot {
         JarClassLoader.P_VERBOSE,    "true:  Print verbose classloading information",
         JarClassLoader.P_SILENT,     "true:  Dont' print any classloading information",
         JarClassLoader.P_INFO,       "true:  Print informative classloading information",
-        P_STATISTICS, "true:  Shows statistics about the One-Jar Classloader",
-        P_JARPATH,    "Full path of the one-jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
+        P_STATISTICS, "true:  Shows statistics about the Uno-Jar Classloader",
+        P_JARPATH,    "Full path of the uno-Jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
         JarClassLoader.P_ONE_JAR_CLASS_PATH,    "Extra classpaths to be added to the execution environment.  \nUse platform independent path separator '" + JarClassLoader.P_PATH_SEPARATOR + "'",
         JarClassLoader.P_EXPAND_DIR, "Directory to use for expanded files.",
         P_SHOW_PROPERTIES, "true:  Shows the JVM system properties.",
@@ -98,7 +98,7 @@ public class Boot {
 
     public final static String[] HELP_ARGUMENTS = {
         A_HELP,       "Shows this message, then exits.",
-        A_VERSION,    "Shows the version of One-JAR, then exits.",
+        A_VERSION,    "Shows the version of Uno-Jar, then exits.",
     };
 
     protected static String mainJar;
@@ -117,7 +117,7 @@ public class Boot {
 
 
     /**
-     * This method provides access to the bootstrap One-JAR classloader which
+     * This method provides access to the bootstrap Uno-Jar classloader which
      * is needed in the URL connection Handler when opening streams relative
      * to classes.
      * @return
@@ -313,9 +313,9 @@ public class Boot {
     private static void initializeProperties() throws IOException,
 	    FileNotFoundException {
 	{
-            // Default properties are in resource 'one-jar.properties'.
+            // Default properties are in resource 'uno-jar.properties'.
             Properties properties = new Properties();
-            String props = "one-jar.properties";
+            String props = "uno-jar.properties";
             InputStream is = Boot.class.getResourceAsStream("/" + props);
 	    try {
 
@@ -390,7 +390,7 @@ public class Boot {
         }
         if (myJarPath == null) {
             try {
-                String icb = System.getProperty("one-jar.ijarpath");
+                String icb = System.getProperty("uno-jar.ijarpath");
                 if (icb != null) {
                     Class cls = Class.forName(icb);
                     IJarPath ic = (IJarPath)cls.newInstance();
@@ -418,7 +418,7 @@ public class Boot {
                 String jars[] =jarname.split(System.getProperty("path.separator"));
                 for (int i=0; i<jars.length; i++) {
                     jarname = jars[i];
-                    LOGGER.fine("Checking " + jarname + " as One-Jar file");
+                    LOGGER.fine("Checking " + jarname + " as Uno-Jar file");
                     // Allow for URL based paths, as well as file-based paths.  File
                     InputStream is = null;
                     try {
@@ -451,7 +451,7 @@ public class Boot {
             }
         }
         if (myJarPath == null) {
-            throw new IllegalArgumentException("Unable to locate " + Boot.class.getName() + " in the java.class.path: consider using -D" + P_JARPATH + " to specify the one-jar filename.");
+            throw new IllegalArgumentException("Unable to locate " + Boot.class.getName() + " in the java.class.path: consider using -D" + P_JARPATH + " to specify the Uno-Jar filename.");
         }
         // Normalize those annoying DOS backslashes.
         myJarPath = myJarPath.replace('\\', '/');
@@ -518,7 +518,7 @@ public class Boot {
                 int width = firstWidth(HELP_ARGUMENTS);
                 // Width of first column
 
-                System.out.println("One-Jar uses the following command-line arguments");
+                System.out.println("Uno-Jar uses the following command-line arguments");
                 for (int i=0; i<HELP_ARGUMENTS.length; i++) {
                     System.out.print(pad("    ", HELP_ARGUMENTS[i++], width+1));
                     System.out.println(wrap("    ", HELP_ARGUMENTS[i], width+1));
@@ -526,7 +526,7 @@ public class Boot {
                 System.out.println();
 
                 width = firstWidth(HELP_PROPERTIES);
-                System.out.println("One-Jar uses the following VM properties (-D<property>=<true|false|string>)");
+                System.out.println("Uno-Jar uses the following VM properties (-D<property>=<true|false|string>)");
                 for (int i=0; i<HELP_PROPERTIES.length; i++) {
                     System.out.print(pad("    ", HELP_PROPERTIES[i++], width+1));
                     System.out.println(wrap("    ", HELP_PROPERTIES[i], width+1));
@@ -539,9 +539,9 @@ public class Boot {
                     BufferedReader br = new BufferedReader(new InputStreamReader(is));
                     String version = br.readLine();
                     br.close();
-                    System.out.println("One-JAR version " + version);
+                    System.out.println("Uno-Jar version " + version);
                 } else {
-                    System.out.println("Unable to determine One-JAR version (missing /.version resource in One-JAR archive)");
+                    System.out.println("Unable to determine Uno-Jar version (missing /.version resource in Uno-Jar archive)");
                 }
                 System.exit(0);
             } else {

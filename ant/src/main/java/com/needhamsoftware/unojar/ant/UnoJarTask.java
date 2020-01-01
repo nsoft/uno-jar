@@ -30,7 +30,7 @@ import java.util.zip.ZipFile;
 
 /**
  * @author simon
- * The One-Jar Ant task.  Extends &lt;jar>
+ * The Uno-Jar Ant task.  Extends &lt;jar>
  */
 public class UnoJarTask extends Jar {
   public static final List<Object> DEBUGTMP = new ArrayList<>();
@@ -145,7 +145,7 @@ public class UnoJarTask extends Jar {
    */
   public UnoJarTask(String project) {
     super();
-    setTaskName("one-jar");
+    setTaskName("uno-jar");
     setProject(new Project());
     getProject().setName(project);
   }
@@ -156,8 +156,7 @@ public class UnoJarTask extends Jar {
   }
 
   /**
-   * Use <main manifest="file"> instead of this method.  This is here for
-   * compatibility with the one-jar-macro.
+   * Use <main manifest="file"> instead of this method.
    *
    * @param manifest
    */
@@ -373,30 +372,30 @@ public class UnoJarTask extends Jar {
 
   protected void checkMain() {
     if (mainJars == null && main == null)
-      throw new BuildException("No <main> or <mainjars> element found in the <one-jar> task!");
+      throw new BuildException("No <main> or <mainjars> element found in the <uno-jar> task!");
   }
 
   protected void checkManifest() {
     if (!manifestSet)
-      log("No 'manifest' attribute was specified for the <one-jar> task, a default manifest will be generated.", Project.MSG_WARN);
+      log("No 'manifest' attribute was specified for the <uno-jar> task, a default manifest will be generated.", Project.MSG_WARN);
   }
 
   protected void addOneJarBoot(ZipOutputStream zOut) throws IOException {
     // BUG-2674591: filesetmanifest attribute leads to null zOut: ignore.
     if (zOut == null)
       return;
-    // One-jar bootstrap files
+    // Uno-Jar bootstrap files
     if (onejar != null) {
       // this path seems to assume the user is adding their own manifest at a later time
       // the manifest from the specified jar is not copied.
       includeZip(onejar, zOut);
     } else {
-      // Pick up default one-jar boot files as a resource relative to
+      // Pick up default uno-jar boot files as a resource relative to
       // this class.
       String ONE_JAR_BOOT = "core.jar";
       InputStream is = UnoJarTask.class.getResourceAsStream(ONE_JAR_BOOT);
       if (is == null)
-        throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <one-jar onejarboot=\"...\"> option.");
+        throw new IOException("Unable to load default " + ONE_JAR_BOOT + ": consider using the <uno-jar onejarboot=\"...\"> option.");
       // Pull the manifest out and use it.
       JarInputStream jis = new JarInputStream(is);
       Manifest manifest = new Manifest();
@@ -416,7 +415,11 @@ public class UnoJarTask extends Jar {
       super.initZipOutputStream(zOut);
       ZipEntry entry = jis.getNextEntry();
       while (entry != null) {
-        if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version") || entry.getName().endsWith("license.txt")) {
+        if (entry.getName().endsWith(CLASS) ||
+            entry.getName().equals(".version") ||
+            entry.getName().endsWith("LICENSE.txt") ||
+            entry.getName().endsWith("NOTICE.txt")
+        ) {
           log("entry=" + entry.getName(), Project.MSG_DEBUG);
           zOut.putNextEntry(new org.apache.tools.zip.ZipEntry(entry));
           copy(jis, zOut, false);

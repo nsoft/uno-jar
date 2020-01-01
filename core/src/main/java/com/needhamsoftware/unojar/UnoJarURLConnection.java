@@ -45,7 +45,7 @@ public class UnoJarURLConnection extends JarURLConnection {
 		    filename = jarWithContent.substring(++separator);
             jarFile = new UnoJarFile(codebase, jarFilename, filename);
 		} else {
-		    // Entry in the top-level One-JAR.
+		    // Entry in the top-level Uno-JAR.
 	        jarFile = new JarFile(codebase);
 		}
 	}
