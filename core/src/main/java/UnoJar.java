@@ -26,7 +26,7 @@ import java.util.Arrays;
  * <p>Note: the same effect can be obtained by using the Boot class, albeit with more
  * typing:
  * <pre>
- *   java -cp <uno-jar.jar> com.simontuffs.onejar.Boot [args]
+ *   java -cp <uno-jar.jar> com.needhamsoftware.unojar.Boot [args]
  * @author simon
  *
  */
@@ -36,7 +36,7 @@ public class UnoJar {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        System.out.println("OneJar" + Arrays.asList(args).toString().replace('[','(').replace(']',')'));
+        System.out.println("UnoJar" + Arrays.asList(args).toString().replace('[','(').replace(']',')'));
         new UnoJar().run(args);
 
     }
