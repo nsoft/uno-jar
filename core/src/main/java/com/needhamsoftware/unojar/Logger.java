@@ -13,19 +13,29 @@ package com.needhamsoftware.unojar;
  */
 public final class Logger {
 
-  /** Disabled logging. */
+  /**
+   * Disabled logging.
+   */
   public static final int LOGLEVEL_NONE = 0;
 
-  /** Only errors. */
+  /**
+   * Only errors.
+   */
   public static final int LOGLEVEL_SEVERE = 1;
 
-  /** Warning and higher severity. */
+  /**
+   * Warning and higher severity.
+   */
   public static final int LOGLEVEL_WARN = 2;
 
-  /** Info and higher severity. */
+  /**
+   * Info and higher severity.
+   */
   public static final int LOGLEVEL_INFO = 3;
 
-  /** Verbose logging. */
+  /**
+   * Verbose logging.
+   */
   public static final int LOGLEVEL_VERBOSE = 5;
 
   // Loglevel for all loggers.
