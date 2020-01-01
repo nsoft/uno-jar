@@ -25,6 +25,7 @@ the use of Simon's code.
 NOTE: I had no desire to rename from One-JAR or change the package names, except Simon's license clearly states
 that his name and the One-JAR trade mark may not be used to endorse derived software. All re-naming is out
 of respect for the terms of his license. If I have missed a file, string constant or documentation and the
-One-JAR trademark or simon's name are found anywhere other than this file or NOTICE.txt please file an issue
+One-JAR trademark or simon's name are found anywhere other than this file, NOTICE.txt, license attribution comments
+or comments referencing the history of when something was added, please file an issue
 in the github bug tracker so it can be removed. Simon does not endorse uno-jar in any way and my only
 interactions with him as of this writing can be seen in the source forge bug tracker.
