@@ -11,12 +11,10 @@ buildscript {
   }
 }
 
-
 plugins {
   id 'java'
   id 'com.needhamsoftware.unojar' version '0.99-SNAPSHOT'
 }
-
 
 version '0.99-SNAPSHOT'
 
@@ -30,7 +28,6 @@ repositories {
 configurations {
   ujconf
 }
-
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
@@ -50,7 +47,7 @@ task libtestJar(type: Jar) {
 unojar {
   unoMain "com.needhamsoftware.unojar.TestMain"
   destFile "build/testJar2.jar"
-  manifestAttrs()
+  manifestAttrs ("Test-Attribute" : "TestValue")
   main {
     fileset(dir: 'build/classes/java/test') {
       include(name: '**/TestMain.class')
@@ -62,8 +59,6 @@ unojar {
     }
   }
 }
-
-//com.needhamsoftware.unojar.dependsOn ':gradle-plugin:jar'
 
 task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
 
