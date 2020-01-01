@@ -1,2 +1,10 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'uno-jar'
 include 'ant'
 include 'core'

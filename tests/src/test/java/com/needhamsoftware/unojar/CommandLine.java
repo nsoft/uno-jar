@@ -6,12 +6,18 @@ import org.junit.Test;
 public class CommandLine extends TestCase {
 
     @Test
-    public void testOneJarSmoke1() throws Exception {
+    public void testOneJarAntFromGradleSmoke1() throws Exception {
         Invoker.Result result = Invoker.run("java -jar build/testjar1.jar");
-        ;
+        assertTrue("Expected failure did not occur: " + result, result.status == 0);
         assertEquals(result.out.get(0),"System Out Success - main class");
         assertEquals(result.err.get(0),"System Err Success - library class");
+    }
+    @Test
+    public void testOneJarGradleTaskSmoke2() throws Exception {
+        Invoker.Result result = Invoker.run("java -jar build/testJar2.jar");
         assertTrue("Expected failure did not occur: " + result, result.status == 0);
+        assertEquals(result.out.get(0),"System Out Success - main class");
+        assertEquals(result.err.get(0),"System Err Success - library class");
     }
 //
 //    public void testOneJarSmoke2() throws Exception {

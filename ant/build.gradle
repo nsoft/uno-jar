@@ -73,3 +73,5 @@ configurations {
 artifacts {
     antjar jar
 }
+
+compileJava.dependsOn ':core:publishToMavenLocal'
