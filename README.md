@@ -35,29 +35,23 @@ conducted over time.
 
 ## Status
 
-Working:
-
+### Working
 1. Core libraries for simple executable case.
 1. Ant task
 1. Gradle task
 1. Unit test validating execution of Uno-Jar-Main-Class, and access to lib
 1. Example of invoking the ant task from gradle
 
-Unknown
-1. Any use of native libraries. This might still work but is untested.
+### Unsupported
+Anything else. If you miss a One-Jar feature and wish to contribute to its resurrection and subsequent 
+maintenance, please file an issue.
 
-WIP:
-1. Renaming various things to Uno-Jar
-
-To Do:
-1. Documentation for things that have been validated to work.
-
+### Versions
 Version number will carry forward from One-Jar's numbers, and 0.99 will be next, as soon as the WIP/TODO
 sections above are complete, followed by 1.0 after I fully cull things that won't be supported going 
 forward and can eliminate the old directory.
 
 ## Disclaimer 
-
 Please note that I do not claim to have 100% fully understood Simon's code, so I may be breaking things 
 in subtle ways, but so far the fixes I have applied seem to have worked for me. Very happy to have 
 comments/suggestions. 
