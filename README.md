@@ -39,6 +39,7 @@ Working:
 
 1. Core libraries for simple executable case.
 1. Ant task
+1. Gradle task
 1. Unit test validating execution of Uno-Jar-Main-Class, and access to lib
 1. Example of invoking the ant task from gradle
 
@@ -49,7 +50,6 @@ WIP:
 1. Renaming various things to Uno-Jar
 
 To Do:
-1. Gradle task
 1. Documentation for things that have been validated to work.
 
 Version number will carry forward from One-Jar's numbers, and 0.99 will be next, as soon as the WIP/TODO
