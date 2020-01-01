@@ -1,44 +1,44 @@
 plugins {
-    id 'groovy'
-    id 'maven-publish'
-    id 'java-gradle-plugin'
+  id 'groovy'
+  id 'maven-publish'
+  id 'java-gradle-plugin'
 }
 
 version = '0.99-SNAPSHOT'
 
 configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+  resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+  mavenLocal()
+  mavenCentral()
 }
 
 dependencies {
-    implementation 'com.needhamsoftware.unojar:ant:' + project.version
-    implementation gradleApi()
-    implementation localGroovy()
+  implementation 'com.needhamsoftware.unojar:ant:' + project.version
+  implementation gradleApi()
+  implementation localGroovy()
 }
 
 gradlePlugin {
-    plugins {
-        'unojar' {
-            id = 'com.needhamsoftware.unojar'
-            implementationClass = 'com.needhamsoftware.unojar.gradle.UnoJarPlugin'
-        }
+  plugins {
+    'unojar' {
+      id = 'com.needhamsoftware.unojar'
+      implementationClass = 'com.needhamsoftware.unojar.gradle.UnoJarPlugin'
     }
+  }
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId 'com.needhamsoftware.unojar'
-            artifactId 'gradle-plugin'
-            version project.version
-            from components.java
-        }
+  publications {
+    mavenJava(MavenPublication) {
+      groupId 'com.needhamsoftware.unojar'
+      artifactId 'gradle-plugin'
+      version project.version
+      from components.java
     }
+  }
 }
 
 compileJava.dependsOn ':ant:publishToMavenLocal'

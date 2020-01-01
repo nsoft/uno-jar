@@ -1,23 +1,21 @@
+import org.apache.tools.ant.taskdefs.Manifest
 
-import  org.apache.tools.ant.taskdefs.Manifest
-
-buildscript{
-    repositories {
-        mavenLocal()
-        mavenCentral()
-    }
-    dependencies{
-        classpath 'org.apache.ant:ant:1.10.7'
-        classpath files('../gradle-plugin/build/libs/gradle-plugin-0.99-SNAPSHOT.jar')
-    }
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'org.apache.ant:ant:1.10.7'
+    classpath files('../gradle-plugin/build/libs/gradle-plugin-0.99-SNAPSHOT.jar')
+  }
 }
 
 
 plugins {
-    id 'java'
-    id 'com.needhamsoftware.unojar' version '0.99-SNAPSHOT'
+  id 'java'
+  id 'com.needhamsoftware.unojar' version '0.99-SNAPSHOT'
 }
-
 
 
 version '0.99-SNAPSHOT'
@@ -25,80 +23,80 @@ version '0.99-SNAPSHOT'
 sourceCompatibility = 1.11
 
 repositories {
-    mavenLocal()
-    mavenCentral()
+  mavenLocal()
+  mavenCentral()
 }
 
 configurations {
-    ujconf
+  ujconf
 }
 
 
 dependencies {
-    implementation 'com.needhamsoftware.unojar:core:' + project.version
-    ujconf  project(path: ':ant', configuration: 'antjar')
+  implementation 'com.needhamsoftware.unojar:core:' + project.version
+  ujconf project(path: ':ant', configuration: 'antjar')
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+  testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-task libtestJar (type:Jar) {
-    dependsOn compileTestJava
-    from ('build/classes/java/test')  {
-        include '**/LibTest.class'
-    }
-    archiveName "libtest.jar"
+task libtestJar(type: Jar) {
+  dependsOn compileTestJava
+  from('build/classes/java/test') {
+    include '**/LibTest.class'
+  }
+  archiveName "libtest.jar"
 }
 
 unojar {
-    unoMain "com.needhamsoftware.unojar.TestMain"
-    destFile "build/testJar2.jar"
-    manifestAttrs ()
-    main {
-        fileset(dir:'build/classes/java/test') {
-            include(name: '**/TestMain.class')
-        }
+  unoMain "com.needhamsoftware.unojar.TestMain"
+  destFile "build/testJar2.jar"
+  manifestAttrs()
+  main {
+    fileset(dir: 'build/classes/java/test') {
+      include(name: '**/TestMain.class')
     }
-    lib {
-        fileset(dir:'build/libs') {
-            include(name: 'libtest.jar')
-        }
+  }
+  lib {
+    fileset(dir: 'build/libs') {
+      include(name: 'libtest.jar')
     }
+  }
 }
 
 //com.needhamsoftware.unojar.dependsOn ':gradle-plugin:jar'
 
-task testJar1 (dependsOn: [testClasses, libtestJar, ':ant:jar']) {
+task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
 
-    def ujjar = new URL('file://' + project.configurations.ujconf.find { it.name.startsWith("uno-jar-ant") })
-    def p = ujjar.toURI().toString().substring(5)
-    println p
-    println '' + ujjar + ' ' + new File(p).exists()
+  def ujjar = new URL('file://' + project.configurations.ujconf.find { it.name.startsWith("uno-jar-ant") })
+  def p = ujjar.toURI().toString().substring(5)
+  println p
+  println '' + ujjar + ' ' + new File(p).exists()
 
-    doLast {
-        ant.taskdef(name: "uj", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
+  doLast {
+    ant.taskdef(name: "uj", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
 
-        def mf = Manifest.getDefaultManifest()
-        mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMain"))
-        mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
-        def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
-        mff.write "" + mf;
+    def mf = Manifest.getDefaultManifest()
+    mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMain"))
+    mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
+    def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
+    mff.write "" + mf;
 
-        ant.uj(destFile: 'build/testjar1.jar', manifest: mff) {
+    ant.uj(destFile: 'build/testjar1.jar', manifest: mff) {
 
-            main {
-                fileset(dir: 'build/classes/java/test') {
-                    include(name: '**/TestMain.class')
-                }
-            }
-            lib {
-                fileset(dir: 'build/libs') {
-                    include(name: 'libtest.jar')
-                }
-            }
-            // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
-            // manifest and then proceeds to throw it away. Many hours died to bring us this information...
+      main {
+        fileset(dir: 'build/classes/java/test') {
+          include(name: '**/TestMain.class')
         }
+      }
+      lib {
+        fileset(dir: 'build/libs') {
+          include(name: 'libtest.jar')
+        }
+      }
+      // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
+      // manifest and then proceeds to throw it away. Many hours died to bring us this information...
     }
+  }
 }
 
 packUnoJar.dependsOn libtestJar
