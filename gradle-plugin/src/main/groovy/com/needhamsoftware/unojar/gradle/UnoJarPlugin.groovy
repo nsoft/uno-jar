@@ -21,12 +21,12 @@ class UnoJarPlugin implements Plugin<Project> {
         ant.taskdef(name: "unojar", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
         def mf = Manifest.getDefaultManifest()
         extension.manifestAttrs.each { key, value -> mf.addConfiguredAttribute(new Manifest.Attribute(key, value)) }
-        mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", extension.unoMain))
+        mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", extension.appMainClass))
         def mff = Files.createTempFile("unojar", "mf")
         mff.write "" + mf;
-        ant.unojar(destFile: extension.destFile, manifest: mff) {
-          main extension.main
-          lib extension.lib
+        ant.unojar(destFile: extension.unoJar, manifest: mff) {
+          main extension.appFiles
+          lib extension.depLibs
           // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
           // manifest and then proceeds to throw it away. Many hours died to bring us this information...
         }
@@ -37,8 +37,8 @@ class UnoJarPlugin implements Plugin<Project> {
 
 class UnoJarExtension {
   Map manifestAttrs
-  String unoMain
-  String destFile
-  Object main
-  Object lib
+  String appMainClass
+  String unoJar
+  Object appFiles
+  Object depLibs
 }

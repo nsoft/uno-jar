@@ -45,15 +45,15 @@ task libtestJar(type: Jar) {
 }
 
 unojar {
-  unoMain "com.needhamsoftware.unojar.TestMain"
-  destFile "build/testJar2.jar"
+  unoJar "build/testJar2.jar"
   manifestAttrs ("Test-Attribute" : "TestValue")
-  main {
+  appMainClass "com.needhamsoftware.unojar.TestMain"
+  appFiles {
     fileset(dir: 'build/classes/java/test') {
       include(name: '**/TestMain.class')
     }
   }
-  lib {
+  depLibs {
     fileset(dir: 'build/libs') {
       include(name: 'libtest.jar')
     }
