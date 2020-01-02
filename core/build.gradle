@@ -96,14 +96,14 @@ artifacts {
 // A little idiot proofing...
 task checkUploadDest {
   doLast {
-    if (gradle.taskGraph.hasTask(':uploadRelease')) {
+    if (gradle.taskGraph.hasTask(':core:uploadRelease')) {
       if (isSnapshot) {
         ant.fail('Release should not have suffix of -SNAPSHOT')
       }
       if (isLocal) {
         ant.fail('Release should not have suffix of -LOCAL')
       }
-    } else if (gradle.taskGraph.hasTask(':uploadSnapshot')) {
+    } else if (gradle.taskGraph.hasTask(':core:uploadSnapshot')) {
       if (!isSnapshot) {
         ant.fail('Snapshot should have suffix of SNAPSHOT')
       }
