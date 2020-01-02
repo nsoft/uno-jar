@@ -61,8 +61,11 @@ unojar {
 }
 
 task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
-
-  def ujjar = new URL('file://' + project.configurations.ujconf.find { it.name.startsWith("uno-jar-ant") })
+  def cp = project.buildscript.configurations.getByName('classpath')
+  def find = cp.find {
+    if (it.canonicalPath.matches('.*needhamsoftware/unojar/ant/.*/ant-.*\\.jar')) return it
+  }
+  def ujjar = new URL('file://' + find)
   def p = ujjar.toURI().toString().substring(5)
   println p
   println '' + ujjar + ' ' + new File(p).exists()

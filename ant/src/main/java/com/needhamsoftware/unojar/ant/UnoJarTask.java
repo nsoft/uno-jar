@@ -30,7 +30,7 @@ import java.util.zip.ZipFile;
 
 /**
  * @author simon
- * The Uno-Jar Ant task.  Extends &lt;jar>
+ * The Uno-Jar Ant task.  Extends &lt;jar&gt;
  */
 public class UnoJarTask extends Jar {
   public static final List<Object> DEBUGTMP = new ArrayList<>();
@@ -156,7 +156,7 @@ public class UnoJarTask extends Jar {
   }
 
   /**
-   * Use <main manifest="file"> instead of this method.
+   * Use &lt;main manifest="file"&gt; instead of this method.
    *
    * @param manifest
    */
