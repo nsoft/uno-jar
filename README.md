@@ -8,6 +8,9 @@ distributed binary jar is maintained intact as distributed. Unpacking and fiddli
 changes the work and (in my own, not a lawyer opinion) is clearly creating a derived work 
 for which source code would need to be published. 
 
+Unlike capsule it does not want to extract jar files onto the user's filesystem, and is not normally hindered by
+a lack of write access to the filesystem.
+
 This project is based on a fork of One-JAR by Simon Tuffs. Please be sure to see the NOTICE.txt file
 for the restrictions on using his code. The original project can be found at:
 
