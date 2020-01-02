@@ -2,6 +2,7 @@ plugins {
   id 'groovy'
   id 'maven-publish'
   id 'java-gradle-plugin'
+  id 'com.gradle.plugin-publish' version '0.10.1'
 }
 
 version = '0.99-SNAPSHOT'
@@ -25,6 +26,8 @@ gradlePlugin {
   plugins {
     'unojar' {
       id = 'com.needhamsoftware.unojar'
+      displayName = 'Uno-Jar'
+      description = 'Single jar packaging based on a JarClassLoader. Unlike maven shade and gradle shadow, this form of packaging does not intermix classes into a single directory, and thereby maintains a degree of separation between libraries with distinct licensing concerns. Does not require write access to the filesystem like capsule'
       implementationClass = 'com.needhamsoftware.unojar.gradle.UnoJarPlugin'
     }
   }
@@ -39,6 +42,12 @@ publishing {
       from components.java
     }
   }
+}
+
+pluginBundle {
+  website = 'https://github.com/nsoft/uno-jar'
+  vcsUrl = 'https://github.com/nsoft/uno-jar.git'
+  tags = ['jar', 'executable-jar', 'onejar', 'one-jar', 'shade', 'shadow', 'fatjar', 'uberjar','capsule']
 }
 
 compileJava.dependsOn ':ant:publishToMavenLocal'
