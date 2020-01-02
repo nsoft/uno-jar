@@ -141,6 +141,7 @@ uploadArchives {
           artifactId 'oss-parent'
           version '7'
         }
+        groupId 'com.needhamsoftware.unojar'
         artifactId 'core'
         name 'Uno-Jar Core'
         description 'Libraries for packaging FatJars with a JarClassLoader'

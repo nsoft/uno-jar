@@ -155,6 +155,7 @@ uploadArchives {
           artifactId 'oss-parent'
           version '7'
         }
+        groupId 'com.needhamsoftware.unojar'
         artifactId 'ant'
         name 'Uno-Jar Ant Task'
         description 'Ant Task for packaging FatJars with a JarClassLoader'
