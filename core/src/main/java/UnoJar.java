@@ -14,11 +14,11 @@ import java.util.Arrays;
 /**
  * Uno-JAR Jar files are intended to be executed using the following kind of command:
  * <pre>
- *   java -jar <uno-jar.jar> [args]
+ *   java -jar &lt;uno-jar.jar&gt; [args]
  * </pre>
  * This class allows a Uno-JAR jar-file to be executed using the alternative command:
  * <pre>
- *   java -cp <uno-jar.jar> UnoJar [args]
+ *   java -cp &lt;uno-jar.jar&gt; UnoJar [args]
  * </pre>
  * Its main role is in testing the behaviour of OneJar on platforms which mangle the classpath
  * when running with the first kind of command, but it can also be a useful alternative
@@ -26,7 +26,7 @@ import java.util.Arrays;
  * <p>Note: the same effect can be obtained by using the Boot class, albeit with more
  * typing:
  * <pre>
- *   java -cp <uno-jar.jar> com.needhamsoftware.unojar.Boot [args]
+ *   java -cp &lt;uno-jar.jar&gt; com.needhamsoftware.unojar.Boot [args]
  * @author simon
  *
  */
