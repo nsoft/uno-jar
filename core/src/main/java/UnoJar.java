@@ -27,6 +27,7 @@ import java.util.Arrays;
  * typing:
  * <pre>
  *   java -cp &lt;uno-jar.jar&gt; com.needhamsoftware.unojar.Boot [args]
+ * </pre>
  * @author simon
  *
  */
