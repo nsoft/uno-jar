@@ -7,16 +7,16 @@ buildscript {
   }
   dependencies {
     classpath 'org.apache.ant:ant:1.10.7'
-    classpath files('../gradle-plugin/build/libs/gradle-plugin-0.99-SNAPSHOT.jar')
+    classpath files('../gradle-plugin/build/libs/gradle-plugin-0.99')
   }
 }
 
 plugins {
   id 'java'
-  id 'com.needhamsoftware.unojar' version '0.99-SNAPSHOT'
+  id 'com.needhamsoftware.unojar' version '0.99'
 }
 
-version '0.99-SNAPSHOT'
+version '0.99'
 
 sourceCompatibility = 1.11
 

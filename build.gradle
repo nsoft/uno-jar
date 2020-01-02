@@ -3,7 +3,7 @@ plugins {
 }
 
 sourceCompatibility = 1.11
-version = '0.99-SNAPSHOT'
+version = '0.99'
 
 allprojects {
   repositories {
