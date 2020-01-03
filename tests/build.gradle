@@ -13,10 +13,10 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'com.needhamsoftware.unojar' version '0.99'
+  id 'com.needhamsoftware.unojar' version '0.99.1-SNAPSHOT'
 }
 
-version '0.99'
+version '0.99.1-SNAPSHOT'
 
 sourceCompatibility = 1.11
 
@@ -99,4 +99,5 @@ task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
 
 packUnoJar.dependsOn libtestJar
 test.dependsOn testJar1
+test.dependsOn testJar2
 test.dependsOn packUnoJar

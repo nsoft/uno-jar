@@ -18,7 +18,7 @@ configurations.all {
 }
 
 sourceCompatibility = 1.11
-version = '0.99'
+version = '0.99.1-SNAPSHOT'
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
