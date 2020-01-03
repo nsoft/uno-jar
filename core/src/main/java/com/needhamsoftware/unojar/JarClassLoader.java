@@ -604,6 +604,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
         LOGGER.fine("cached bytes for class " + entryName);
       } else {
+        // https://github.com/nsoft/uno-jar/issues/10 - package names must not end in /
+        if (entryName.endsWith(File.separator)) {
+          //System.out.println(entryName);
+          entryName = entryName.substring(0,entryName.length() -1);
+        }
         // Another kind of resource.  Cache this by name, and also prefixed
         // by the jar name.  Don't duplicate the bytes.  This allows us
         // to map resource lookups to either jar-local, or globally defined.

@@ -27,13 +27,15 @@ repositories {
 
 configurations {
   ujconf
+  log4jTest
 }
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
   ujconf project(path: ':ant', configuration: 'antjar')
-
+  testCompile 'org.apache.logging.log4j:log4j-core:2.13.0'
   testCompile group: 'junit', name: 'junit', version: '4.12'
+  log4jTest 'org.apache.logging.log4j:log4j-core:2.13.0'
 }
 
 task libtestJar(type: Jar) {
@@ -42,6 +44,14 @@ task libtestJar(type: Jar) {
     include '**/LibTest.class'
   }
   archiveName "libtest.jar"
+}
+
+task libtestJarLog4j(type: Jar) {
+  dependsOn compileTestJava
+  from('build/classes/java/test') {
+    include '**/LibTestLog4jPlugin.class'
+  }
+  archiveName "libtestLog4j.jar"
 }
 
 unojar {
@@ -90,6 +100,49 @@ task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
         fileset(dir: 'build/libs') {
           include(name: 'libtest.jar')
         }
+      }
+      // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
+      // manifest and then proceeds to throw it away. Many hours died to bring us this information...
+    }
+  }
+}
+
+task testJar2(dependsOn: [testClasses, libtestJarLog4j, ':ant:jar']) {
+  def cp = project.buildscript.configurations.getByName('classpath')
+  def find = cp.find {
+    if (it.canonicalPath.matches('.*needhamsoftware/unojar/ant/.*/ant-.*\\.jar')) return it
+  }
+  def ujjar = new URL('file://' + find)
+  def p = ujjar.toURI().toString().substring(5)
+  println p
+  println '' + ujjar + ' ' + new File(p).exists()
+
+  doLast {
+    ant.taskdef(name: "uj", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
+
+    def mf = Manifest.getDefaultManifest()
+    mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMainLog4jPlugin"))
+    mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
+    def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
+    mff.write "" + mf;
+
+    ant.uj(destFile: 'build/testLog4j.jar', manifest: mff) {
+
+      main {
+        fileset(dir: 'build/classes/java/test') {
+          include(name: '**/TestMainLog4jPlugin.class')
+          include(name: '**/TestConsoleAppender**')
+        }
+        fileset(dir: 'build/resources/test') {
+          include(name: 'log4j2.xml')
+        }
+      }
+      lib {
+        fileset(dir: 'build/libs') {
+          include(name: 'libtestLog4j.jar')
+        }
+        configurations.log4jTest.addToAntBuilder(ant, 'fileset', FileCollection.AntType.FileSet)
+
       }
       // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
       // manifest and then proceeds to throw it away. Many hours died to bring us this information...
