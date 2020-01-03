@@ -16,6 +16,9 @@ for the restrictions on using his code. The original project can be found at:
 
 http://one-jar.sourceforge.net/
 
+## Documentation
+User documentation can be found in our wiki: https://github.com/nsoft/uno-jar/wiki
+
 ## Goals
 
 The original One-JAR project evolved in a time long before modern build frameworks. It has become 
