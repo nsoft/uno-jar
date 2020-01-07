@@ -1,0 +1,28 @@
+Uno-Jar Release Notes
+
+Below are release notes about changes that users and developers should be aware of. Numbers are github issue numbers,
+prefix indicates the type of issue, (Bugfix vs Enhancement)
+
+
+==================  0.99.1 ==================
+
+BUG #10 : Querying a package for all it's resources should now work. Packages were being represented internally with an
+          ending '/' and thus were not found. For example, this enables loading of Log4j2 plugins from packages
+          specified in the log4j2.xml file.
+
+==================  0.99 ==================
+
+BUG #1 : Classloader replacement now only happens if the JarClassLoader is not already in the
+         classloader hierarchy.
+
+BUG #4 : This version contains a fix for the problem described at https://sourceforge.net/p/one-jar/bugs/69/
+
+--------------------------------------------
+
+ENH #2 : Jars are published on Maven, Gradle Plugin published in gradle repo. See
+         https://search.maven.org/search?q=unojar and https://plugins.gradle.org/plugin/com.needhamsoftware.unojar
+
+ENH #3 : Build was converted to a gradle build.
+
+ENH #6 : Renamed packages and symbols to match the name of the project.
+
