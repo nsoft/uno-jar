@@ -12,7 +12,7 @@ import com.needhamsoftware.unojar.Boot;
 import java.util.Arrays;
 
 /**
- * Uno-JAR Jar files are intended to be executed using the following kind of command:
+ * Uno-Jar files are intended to be executed using the following kind of command:
  * <pre>
  *   java -jar &lt;uno-jar.jar&gt; [args]
  * </pre>
@@ -20,7 +20,7 @@ import java.util.Arrays;
  * <pre>
  *   java -cp &lt;uno-jar.jar&gt; UnoJar [args]
  * </pre>
- * Its main role is in testing the behaviour of OneJar on platforms which mangle the classpath
+ * Its main role is in testing the behaviour of UnoJar on platforms which mangle the classpath
  * when running with the first kind of command, but it can also be a useful alternative
  * execution mechanism.
  * <p>Note: the same effect can be obtained by using the Boot class, albeit with more
