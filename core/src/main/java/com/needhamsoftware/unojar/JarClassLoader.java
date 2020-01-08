@@ -67,7 +67,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public final static String P_ONE_JAR_CLASS_PATH = JarClassLoader.PROPERTY_PREFIX + "class.path";
   public final static String MANIFEST = "META-INF/MANIFEST.MF";
 
-  public final static String LIB_PREFIX = "lib/";
   public final static String BINLIB_PREFIX = "binlib/";
   public final static String MAIN_PREFIX = "main/";
   public final static String RECORDING = "recording";
@@ -90,6 +89,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   private static final Logger LOGGER = Logger.getLogger("JarClassLoader");
 
   protected String oneJarPath;
+
+  private String libPrefix = "lib/";
 
   public String getOneJarPath() {
     return oneJarPath;
@@ -450,7 +451,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
             }
           }
         }
-        if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(LIB_PREFIX) || $entry.startsWith(MAIN_PREFIX)) {
+        if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(getLibPrefix()) || $entry.startsWith(MAIN_PREFIX)) {
           if (wrapDir != null && !entry.getName().startsWith(wrapDir))
             continue;
           // Load it!
@@ -510,6 +511,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       iox.printStackTrace(System.err);
     }
     return mainClass;
+  }
+
+  private String getLibPrefix() {
+    return libPrefix;
+  }
+
+  public void setLibPrefix(String libPrefix) {
+    this.libPrefix = libPrefix;
   }
 
   public static String replaceProps(Map replace, String string) {
