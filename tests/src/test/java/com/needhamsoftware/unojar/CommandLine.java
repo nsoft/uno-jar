@@ -29,4 +29,12 @@ public class CommandLine extends TestCase {
     assertEquals("TEST:  ERROR [main] LibTestLog4jPlugin   - Log4J Success - library class", result.out.get(1));
   }
 
+  @Test
+  public void testUnoJarGradleTaskSmokeMRJar() throws Exception {
+    Invoker.Result result = Invoker.run("java -jar build/testMRJar.jar");
+    assertEquals("Expected failure did not occur: " + result, 0, result.status);
+    assertEquals( "TEST:  ERROR [main] TestMainLog4jPlugin   - Log4j Success - main class", result.out.get(0));
+    assertEquals("TEST:  ERROR [main] LibTestLog4jPlugin   - Log4J Success - library class", result.out.get(1));
+  }
+
 }
