@@ -5,7 +5,9 @@ prefix indicates the type of issue, (Bugfix vs Enhancement)
 
 ==================  1.0.0 ==================
 
-ENH #5 : TODO before release
+ENH #5 :  Multi Release Jar Support
+
+ENH #13 : Remove support for extracting files to local file system.
 
 ==================  0.99.1 ==================
 
