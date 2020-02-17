@@ -3,6 +3,9 @@ Uno-Jar Release Notes
 Below are release notes about changes that users and developers should be aware of. Numbers are github issue numbers,
 prefix indicates the type of issue, (Bugfix vs Enhancement)
 
+==================  1.0.0 ==================
+
+ENH #5 : TODO before release
 
 ==================  0.99.1 ==================
 
