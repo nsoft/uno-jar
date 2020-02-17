@@ -70,12 +70,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public final static String BINLIB_PREFIX = "binlib/";
   public final static String MAIN_PREFIX = "main/";
   public final static String RECORDING = "recording";
-  public final static String TMP = "tmp";
-  public final static String UNPACK = "unpack";
-  public final static String EXPAND = "Uno-Jar-Expand";
-  public final static String EXPAND_DIR = "Uno-Jar-Expand-Dir";
-  public final static String SHOW_EXPAND = "Uno-Jar-Show-Expand";
-  public final static String CONFIRM_EXPAND = "Uno-Jar-Confirm-Expand";
+  public final static String MULTI_RELEASE = "Multi-Release";
   public final static String CLASS = ".class";
 
   public final static String NL = System.getProperty("line.separator");
@@ -91,6 +86,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected String oneJarPath;
 
   private String libPrefix = "lib/";
+  public static final Pattern MR_PATTERN = Pattern.compile("META-INF/versions/(\\d+)/");
 
   public String getOneJarPath() {
     return oneJarPath;
@@ -133,10 +129,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   // Synchronize for thread safety.  This is less important until we
   // start to do lazy loading, but it's a good idea anyway.
-  protected Map byteCode = Collections.synchronizedMap(new HashMap());
+  protected Map<String,ByteCode> byteCode = Collections.synchronizedMap(new HashMap<>());
   protected Map pdCache = Collections.synchronizedMap(new HashMap());
   protected Map binLibPath = Collections.synchronizedMap(new HashMap());
-  protected Set jarNames = Collections.synchronizedSet(new HashSet());
+  protected Set<String> jarNames = Collections.synchronizedSet(new HashSet<>());
 
 
   protected boolean record = false, flatten = false, unpackFindResource = false;
@@ -146,17 +142,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected boolean delegateToParent;
 
   protected static class ByteCode {
-    public ByteCode(String $name, String $original, ByteArrayOutputStream baos, String $codebase, Manifest $manifest) {
-      name = $name;
-      original = $original;
-      bytes = baos.toByteArray();
-      codebase = $codebase;
-      manifest = $manifest;
+    public ByteCode(String name, String original, ByteArrayOutputStream baos, String codebase, Manifest manifest, int mrVersion) {
+      this.name = name;
+      this.original = original;
+      this.bytes = baos.toByteArray();
+      this.codebase = codebase;
+      this.manifest = manifest;
+      this.mrVersion =  mrVersion;
     }
 
     public byte bytes[];
     public String name, original, codebase;
     public Manifest manifest;
+    public int mrVersion;
   }
 
 
@@ -364,51 +362,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       }
       JarInputStream jis = new JarInputStream(new URL(jarName).openConnection().getInputStream());
       Manifest manifest = jis.getManifest();
-      String expandPaths[] = null;
-      // TODO: Allow a destination directory (relative or absolute) to
-      // be specified like this:
-      // Uno-Jar-Expand: build=../expanded
-      String expand = manifest.getMainAttributes().getValue(EXPAND);
-      String expanddir = System.getProperty(JarClassLoader.P_EXPAND_DIR);
-      if (expanddir == null) {
-        expanddir = manifest.getMainAttributes().getValue(EXPAND_DIR);
-      }
-      // Default is to expand into temporary directory based on the name of the jar file.
-      if (expanddir == null) {
-        String jar = new File(jarName).getName().replaceFirst("\\.[^\\.]*$", "");
-        expanddir = "${java.io.tmpdir}/" + jar;
-      }
-      // Expand system properties.
-      expanddir = replaceProps(System.getProperties(), expanddir);
-
-      // Make a note of this location in the VM system properties in case applications need to know
-      // where the expanded files are.
-      System.setProperty(JarClassLoader.P_EXPAND_DIR, expanddir);
-
-      boolean shouldExpand = true;
-      File tmpdir = new File(expanddir);
-      if (noExpand == false && expand != null) {
-        expanded = true;
-        LOGGER.fine(EXPAND + "=" + expand);
-        expandPaths = expand.split(",");
-        boolean getconfirm = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(CONFIRM_EXPAND));
-        if (getconfirm) {
-          String answer = getConfirmation(tmpdir);
-          if (answer == null) answer = "n";
-          answer = answer.trim().toLowerCase();
-          if (answer.startsWith("q")) {
-            PRINTLN("exiting without expansion.");
-            // Indicate (expected) failure with a non-zero return code.
-            System.exit(1);
-          } else if (answer.startsWith("n")) {
-            shouldExpand = false;
-          }
-        }
-      }
-      boolean showexpand = Boolean.TRUE.toString().equals(manifest.getMainAttributes().getValue(SHOW_EXPAND));
-      if (showexpand) {
-        PRINTLN("Expanding to: " + tmpdir.getAbsolutePath());
-      }
       JarEntry entry;
       while ((entry = (JarEntry) jis.getNextEntry()) != null) {
         if (entry.isDirectory())
@@ -418,50 +371,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // directories in the JAR to be expanded (comma separated). For example:
         // Uno-Jar-Expand: build,tmp,webapps
         String $entry = entry.getName();
-        if (expandPaths != null) {
-          // TODO: Can't think of a better way to do this right now.
-          // This code really doesn't need to be optimized anyway.
-          if (shouldExpand && shouldExpand(expandPaths, $entry)) {
-            File dest = new File(tmpdir, $entry);
-            // Override if ZIP file is newer than existing.
-            if (!dest.exists() || dest.lastModified() < entry.getTime()) {
-              String msg = "Expanding:  " + $entry;
-              if (showexpand) {
-                PRINTLN(msg);
-              } else {
-                LOGGER.info(msg);
-              }
-              if (dest.exists())
-                LOGGER.info("Update because lastModified=" + new Date(dest.lastModified()) + ", entry=" + new Date(entry.getTime()));
-              File parent = dest.getParentFile();
-              if (parent != null) {
-                parent.mkdirs();
-              }
-              LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
-              FileOutputStream os = new FileOutputStream(dest);
-              copy(jis, os);
-              os.close();
-            } else {
-              String msg = "Up-to-date: " + $entry;
-              if (showexpand) {
-                PRINTLN(msg);
-              } else {
-                LOGGER.fine(msg);
-              }
-            }
-          }
-        }
         if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(getLibPrefix()) || $entry.startsWith(MAIN_PREFIX)) {
           if (wrapDir != null && !entry.getName().startsWith(wrapDir))
             continue;
           // Load it!
           LOGGER.fine("caching " + $entry);
           LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
-          {
-            // Note: loadByteCode consumes the input stream, so make sure its scope
-            // does not extend beyond here.
-            loadByteCode(jis, $entry, null);
-          }
+
+          // Note: loadByteCode consumes the input stream, so make sure its scope
+          // does not extend beyond here.
+          loadByteCode(jis, $entry);
 
           // Do we need to look for a main class?
           if ($entry.startsWith(MAIN_PREFIX)) {
@@ -478,28 +397,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
               LOGGER.warning("The main class " + mainClass + " from " + mainJar + " will be used");
             }
           }
-        } else if (wrapDir == null && $entry.startsWith(UNPACK)) {
-          // Unpack into a temporary directory which is on the classpath of
-          // the application classloader.  Badly designed code which relies on the
-          // application classloader can be made to work in this way.
-          InputStream is = this.getClass().getResourceAsStream("/" + $entry);
-          if (is == null) throw new IOException($entry);
-          // Make a sentinel.
-          File dir = new File(TMP);
-          File sentinel = new File(dir, $entry.replace('/', '.'));
-          if (!sentinel.exists()) {
-            LOGGER.info("unpacking " + $entry + " into " + dir.getCanonicalPath());
-            loadByteCode(is, $entry, TMP);
-            sentinel.getParentFile().mkdirs();
-            sentinel.createNewFile();
-          }
         } else if ($entry.endsWith(CLASS)) {
           // A plain vanilla class file rooted at the top of the jar file.
-          loadBytes(entry, jis, "/", null, manifest);
+          loadBytes(entry, jis, "/", manifest);
           LOGGER.fine("Uno-Jar class: " + jarName + "!/" + entry.getName());
         } else {
           // A resource?
-          loadBytes(entry, jis, "/", null, manifest);
+          loadBytes(entry, jis, "/", manifest);
           LOGGER.fine("Uno-Jar resource: " + jarName + "!/" + entry.getName());
         }
       }
@@ -546,7 +450,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return false;
   }
 
-  protected void loadByteCode(InputStream is, String jar, String tmp) throws IOException {
+  protected void loadByteCode(InputStream is, String jar) throws IOException {
     JarInputStream jis = new JarInputStream(is);
     JarEntry entry = null;
     // TODO: implement lazy loading of bytecode.
@@ -556,7 +460,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     }
     while ((entry = jis.getNextJarEntry()) != null) {
       // if (entry.isDirectory()) continue;
-      loadBytes(entry, jis, jar, tmp, manifest);
+      loadBytes(entry, jis, jar, manifest);
     }
     // Add in a fake manifest entry.
     if (manifest != null) {
@@ -564,12 +468,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       manifest.write(baos);
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-      loadBytes(entry, bais, jar, tmp, manifest);
+      loadBytes(entry, bais, jar, manifest);
     }
 
   }
 
-  protected void loadBytes(JarEntry entry, InputStream is, String jar, String tmp, Manifest man) throws IOException {
+  protected void loadBytes(JarEntry entry, InputStream is, String jar, Manifest man) throws IOException {
     String entryName = entry.getName();
     int index = entryName.lastIndexOf('.');
     String type = entryName.substring(index + 1);
@@ -596,46 +500,80 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     copy(is, baos);
 
-    if (tmp != null) {
-      // Unpack into a temporary working directory which is on the classpath.
-      File file = new File(tmp, entry.getName());
-      file.getParentFile().mkdirs();
-      FileOutputStream fos = new FileOutputStream(file);
-      fos.write(baos.toByteArray());
-      fos.close();
-
+    // If entry is a class, check to see that it hasn't been defined
+    // already.  Class names must be unique within a classloader because
+    // they are cached inside the VM until the classloader is released.
+    if (type.equals("class")) {
+      if (alreadyCached(entryName, jar, baos)) return;
+      cacheBytes(entry, jar, man, entryName, baos);
+      LOGGER.fine("cached bytes for class " + entryName);
     } else {
-      // If entry is a class, check to see that it hasn't been defined
-      // already.  Class names must be unique within a classloader because
-      // they are cached inside the VM until the classloader is released.
-      if (type.equals("class")) {
-        if (alreadyCached(entryName, jar, baos)) return;
-        byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
-        LOGGER.fine("cached bytes for class " + entryName);
-      } else {
-        // https://github.com/nsoft/uno-jar/issues/10 - package names must not end in /
-        if (entryName.endsWith(File.separator)) {
-          //System.out.println(entryName);
-          entryName = entryName.substring(0,entryName.length() -1);
+      // https://github.com/nsoft/uno-jar/issues/10 - package names must not end in /
+      if (entryName.endsWith(File.separator)) {
+        //System.out.println(entryName);
+        entryName = entryName.substring(0, entryName.length() - 1);
+      }
+      // Another kind of resource.  Cache this by name, and also prefixed
+      // by the jar name.  Don't duplicate the bytes.  This allows us
+      // to map resource lookups to either jar-local, or globally defined.
+      String localname = jar + "/" + entryName;
+      cacheBytes(entry, jar, man, localname, baos);
+      // Keep a set of jar names so we can do multiple-resource lookup by name
+      // as in findResources().
+      jarNames.add(jar);
+      LOGGER.fine("cached bytes for local name " + localname);
+      // Only keep the first non-local entry: this is like classpath where the first
+      // to define wins.
+      if (alreadyCached(entryName, jar, baos)) return;
+
+      cacheBytes(entry, jar, man, entryName, baos);
+      LOGGER.fine("cached bytes for entry name " + entryName);
+
+    }
+  }
+
+  /**
+   * Cache the bytecode or other bytes. Multi-release resources overwrite their original entries.
+   *
+   * @param entry The JarEntry from which to read bytes
+   * @param jar The name of the jar file
+   * @param man The manifest from the jar file
+   * @param entryName The name of the entry used as a key in the cache
+   * @param baos The stream to which bytes have been read.
+   */
+  private void cacheBytes(JarEntry entry, String jar, Manifest man, String entryName, ByteArrayOutputStream baos) {
+    boolean multiRelease = Boolean.TRUE.toString().equals(man.getMainAttributes().getValue(MULTI_RELEASE));
+    if (multiRelease) {
+      String jVer = System.getProperty("java.version");
+      //noinspection StatementWithEmptyBody
+      if (!jVer.startsWith("1.")) {
+        // determine the major version of java 9+
+        int endIndex = jVer.indexOf('.');
+        if (endIndex > 0) {
+          jVer = jVer.substring(0, endIndex);
         }
-        // Another kind of resource.  Cache this by name, and also prefixed
-        // by the jar name.  Don't duplicate the bytes.  This allows us
-        // to map resource lookups to either jar-local, or globally defined.
-        String localname = jar + "/" + entryName;
-        byteCode.put(localname, new ByteCode(localname, entry.getName(), baos, jar, man));
-        // Keep a set of jar names so we can do multiple-resource lookup by name
-        // as in findResources().
-        jarNames.add(jar);
-        LOGGER.fine("cached bytes for local name " + localname);
-        // Only keep the first non-local entry: this is like classpath where the first
-        // to define wins.
-        if (alreadyCached(entryName, jar, baos)) return;
+        Matcher m = MR_PATTERN.matcher(entryName);
 
-        byteCode.put(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man));
-        LOGGER.fine("cached bytes for entry name " + entryName);
-
+        if (m.find()) {
+          //System.out.println(entryName);
+          int mrVer = Integer.parseInt(m.group(1));
+          m.reset();
+          entryName = m.replaceAll("");
+          ByteCode byteCode = this.byteCode.get(entryName);
+          if (byteCode != null  ) {
+            int oldVer = byteCode.mrVersion;
+            if (mrVer > oldVer && mrVer <= Integer.parseInt(jVer)) {
+              this.byteCode.put(entryName,new ByteCode(entryName, entry.getName(), baos, jar, man, mrVer));
+              return;
+            }
+          }
+        }
+      } else {
+        // java 8 or earlier, ignore
       }
     }
+
+    byteCode.putIfAbsent(entryName, new ByteCode(entryName, entry.getName(), baos, jar, man, 8));
   }
 
   /**
