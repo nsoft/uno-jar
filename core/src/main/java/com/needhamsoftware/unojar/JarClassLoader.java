@@ -542,7 +542,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    * @param baos The stream to which bytes have been read.
    */
   private void cacheBytes(JarEntry entry, String jar, Manifest man, String entryName, ByteArrayOutputStream baos) {
-    boolean multiRelease = Boolean.TRUE.toString().equals(man.getMainAttributes().getValue(MULTI_RELEASE));
+    boolean multiRelease = man != null && Boolean.TRUE.toString().equals(man.getMainAttributes().getValue(MULTI_RELEASE));
     if (multiRelease) {
       String jVer = System.getProperty("java.version");
       //noinspection StatementWithEmptyBody
@@ -871,18 +871,23 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // delegateToParent = false, the wrapping classloader will have
     // delegateToParent = true;
     if (result == null && delegateToParent) {
-      // http://code.google.com/p/onejar-maven-plugin/issues/detail?id=16
-      ClassLoader parentClassLoader = getParent();
-
-      // JarClassLoader cannot satisfy requests for actual jar files themselves so it must delegate to it's
-      // parent. However, the "parent" is not always a JarClassLoader.
-      if (parentClassLoader instanceof JarClassLoader) {
-        result = ((JarClassLoader) parentClassLoader).getByteStream(resource);
-      } else {
-        result = parentClassLoader.getResourceAsStream(resource);
-      }
+      result = checkParent(resource);
     }
     LOGGER.fine("getByteStream(" + resource + ") -> " + result);
+    return result;
+  }
+
+  private InputStream checkParent(String resource) {
+    InputStream result;// http://code.google.com/p/onejar-maven-plugin/issues/detail?id=16
+    ClassLoader parentClassLoader = getParent();
+
+    // JarClassLoader cannot satisfy requests for actual jar files themselves so it must delegate to it's
+    // parent. However, the "parent" is not always a JarClassLoader.
+    if (parentClassLoader instanceof JarClassLoader) {
+      result = ((JarClassLoader) parentClassLoader).getByteStream(resource);
+    } else {
+      result = parentClassLoader.getResourceAsStream(resource);
+    }
     return result;
   }
 
@@ -1088,11 +1093,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
   /**
-   * OneJarURLFactory generates URL's which are efficient, using the in-memory bytecode
+   * UnoJarURLFactory generates URL's which are efficient, using the in-memory bytecode
    * to access the resources.
    *
    * @author simon
    */
+  @SuppressWarnings("unused") // instantiated by reflection!
   public static class UnoJarURLFactory implements IURLFactory {
     public UnoJarURLFactory(JarClassLoader jcl) {
       // Argument not used.
@@ -1100,8 +1106,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
     public URL getURL(String codebase, String resource) throws MalformedURLException {
       String base = resource.endsWith(".class") ? "" : codebase + "/";
-      URL url = new URL(Handler.PROTOCOL + ":/" + base + resource);
-      return url;
+      return new URL(Handler.PROTOCOL + ":/" + base + resource);
     }
 
     public URL getCodeBase(String jar) throws MalformedURLException {

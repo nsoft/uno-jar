@@ -418,7 +418,7 @@ public class Boot {
         String jarname = System.getProperty(P_JAVA_CLASS_PATH);
         // Open each Jar file looking for this class name.  This allows for
         // JVM's that place more than the jar file on the classpath.
-        String jars[] = jarname.split(System.getProperty("path.separator"));
+        String[] jars = jarname.split(System.getProperty("path.separator"));
         for (int i = 0; i < jars.length; i++) {
           jarname = jars[i];
           LOGGER.fine("Checking " + jarname + " as Uno-Jar file");
