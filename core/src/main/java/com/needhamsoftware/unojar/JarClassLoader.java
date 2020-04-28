@@ -75,8 +75,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   public final static String NL = System.getProperty("line.separator");
 
-  public final static String JAVA_PROTOCOL_HANDLER = "java.protocol.handler.pkgs";
-
   protected String name;
   protected boolean noExpand, expanded;
   protected ClassLoader externalClassLoader;
@@ -103,17 +101,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     this.oneJarPath = url.toString();
   }
 
-  static {
-    // Add our 'onejar:' protocol handler, but leave open the
-    // possibility of a subsequent class taking over the
-    // factory.  TODO: (how reasonable is this?)
-    String handlerPackage = System.getProperty(JAVA_PROTOCOL_HANDLER);
-    if (handlerPackage == null) handlerPackage = "";
-    if (handlerPackage.length() > 0) handlerPackage = "|" + handlerPackage;
-    handlerPackage = "com.simontuffs" + handlerPackage;
-    System.setProperty(JAVA_PROTOCOL_HANDLER, handlerPackage);
 
-  }
 
   protected String NAME() {
     return (name != null ? "'" + name + "' " : "");
