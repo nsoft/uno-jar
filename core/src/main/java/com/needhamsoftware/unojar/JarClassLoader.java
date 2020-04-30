@@ -120,7 +120,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected Map<String,ByteCode> byteCode = Collections.synchronizedMap(new HashMap<>());
   protected Map pdCache = Collections.synchronizedMap(new HashMap());
   protected Map binLibPath = Collections.synchronizedMap(new HashMap());
-  protected Set<String> jarNames = Collections.synchronizedSet(new TreeSet<>());
+  protected Set<String> jarNames = Collections.synchronizedSet(new LinkedHashSet<>());
 
 
   protected boolean record = false, flatten = false, unpackFindResource = false;
