@@ -120,7 +120,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected Map<String,ByteCode> byteCode = Collections.synchronizedMap(new HashMap<>());
   protected Map pdCache = Collections.synchronizedMap(new HashMap());
   protected Map binLibPath = Collections.synchronizedMap(new HashMap());
-  protected Set<String> jarNames = Collections.synchronizedSet(new HashSet<>());
+  protected Set<String> jarNames = Collections.synchronizedSet(new TreeSet<>());
 
 
   protected boolean record = false, flatten = false, unpackFindResource = false;
@@ -1230,30 +1230,59 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   }
 
-  protected Enumeration findResources(String name) throws IOException {
+  public List<URL> getURLs() throws MalformedURLException {
+    return listUrls(null);
+  }
+
+  protected Enumeration<URL> findResources(String name) throws IOException {
     LOGGER.info("findResources(" + name + ")");
     LOGGER.info("findResources: looking in " + jarNames);
-    Iterator iter = jarNames.iterator();
-    final List resources = new ArrayList();
-    while (iter.hasNext()) {
-      String resource = iter.next().toString() + "/" + name;
-      ByteCode entry = ((ByteCode) byteCode.get(resource));
-      if (byteCode.containsKey(resource)) {
-        URL url = urlFactory.getURL(entry.codebase, name);
-        LOGGER.info("findResources(): Adding " + url + " to resources list.");
-        resources.add(url);
-      }
+    if (name == null) {
+      return enumerateList(Collections.emptyList());
     }
-    final Iterator ri = resources.iterator();
-    return new Enumeration() {
+    final List<URL> resources = listUrls(name);
+    return enumerateList(resources);
+  }
+
+  private Enumeration<URL> enumerateList(List<URL> resources) {
+    final Iterator<URL> ri = resources.iterator();
+    return new Enumeration<>() {
       public boolean hasMoreElements() {
         return ri.hasNext();
       }
 
-      public Object nextElement() {
+      public URL nextElement() {
         return ri.next();
       }
     };
+  }
+
+  private List<URL> listUrls(String name) throws MalformedURLException {
+    final List<URL> resources = new ArrayList<>();
+    for (String jarName : jarNames) {
+      if (name == null) {
+        FileURLFactory fileURLFactory = new FileURLFactory(this);
+        for (String s : byteCode.keySet()) {
+          URL url = null;
+          try {
+            ByteCode byteCode = this.byteCode.get(s);
+            url = fileURLFactory.getURL(byteCode.codebase, byteCode.name);
+          } catch (MalformedURLException e) {
+            LOGGER.warning("Malformed URL while iterating JAR. codebase=" + byteCode.get(s).codebase);
+          }
+          resources.add(url);
+        }
+      } else {
+        String resource = jarName + "/" + name;
+        ByteCode entry = byteCode.get(resource);
+        if (byteCode.containsKey(resource)) {
+          URL url = urlFactory.getURL(entry.codebase, name);
+          LOGGER.info("findResources(): Adding " + url + " to resources list.");
+          resources.add(url);
+        }
+      }
+    }
+    return resources;
   }
 
   /**
@@ -1262,7 +1291,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    *
    * @param in  Source of bytes to copy.
    * @param out Destination of bytes to copy.
-   * @throws IOException
+   * @throws IOException when stream operations fail
    */
   protected void copy(InputStream in, OutputStream out) throws IOException {
     byte[] buf = new byte[1024];
@@ -1280,7 +1309,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   /**
    * Returns name of the classloader.
    *
-   * @return
+   * @return the name
    */
   public String getName() {
     return name;
@@ -1289,7 +1318,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   /**
    * Sets name of the classloader.  Default is null.
    *
-   * @param string
+   * @param string the name
    */
   public void setName(String string) {
     name = string;
