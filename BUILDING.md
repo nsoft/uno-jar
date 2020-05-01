@@ -1,4 +1,5 @@
-#Building
+# Building
+
 This project is difficult to build because it includes a gradle plugin that 
 depends on other modules and thus has chicken/egg issues. The current 
 bootstrapping process when things get out of sync is:
