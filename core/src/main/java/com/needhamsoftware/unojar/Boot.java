@@ -412,50 +412,6 @@ public class Boot {
       LOGGER.info("myJarPath=" + myJarPath);
       return myJarPath;
     }
-    if (myJarPath == null) {
-      try {
-        // Hack to obtain the name of this jar file.
-        String jarname = System.getProperty(P_JAVA_CLASS_PATH);
-        // Open each Jar file looking for this class name.  This allows for
-        // JVM's that place more than the jar file on the classpath.
-        String[] jars = jarname.split(System.getProperty("path.separator"));
-        for (int i = 0; i < jars.length; i++) {
-          jarname = jars[i];
-          LOGGER.fine("Checking " + jarname + " as Uno-Jar file");
-          // Allow for URL based paths, as well as file-based paths.  File
-          InputStream is = null;
-          try {
-            is = new URL(jarname).openStream();
-          } catch (MalformedURLException mux) {
-            // Try a local file.
-            try {
-              is = new FileInputStream(jarname);
-            } catch (IOException iox) {
-              // Ignore..., but it isn't good to have bad entries on the classpath.
-              continue;
-            }
-          }
-          ZipEntry entry = findJarEntry(new JarInputStream(is), Boot.class.getName().replace('.', '/') + ".class");
-          if (entry != null) {
-            myJarPath = jarname;
-            break;
-          } else {
-            // One more try as a Zip file: supports launch4j on Windows.
-            entry = findZipEntry(new ZipFile(jarname), Boot.class.getName().replace('.', '/') + ".class");
-            if (entry != null) {
-              myJarPath = jarname;
-              break;
-            }
-          }
-        }
-      } catch (Exception x) {
-        x.printStackTrace();
-        LOGGER.warning("jar=" + myJarPath + " loaded from " + P_JAVA_CLASS_PATH /* + " (" + System.getProperty(P_JAVA_CLASS_PATH) + ")" */);
-      }
-    }
-    if (myJarPath == null) {
-      throw new IllegalArgumentException("Unable to locate " + Boot.class.getName() + " in the java.class.path: consider using -D" + P_JARPATH + " to specify the Uno-Jar filename.");
-    }
     // Normalize those annoying DOS backslashes.
     myJarPath = myJarPath.replace('\\', '/');
     return new File(myJarPath).toURI().toString();
