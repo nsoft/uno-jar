@@ -70,13 +70,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   public final static String BINLIB_PREFIX = "binlib/";
   public final static String MAIN_PREFIX = "main/";
-  public final static String RECORDING = "recording";
   public final static String MULTI_RELEASE = "Multi-Release";
   public final static String CLASS = ".class";
   public static final String LIB = "lib/";
 
-  protected String name;
-  protected boolean expanded;
   protected ClassLoader externalClassLoader;
 
   private static final Logger LOGGER = Logger.getLogger("JarClassLoader");
@@ -95,9 +92,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected Map<String, ProtectionDomain> pdCache = Collections.synchronizedMap(new HashMap<>());
   protected Map<String, String> binLibPath = Collections.synchronizedMap(new HashMap<>());
   protected Set<String> jarNames = Collections.synchronizedSet(new HashSet<>());
-
-  protected boolean record = false, flatten = false;
-  protected String recording = RECORDING;
 
   protected String mainJar;
   protected boolean delegateToParent;
@@ -271,9 +265,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   public String load(String mainClass, String jarName) {
     LOGGER.fine("load(" + mainClass + "," + jarName + ")");
-    if (record) {
-      new File(recording).mkdirs();
-    }
+
     try {
       if (jarName == null) {
         jarName = oneJarPath;
@@ -527,9 +519,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     ByteCode bytecode = byteCode.get(cache);
     if (bytecode != null) {
       LOGGER.fine("found " + name + " in codebase '" + bytecode.codebase + "'");
-      if (record) {
-        record(bytecode);
-      }
       // Use a protectionDomain to associate the codebase with the
       // class.
       ProtectionDomain pd = pdCache.get(bytecode.codebase);
@@ -669,27 +658,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // Simple, non wrapped class definition.
     LOGGER.fine("defineClass(" + name + ")");
     return defineClass(name, bytes, 0, bytes.length, pd);
-  }
-
-  protected void record(ByteCode bytecode) {
-    String fileName = bytecode.original;
-    // Write out into the record directory.
-    File dir = new File(recording, flatten ? "" : bytecode.codebase);
-    File file = new File(dir, fileName);
-    if (!file.exists()) {
-      //noinspection ResultOfMethodCallIgnored
-      file.getParentFile().mkdirs();
-      LOGGER.fine("" + file);
-      try {
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(bytecode.bytes);
-        fos.close();
-
-      } catch (IOException iox) {
-        LOGGER.severe("unable to record " + file + ": " + iox);
-      }
-
-    }
   }
 
   /**
@@ -871,21 +839,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return className.replace(".", "/") + ".class";
   }
 
-  /**
-   * Sets the name of the used  classes recording directory.
-   *
-   * @param $recording A value of "" will use the current working directory
-   *                   (not recommended).  A value of 'null' will use the default directory, which
-   *                   is called 'recording' under the launch directory (recommended).
-   */
-  public void setRecording(String $recording) {
-    recording = $recording;
-    if (recording == null) recording = RECORDING;
-  }
 
-  public void setRecord(boolean $record) {
-    record = $record;
-  }
 
   public void setVerbose(boolean verbose) {
     if (verbose) {
@@ -905,10 +859,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     } else {
       Logger.setLevel(Logger.LOGLEVEL_INFO);
     }
-  }
-
-  public void setFlatten(boolean $flatten) {
-    flatten = $flatten;
   }
 
   // Injectable URL factory.
@@ -1165,21 +1115,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
   public String toString() {
-    return super.toString() + (name != null ? "(" + name + ")" : "");
+    return super.toString() + (getName() != null ? "(" + getName() + ")" : "");
   }
 
-  /**
-   * Returns name of the classloader.
-   *
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  public boolean isExpanded() {
-    return expanded;
-  }
 
   /**
    * Preloader for {@link JarClassLoader#findTheLibrary(String, String)} to allow arch-specific native libraries
@@ -1267,14 +1205,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   public void setProperties(IProperties jarloader) {
     LOGGER.info("setProperties(" + jarloader + ")");
-    if (JarClassLoader.getProperty(JarClassLoader.P_RECORD)) {
-      jarloader.setRecord(true);
-      jarloader.setRecording(System.getProperty(JarClassLoader.P_RECORD));
-    }
-    if (JarClassLoader.getProperty(JarClassLoader.P_JARNAMES)) {
-      jarloader.setRecord(true);
-      jarloader.setFlatten(false);
-    }
     if (JarClassLoader.getProperty(JarClassLoader.P_VERBOSE)) {
       jarloader.setVerbose(true);
     }

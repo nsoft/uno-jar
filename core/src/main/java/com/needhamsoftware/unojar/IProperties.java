@@ -13,10 +13,5 @@ public interface IProperties {
 
   public void setSilent(boolean silent);
 
-  public void setRecord(boolean record);
-
-  public void setFlatten(boolean flatten);
-
-  public void setRecording(String recording);
 
 }

@@ -245,24 +245,22 @@ public class Boot {
 
     mainClass = loader.load(mainClass);
 
-    if (mainClass == null && !loader.isExpanded())
+    if (mainClass == null )
       throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
 
-    if (mainClass != null) {
-      // Guard against the main.jar pointing back to this
-      // class, and causing an infinite recursion.
-      String bootClass = Boot.class.getName();
-      if (bootClass.equals(mainClass))
-        throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
+    // Guard against the main.jar pointing back to this
+    // class, and causing an infinite recursion.
+    String bootClass = Boot.class.getName();
+    if (bootClass.equals(mainClass))
+      throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
 
-      Class cls = loader.loadClass(mainClass);
+    Class cls = loader.loadClass(mainClass);
 
-      endTime = System.currentTimeMillis();
-      showTime();
+    endTime = System.currentTimeMillis();
+    showTime();
 
-      Method main = cls.getMethod("main", new Class[]{String[].class});
-      main.invoke(null, new Object[]{args});
-    }
+    Method main = cls.getMethod("main", new Class[]{String[].class});
+    main.invoke(null, new Object[]{args});
   }
 
   private static void initializeProperties() throws IOException,
