@@ -35,6 +35,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -122,11 +123,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   protected Map binLibPath = Collections.synchronizedMap(new HashMap());
   protected Set<String> jarNames = Collections.synchronizedSet(new HashSet<>());
 
-
-  protected boolean record = false, flatten = false, unpackFindResource = false;
+  protected boolean record = false, flatten = false;
   protected String recording = RECORDING;
 
-  protected String jarName, mainJar, wrapDir;
+  protected String mainJar;
   protected boolean delegateToParent;
 
   protected static class ByteCode {
@@ -145,20 +145,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public int mrVersion;
   }
 
-
-  /**
-   * Create a non-delegating but jar-capable classloader for bootstrap
-   * purposes.
-   *
-   * @param $wrap The directory in the archive from which to load a
-   *              wrapping classloader.
-   */
-  public JarClassLoader(String $wrap) {
-    wrapDir = $wrap;
-    delegateToParent = wrapDir == null;
-    setProperties(this);
-    init();
-  }
 
   // this documentation appears to have become out of date
   // TODO: figure out what it was all about...
@@ -193,36 +179,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    *            /util
    *              Util.clas
    * </pre>
-   * The recording directory will look like this:
-   * <ul>
-   * <li>flatten=false</li>
-   * <pre>
-   *   /recording
-   *     /main.jar
-   *       /com
-   *         /main
-   *            Main.class
-   *     /util.jar
-   *       /com
-   *         /util
-   *            Util.class
-   * </pre>
-   *
-   * <li>flatten = true</li>
-   * <pre>
-   *   /recording
-   *     /com
-   *       /main
-   *          Main.class
-   *       /util
-   *          Util.class
-   *
-   * </ul>
-   * Flatten mode is intended for when you want to create a super-jar which can
-   * be launched directly without using uno-jar's launcher.  Run your application
-   * under all possible scenarios to collect the actual classes which are loaded,
-   * then jar them all up, and point to the main class with a "Main-Class" entry
-   * in the manifest.
    *
    */
 
@@ -231,8 +187,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    *
    * @param parent The parent for this class loader.
    */
-  public JarClassLoader(ClassLoader parent) {
+  public JarClassLoader(ClassLoader parent, String oneJarPath) {
     super(parent);
+    this.oneJarPath = oneJarPath;
     delegateToParent = true;
     setProperties(this);
     init();
@@ -355,13 +312,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if (entry.isDirectory())
           continue;
 
-        // The META-INF/MANIFEST.MF file can contain a property which names
-        // directories in the JAR to be expanded (comma separated). For example:
-        // Uno-Jar-Expand: build,tmp,webapps
         String $entry = entry.getName();
-        if (wrapDir != null && $entry.startsWith(wrapDir) || $entry.startsWith(getLibPrefix()) || $entry.startsWith(MAIN_PREFIX)) {
-          if (wrapDir != null && !entry.getName().startsWith(wrapDir))
-            continue;
+        if ( $entry.startsWith(getLibPrefix()) || $entry.startsWith(MAIN_PREFIX)) {
+
           // Load it!
           LOGGER.fine("caching " + $entry);
           LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
@@ -944,25 +897,20 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
 
   protected String getCaller() {
+    StackWalker walker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
+    Optional<StackWalker.StackFrame> firstByteCode = walker.walk(s -> s.filter(f -> {
+      String caller = f.getClassName();
+      String cls = getByteCodeName(caller);
+      if (byteCode.get(cls) != null) {
+        return !caller.startsWith("com.needhamsoftware.unojar");
+      }
+      return false;
+    }).findFirst());
+    return firstByteCode.map(stackFrame -> getByteCodeName(stackFrame.getClassName())).orElse(null);
+  }
 
-    // TODO: revisit caller determination.
-        /*
-        StackTraceElement[] stack = new Throwable().getStackTrace();
-        // Search upward until we get to a known class, i.e. one with a non-null
-        // codebase.  Skip anything in the com.simontuffs.onejar package to avoid
-        // classloader classes.
-        for (int i=0; i<stack.length; i++) {
-            String cls = stack[i].getClassName().replace(".","/") + ".class";
-            LOGGER.INFO("getCaller(): cls=" + cls);
-            if (byteCode.get(cls) != null) {
-                String caller = stack[i].getClassName();
-                if (!caller.startsWith("com.simontuffs.onejar")) {
-                    return cls;
-                }
-            }
-        }
-        */
-    return null;
+  private String getByteCodeName(String className) {
+    return className.replace(".", "/") + ".class";
   }
 
   /**
@@ -1016,8 +964,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public boolean isFlatten() {
     return flatten;
   }
-
-  protected URLStreamHandler oneJarHandler = new Handler();
 
   // Injectable URL factory.
   public static interface IURLFactory {
@@ -1193,6 +1139,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    */
   // TODO: Revisit the issue of protocol handlers for findResource()
   // and findResources();
+  // TODO: I'm not sure this method should be calling getResources at all. java.lang.Classloader will have already
+  //  attempted "get" up the tree before calling "find" In a deep hierarchy this causes a redundant round
+  //  of getResource requests all the way up the chain.
   protected URL findResource(String $resource) {
     try {
       LOGGER.fine("findResource(\"" + $resource + "\")");

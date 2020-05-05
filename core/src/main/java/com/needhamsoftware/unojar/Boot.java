@@ -12,7 +12,6 @@ package com.needhamsoftware.unojar;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.AccessController;
 import java.security.CodeSource;
@@ -66,17 +65,12 @@ public class Boot {
 
   public final static String MAIN_JAR = "main/main.jar";
 
-  public final static String WRAP_CLASS_LOADER = "Wrap-Class-Loader";
-  public final static String WRAP_DIR = "wrap";
-  public final static String WRAP_JAR = "/" + WRAP_DIR + "/wraploader.jar";
-
   public final static String P_MAIN_CLASS = JarClassLoader.PROPERTY_PREFIX + "main.class";
   public final static String P_MAIN_JAR = JarClassLoader.PROPERTY_PREFIX + "main.jar";
   public final static String P_MAIN_APP = JarClassLoader.PROPERTY_PREFIX + "main.app";
   public final static String P_STATISTICS = JarClassLoader.PROPERTY_PREFIX + "statistics";
   public final static String P_SHOW_PROPERTIES = JarClassLoader.PROPERTY_PREFIX + "show.properties";
   public final static String P_JARPATH = JarClassLoader.PROPERTY_PREFIX + "jar.path";
-  public final static String P_JAVA_CLASS_PATH = "java.class.path";
   // Command-line arguments
   public final static String A_HELP = "--uno-jar-help";
   public final static String A_VERSION = "--uno-jar-version";
@@ -126,19 +120,6 @@ public class Boot {
    */
   public synchronized static JarClassLoader getClassLoader() {
     return loader;
-  }
-
-  /**
-   * This is the single point of entry for setting the "loader" member.  It checks to
-   * make sure programming errors don't call it more than once.
-   *
-   * @param $loader
-   * @throws MalformedURLException
-   */
-  public synchronized static void setClassLoader(JarClassLoader $loader) throws MalformedURLException {
-    if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
-    loader = $loader;
-    loader.setOneJarPath(Boot.getMyJarPath());
   }
 
   protected static void PRINTLN(String message) {
@@ -244,39 +225,12 @@ public class Boot {
       }
     }
 
-    // Do we need to create a wrapping classloader?  Check for the
-    // presence of a "wrap" directory at the top of the jar file.
-    URL url = Boot.class.getResource(WRAP_JAR);
-
-    if (url != null) {
-      // Wrap class loaders.
-      final JarClassLoader bootLoader = getBootLoader(bootLoaderName);
-      bootLoader.setOneJarPath(Boot.getMyJarPath());
-      bootLoader.load(null);
-
-      // Read the "Wrap-Class-Loader" property from the wraploader jar file.
-      // This is the class to use as a wrapping class-loader.
-      InputStream is = Boot.class.getResourceAsStream(WRAP_JAR);
-      if (is != null) {
-        JarInputStream wis = new JarInputStream(is);
-        final String wrapLoader = wis.getManifest().getMainAttributes().getValue(WRAP_CLASS_LOADER);
-        jis.close();
-        if (wrapLoader == null) {
-          LOGGER.warning(url + " did not contain a " + WRAP_CLASS_LOADER + " attribute, unable to load wrapping classloader");
-        } else {
-          LOGGER.info("using " + wrapLoader);
-          JarClassLoader wrapped = getWrapLoader(bootLoader, wrapLoader);
-          if (wrapped == null) {
-            LOGGER.warning("Unable to instantiate " + wrapLoader + " from " + WRAP_DIR + ": using default JarClassLoader");
-            wrapped = getBootLoader(null);
-          }
-          setClassLoader(wrapped);
-        }
-      }
-    } else {
-      setClassLoader(getBootLoader(bootLoaderName, Boot.class.getClassLoader()));
-      LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
+    synchronized (Boot.class) {
+      if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
+      String myJarPath = Boot.getMyJarPath();
+      loader = getBootLoader(bootLoaderName, myJarPath);
     }
+    LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
 
     // Allow injection of the URL factory.
     String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
@@ -288,8 +242,6 @@ public class Boot {
     if (resolver != null) {
       loader.setBinlibResolver(resolver);
     }
-
-    loader.setOneJarPath(getMyJarPath());
 
     mainClass = loader.load(mainClass);
 
@@ -405,7 +357,7 @@ public class Boot {
       }
     }
     if (myJarPath == null) {
-      Class cls = Boot.class;
+      Class<Boot> cls = Boot.class;
       ProtectionDomain pDomain = cls.getProtectionDomain();
       CodeSource cSource = pDomain.getCodeSource();
       myJarPath = cSource.getLocation().toString();
@@ -493,11 +445,8 @@ public class Boot {
         System.out.println();
         System.exit(0);
       } else if (argument.startsWith(A_VERSION)) {
-        InputStream is = Boot.class.getResourceAsStream("/.version");
-        if (is != null) {
-          BufferedReader br = new BufferedReader(new InputStreamReader(is));
-          String version = br.readLine();
-          br.close();
+        String version = version();
+        if (version != null && !"".equals(version.trim())) {
           System.out.println("Uno-Jar version " + version);
         } else {
           System.out.println("Unable to determine Uno-Jar version (missing /.version resource in Uno-Jar archive)");
@@ -510,59 +459,32 @@ public class Boot {
     return (String[]) list.toArray(new String[0]);
   }
 
-  protected static JarClassLoader getBootLoader(final String loader) {
-    JarClassLoader bootLoader = (JarClassLoader) AccessController.doPrivileged(
-        new PrivilegedAction() {
-          public Object run() {
-            if (loader != null) {
-              try {
-                Class cls = Class.forName(loader);
-                Constructor ctor = cls.getConstructor(new Class[]{String.class});
-                return ctor.newInstance(new Object[]{WRAP_DIR});
-              } catch (Exception x) {
-                LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
-              }
-            }
-            return new JarClassLoader(WRAP_DIR);
-          }
-        }
-    );
-    return bootLoader;
+  public static String version() throws IOException {
+    InputStream is = Boot.class.getResourceAsStream("/.version");
+    String version = null;
+    if (is != null) {
+      BufferedReader br = new BufferedReader(new InputStreamReader(is));
+      version = br.readLine();
+      br.close();
+    }
+    return version;
   }
 
-  protected static JarClassLoader getBootLoader(final String loader, ClassLoader parent) {
-    return (JarClassLoader) AccessController.doPrivileged(
-        new PrivilegedAction() {
-          public Object run() {
-            if (loader != null) {
-              try {
-                Class cls = Class.forName(loader);
-                Constructor ctor = cls.getConstructor(new Class[]{ClassLoader.class});
-                return ctor.newInstance(new Object[]{Boot.class.getClassLoader()});
-              } catch (Exception x) {
-                LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
-              }
-            }
-            return new JarClassLoader(Boot.class.getClassLoader());
-          }
-        }
-    );
-  }
-
-  protected static JarClassLoader getWrapLoader(final ClassLoader bootLoader, final String wrapLoader) {
-    return ((JarClassLoader) AccessController.doPrivileged(
-        new PrivilegedAction() {
-          public Object run() {
+  protected static JarClassLoader getBootLoader(String bootLoaderName, final String jarPath) {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<JarClassLoader>) () -> {
+          if (loader != null) {
             try {
-              Class jarLoaderClass = bootLoader.loadClass(wrapLoader);
-              Constructor ctor = jarLoaderClass.getConstructor(new Class[]{ClassLoader.class});
-              return ctor.newInstance(new Object[]{bootLoader});
-            } catch (Throwable t) {
-              LOGGER.warning(t.toString());
+              Class cls = Class.forName(bootLoaderName);
+              Constructor<JarClassLoader> ctor = cls.getConstructor(ClassLoader.class);
+              return ctor.newInstance(Boot.class.getClassLoader());
+            } catch (Exception x) {
+              LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
             }
-            return null;
           }
-        }));
+          return new JarClassLoader(Boot.class.getClassLoader(), jarPath);
+        }
+    );
   }
 
   public static long getEndTime() {

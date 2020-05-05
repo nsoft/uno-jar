@@ -26,7 +26,6 @@ dependencies {
   testCompile 'junit:junit:4.12'
 }
 
-
 jar {
   from('../') {
     include 'LICENSE.txt'
@@ -34,6 +33,13 @@ jar {
   }
 }
 
+task versionTxt()  {
+  doLast {
+    new File(projectDir, "/src/main/resources/.version").text = "$version"
+  }
+}
+
+classes.dependsOn(versionTxt)
 /*
 
  Maven Publishing stuff to publish to central. This also allows you to publish
@@ -77,9 +83,7 @@ task uploadSnapshot(dependsOn: uploadArchives) {}
 task uploadRelease(dependsOn: uploadArchives) {}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
   from sourceSets.main.allSource
-  archiveName = 'core-'+project.version+'-sources.jar'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
@@ -208,9 +212,14 @@ publishing {
       artifactId 'core'
       version project.version
       from components.java
+      artifact sourcesJar {
+        classifier "sources"
+      }
     }
   }
 }
+
+publishMavenJavaPublicationToMavenLocal.dependsOn(sourcesJar)
 
 
 

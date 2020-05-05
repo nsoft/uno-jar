@@ -115,14 +115,7 @@ public class UnoJarTask extends Jar {
     }
   }
 
-  public static class Wrap extends Task {
-    protected List filesets = new ArrayList();
 
-    public void addFileSet(ZipFileSet fileset) {
-      log("Wrap.addFileSet() ", Project.MSG_VERBOSE);
-      filesets.add(fileset);
-    }
-  }
 
   public static class BinLib extends Task {
     protected List filesets = new ArrayList();
@@ -210,15 +203,7 @@ public class UnoJarTask extends Jar {
     }
   }
 
-  public void addConfiguredWrap(Wrap lib) {
-    log("addWrap()", Project.MSG_VERBOSE);
-    Iterator iter = lib.filesets.iterator();
-    while (iter.hasNext()) {
-      ZipFileSet fileset = (ZipFileSet) iter.next();
-      fileset.setPrefix("wrap/");
-      super.addFileset(fileset);
-    }
-  }
+
 
   public void addConfiguredBinLib(BinLib lib) {
     log("addBinLib()", Project.MSG_VERBOSE);
@@ -403,7 +388,7 @@ public class UnoJarTask extends Jar {
       java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
       try {
         // Specify our Created-By and Main-Class attributes as overrides.
-        manifest.addConfiguredAttribute(new Attribute("Created-By", "uno-jar 0.99 Ant taskdef"));
+        manifest.addConfiguredAttribute(new Attribute("Archive-Type", "uno-jar"));
         manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS, jattributes.getValue(MAIN_CLASS)));
         if (oneJarMainClass != null) {
           manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));
