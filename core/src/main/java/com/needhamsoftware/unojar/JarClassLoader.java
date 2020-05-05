@@ -674,6 +674,17 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return canon;
   }
 
+  @Override
+  public InputStream getResourceAsStream(String name) {
+    Objects.requireNonNull(name);
+    // no reason to look further if we already have the bytes
+    InputStream byteStream = getByteStream(name);
+    if (byteStream != null) {
+      return byteStream;
+    }
+    return super.getResourceAsStream(name);
+  }
+
   /**
    * Overriden to return resources from the appropriate codebase.
    * There are basically two ways this method will be called: most commonly
@@ -838,7 +849,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   private String getByteCodeName(String className) {
     return className.replace(".", "/") + ".class";
   }
-
 
 
   public void setVerbose(boolean verbose) {
