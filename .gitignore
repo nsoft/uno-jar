@@ -4,3 +4,4 @@ build
 dist
 .gradle
 **/out/
+/core/src/main/resources/.version
