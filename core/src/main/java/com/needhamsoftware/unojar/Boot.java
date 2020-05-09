@@ -46,11 +46,7 @@ public class Boot {
 
   private final static Logger LOGGER = Logger.getLogger("Boot");
 
-  /**
-   * The name of the manifest attribute which controls which class
-   * to bootstrap from the jar file.  The boot class can
-   * be in any of the contained jar files.
-   */
+
   public final static String ONE_JAR_CLASSLOADER = "Uno-Jar-Class-Loader";
   public final static String ONE_JAR_MAIN_CLASS = "Uno-Jar-Main-Class";
   public final static String ONE_JAR_DEFAULT_MAIN_JAR = "Uno-Jar-Default-Main-Jar";
@@ -122,7 +118,128 @@ public class Boot {
   }
 
   public static void main(String[] args) throws Exception {
-    run(args);
+    args = processArgs(args);
+    initializeLogging();
+    statistics = JarClassLoader.getProperty(Boot.P_STATISTICS);
+
+    // Is the main class specified on the command line?  If so, boot it.
+    // Otherwise, read the main class out of the manifest.
+    String mainClass = null;
+    initializeProperties();
+
+    // Reinitialze Logging (property file could have other loglevel set)
+    initializeLogging();
+
+    try {
+      if (Boolean.valueOf(System.getProperty(P_SHOW_PROPERTIES, "false")).booleanValue()) {
+        // What are the system properties.
+        Properties props = System.getProperties();
+        String keys[] = (String[]) props.keySet().toArray(new String[]{});
+        Arrays.sort(keys);
+
+        for (int i = 0; i < keys.length; i++) {
+          String key = keys[i];
+          PRINTLN(key + "=" + props.get(key));
+        }
+      }
+
+      // Process developer properties:
+      mainClass = System.getProperty(P_MAIN_CLASS);
+
+      if (mainJar == null) {
+        String app = System.getProperty(P_MAIN_APP);
+        if (app != null) {
+          mainJar = "main/" + app + ".jar";
+        } else {
+          mainJar = System.getProperty(P_MAIN_JAR, MAIN_JAR);
+        }
+      }
+    } catch (SecurityException x) {
+      LOGGER.warning(x.toString());
+    }
+    // Pick some things out of the top-level JAR file.
+    String jar = getMyJarPath();
+    JarInputStream jis = new JarInputStream(new URL(jar).openConnection().getInputStream());
+    Manifest manifest = jis.getManifest();
+    Attributes attributes = manifest.getMainAttributes();
+    String bootLoaderName = attributes.getValue(ONE_JAR_CLASSLOADER);
+
+    if (mainJar == null) {
+      mainJar = attributes.getValue(ONE_JAR_DEFAULT_MAIN_JAR);
+    }
+
+    String mainargs = attributes.getValue(ONE_JAR_MAIN_ARGS);
+    if (mainargs != null && args.length == 0) {
+      // Replace the args with built-in.  Support escaped whitespace.
+      args = mainargs.split("[^\\\\]\\s");
+      for (int i = 0; i < args.length; i++) {
+        args[i] = args[i].replaceAll("\\\\(\\s)", "$1");
+        args[i] = JarClassLoader.replaceProps(System.getProperties(), args[i]);
+      }
+    }
+
+    // If no main-class specified, check the manifest of the main jar for
+    // a Boot-Class attribute.
+    if (mainClass == null) {
+      mainClass = attributes.getValue(ONE_JAR_MAIN_CLASS);
+    }
+
+    if (mainClass == null) {
+      // Still don't have one (default).  One final try: look for a jar file in a
+      // main directory.  There should be only one, and it's manifest
+      // Main-Class attribute is the main class.  The JarClassLoader will take
+      // care of finding it.
+      InputStream is = Boot.class.getResourceAsStream("/" + mainJar);
+      if (is != null) {
+        JarInputStream mis = new JarInputStream(is);
+        Manifest mainmanifest = mis.getManifest();
+        jis.close();
+        mainClass = mainmanifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+      } else {
+        // There is no main jar. Info unless mainJar is empty string.
+        // The load(mainClass) will scan for main jars anyway.
+        if (!"".equals(mainJar)) {
+          LOGGER.info("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
+        }
+      }
+    }
+
+    synchronized (Boot.class) {
+      if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
+      String myJarPath1 = Boot.getMyJarPath();
+      loader = getBootLoader(bootLoaderName, myJarPath1);
+    }
+    LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
+
+    // Allow injection of the URL factory.
+    String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
+    if (urlfactory != null) {
+      loader.setURLFactory(urlfactory);
+    }
+
+    String resolver = attributes.getValue(ONE_JAR_BINLIB_RESOLVER);
+    if (resolver != null) {
+      loader.setBinlibResolver(resolver);
+    }
+
+    mainClass = loader.load(mainClass);
+
+    if (mainClass == null )
+      throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
+
+    // Guard against the main.jar pointing back to this
+    // class, and causing an infinite recursion.
+    String bootClass = Boot.class.getName();
+    if (bootClass.equals(mainClass))
+      throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
+
+    Class cls = loader.loadClass(mainClass);
+
+    endTime = System.currentTimeMillis();
+    showTime();
+
+    Method main = cls.getMethod("main", new Class[]{String[].class});
+    main.invoke(null, new Object[]{args});
   }
 
   public static void run(String args[]) throws Exception {
