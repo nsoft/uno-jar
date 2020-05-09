@@ -51,7 +51,6 @@ public class Boot {
    * to bootstrap from the jar file.  The boot class can
    * be in any of the contained jar files.
    */
-  public final static String BOOT_CLASS = "Boot-Class";
   public final static String ONE_JAR_CLASSLOADER = "Uno-Jar-Class-Loader";
   public final static String ONE_JAR_MAIN_CLASS = "Uno-Jar-Main-Class";
   public final static String ONE_JAR_DEFAULT_MAIN_JAR = "Uno-Jar-Default-Main-Jar";
@@ -193,12 +192,6 @@ public class Boot {
     // a Boot-Class attribute.
     if (mainClass == null) {
       mainClass = attributes.getValue(ONE_JAR_MAIN_CLASS);
-      if (mainClass == null) {
-        mainClass = attributes.getValue(BOOT_CLASS);
-        if (mainClass != null) {
-          LOGGER.warning("The manifest attribute " + BOOT_CLASS + " is deprecated in favor of the attribute " + ONE_JAR_MAIN_CLASS);
-        }
-      }
     }
 
     if (mainClass == null) {
