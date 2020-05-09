@@ -67,7 +67,7 @@ public class Boot {
       P_MAIN_CLASS, "Specifies the name of the class which should be executed \n(via public static void main(String[])",
       P_MAIN_APP, "Specifies the name of the main/<app>.jar to be executed",
       JarClassLoader.P_RECORD, "true:  Enables recording of the classes loaded by the application",
-      JarClassLoader.P_JARNAMES, "true:  Recorded classes are kept in directories corresponding to their jar names.\n" +
+      JarClassLoader.P_JAR_NAMES, "true:  Recorded classes are kept in directories corresponding to their jar names.\n" +
       "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
       JarClassLoader.P_VERBOSE, "true:  Print verbose classloading information",
       JarClassLoader.P_SILENT, "true:  Dont' print any classloading information",

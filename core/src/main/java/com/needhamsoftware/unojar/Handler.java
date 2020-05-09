@@ -30,7 +30,7 @@ public class Handler extends URLStreamHandler {
   /**
    * @see java.net.URLStreamHandler#openConnection(java.net.URL)
    */
-  protected URLConnection openConnection(final URL u) throws IOException {
+  protected URLConnection openConnection(final URL u) {
     final String resource = u.getPath();
     return new URLConnection(u) {
       public void connect() {

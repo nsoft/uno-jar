@@ -60,7 +60,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public final static String P_INFO = PROPERTY_PREFIX + "info";
   public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
   public final static String P_SILENT = PROPERTY_PREFIX + "silent";
-  public final static String P_JARNAMES = PROPERTY_PREFIX + "jar.names";
+  public final static String P_JAR_NAMES = PROPERTY_PREFIX + "jar.names";
   public final static String P_RECORD = PROPERTY_PREFIX + "record";
   // System properties.
   public final static String P_EXPAND_DIR = JarClassLoader.PROPERTY_PREFIX + "expand.dir";
@@ -131,20 +131,20 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    *    /META-INF
    *    | MANIFEST.MF
    *    /com
-   *      /simontuffs
-   *        /onejar
+   *      /needhamsoftware
+   *        /unojar
    *          Boot.class
    *          JarClassLoader.class
    *    /main
-   *        main.jar
+   *      main.jar
    *        /com
    *          /main
    *            Main.class
    *    /lib
-   *        util.jar
-   *          /com
-   *            /util
-   *              Util.clas
+   *      util.jar
+   *        /com
+   *          /util
+   *            Util.class
    * </pre>
    *
    */
@@ -375,8 +375,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     int index2 = entryName.lastIndexOf('/', index - 1);
     if (entryName.endsWith(CLASS) && index2 > -1) {
       String packageName = entryName.substring(0, index2).replace('/', '.');
-      // TODO: per the deprecation message a subtle set of bugs might be lurking here... should replace getPackage()
-      if (getPackage(packageName) == null) {
+      if (getDefinedPackage(packageName) == null) {
         // Defend against null manifest.
         if (man != null) {
           definePackage(packageName, man, urlFactory.getCodeBase(jar));
@@ -541,7 +540,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       if (i != -1) {
         String pkgname = name.substring(0, i);
         // Check if package already loaded.
-        Package pkg = getPackage(pkgname);
+        Package pkg = getDefinedPackage(pkgname);
         Manifest man = bytecode.manifest;
         if (pkg != null) {
           // Package found, so check package sealing.
@@ -599,11 +598,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    * @param man  the Manifest containing package version and sealing
    *             information
    * @param url  the code source url for the package, or null if none
-   * @return the newly defined Package object
    * @throws IllegalArgumentException if the package name duplicates an existing package either
    *                                  in this class loader or one of its ancestors
    */
-  protected Package definePackage(String name, Manifest man, URL url) throws IllegalArgumentException {
+  protected void definePackage(String name, Manifest man, URL url) throws IllegalArgumentException {
     String path = name.concat("/");
     String specTitle = null, specVersion = null, specVendor = null;
     String implTitle = null, implVersion = null, implVendor = null;
@@ -650,7 +648,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         sealBase = url;
       }
     }
-    return definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
+    definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
   }
 
   @SuppressWarnings("rawtypes")
@@ -977,45 +975,47 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       this.urlFactory = (IURLFactory) ctor.newInstance(new Object[]{JarClassLoader.this});
     } catch (NoSuchMethodException x) {
       // Default constructor?
-      this.urlFactory = (IURLFactory) loadClass(urlFactory).newInstance();
+      try {
+        this.urlFactory = (IURLFactory) loadClass(urlFactory).getDeclaredConstructor().newInstance();
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException("Could not load URL factory:" + urlFactory, e);
+      }
     }
   }
 
-  protected IBinlibResolver defaultBinlibResolver = new IBinlibResolver() {
-    // Default implementation handles the legacy uno-jar cases.
-    public String find(String prefix) {
-      final String os = System.getProperty("os.name").toLowerCase();
-      final String arch = System.getProperty("os.arch").toLowerCase();
+  // Default implementation handles the legacy uno-jar cases.
+  protected IBinlibResolver defaultBinlibResolver = prefix -> {
+    final String os = System.getProperty("os.name").toLowerCase();
+    final String arch = System.getProperty("os.arch").toLowerCase();
 
-      final String BINLIB_LINUX32_PREFIX = prefix + "linux32/";
-      final String BINLIB_LINUX64_PREFIX = prefix + "linux64/";
-      final String BINLIB_MACOSX_PREFIX = prefix + "macosx/";
-      final String BINLIB_WINDOWS32_PREFIX = prefix + "windows32/";
-      final String BINLIB_WINDOWS64_PREFIX = prefix + "windows64/";
+    final String BINLIB_LINUX32_PREFIX = prefix + "linux32/";
+    final String BINLIB_LINUX64_PREFIX = prefix + "linux64/";
+    final String BINLIB_MACOSX_PREFIX = prefix + "macosx/";
+    final String BINLIB_WINDOWS32_PREFIX = prefix + "windows32/";
+    final String BINLIB_WINDOWS64_PREFIX = prefix + "windows64/";
 
-      String binlib;
+    String binlib;
 
-      // Mac
-      if (os.startsWith("mac os x")) {
-        //TODO Nood arch detection on mac
-        binlib = BINLIB_MACOSX_PREFIX;
-        // Windows
-      } else if (os.startsWith("windows")) {
-        if (arch.equals("x86")) {
-          binlib = BINLIB_WINDOWS32_PREFIX;
-        } else {
-          binlib = BINLIB_WINDOWS64_PREFIX;
-        }
-        // So it have to be Linux
+    // Mac
+    if (os.startsWith("mac os x")) {
+      //TODO Need arch detection on mac
+      binlib = BINLIB_MACOSX_PREFIX;
+      // Windows
+    } else if (os.startsWith("windows")) {
+      if (arch.equals("x86")) {
+        binlib = BINLIB_WINDOWS32_PREFIX;
       } else {
-        if (arch.equals("i386")) {
-          binlib = BINLIB_LINUX32_PREFIX;
-        } else {
-          binlib = BINLIB_LINUX64_PREFIX;
-        }
+        binlib = BINLIB_WINDOWS64_PREFIX;
       }
-      return binlib;
+      // So it have to be Linux
+    } else {
+      if (arch.equals("i386")) {
+        binlib = BINLIB_LINUX32_PREFIX;
+      } else {
+        binlib = BINLIB_LINUX64_PREFIX;
+      }
     }
+    return binlib;
   };
 
 
@@ -1032,7 +1032,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       this.binlibResolver = (IBinlibResolver) ctor.newInstance(new Object[]{JarClassLoader.this});
     } catch (NoSuchMethodException x) {
       // Default constructor?
-      this.binlibResolver = (IBinlibResolver) loadClass(resolver).newInstance();
+      try {
+        this.binlibResolver = (IBinlibResolver) loadClass(resolver).getDeclaredConstructor().newInstance();
+      } catch (NoSuchMethodException e) {
+        throw new RuntimeException("could not load binlib resolver:" + resolver, e);
+      }
     }
   }
 
@@ -1180,10 +1184,10 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       File tempNativeLib;
       FileOutputStream os;
       try {
-        int lastdot = resourcePath.lastIndexOf('.');
+        int lastDot = resourcePath.lastIndexOf('.');
         String suffix = null;
-        if (lastdot >= 0) {
-          suffix = resourcePath.substring(lastdot);
+        if (lastDot >= 0) {
+          suffix = resourcePath.substring(lastDot);
         }
         InputStream is = this.getClass().getResourceAsStream("/" + resourcePath);
 
@@ -1213,16 +1217,16 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return result;
   }
 
-  public void setProperties(IProperties jarloader) {
-    LOGGER.info("setProperties(" + jarloader + ")");
+  public void setProperties(IProperties jarLoader) {
+    LOGGER.info("setProperties(" + jarLoader + ")");
     if (JarClassLoader.getProperty(JarClassLoader.P_VERBOSE)) {
-      jarloader.setVerbose(true);
+      jarLoader.setVerbose(true);
     }
     if (JarClassLoader.getProperty(JarClassLoader.P_INFO)) {
-      jarloader.setInfo(true);
+      jarLoader.setInfo(true);
     }
     if (JarClassLoader.getProperty(JarClassLoader.P_SILENT)) {
-      jarloader.setSilent(true);
+      jarLoader.setSilent(true);
     }
   }
 

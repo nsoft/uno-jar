@@ -45,16 +45,13 @@ public class UnoJarFile extends JarFile {
       };
     }
     try {
-      JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
-      try {
+      try (JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile))) {
         JarEntry entry;
         while ((entry = is.getNextJarEntry()) != null) {
           if (entry.getName().equals(filename)) {
             return entry;
           }
         }
-      } finally {
-        is.close();
       }
     } catch (IOException e) {
       throw new IllegalStateException("Undefined Error", e);
@@ -63,14 +60,14 @@ public class UnoJarFile extends JarFile {
     // throw new RuntimeException("Entry not found : " + name);
   }
 
-  public Enumeration entries() {
+  public Enumeration<JarEntry> entries() {
     try {
       final JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
-      return new Enumeration() {
+      return new Enumeration<>() {
 
         protected JarEntry next;
 
-        public Object nextElement() {
+        public JarEntry nextElement() {
           if (next != null) {
             JarEntry tmp = next;
             next = null;
@@ -104,12 +101,11 @@ public class UnoJarFile extends JarFile {
     }
   }
 
-  public synchronized InputStream getInputStream(ZipEntry ze) throws IOException {
+  public synchronized InputStream getInputStream(ZipEntry ze) {
     if (ze == null)
       return null;
     try {
-      JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
-      try {
+      try (JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile))) {
         if (filename.equals(MANIFEST_NAME)) {
           ByteArrayOutputStream baos = new ByteArrayOutputStream();
           is.getManifest().write(baos);
@@ -123,8 +119,6 @@ public class UnoJarFile extends JarFile {
             return new ByteArrayInputStream(baos.toByteArray());
           }
         }
-      } finally {
-        is.close();
       }
     } catch (IOException e) {
       throw new RuntimeException("Undefined Error", e);

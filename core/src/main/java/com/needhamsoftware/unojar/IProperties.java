@@ -16,11 +16,11 @@ package com.needhamsoftware.unojar;
  */
 public interface IProperties {
 
-  public void setVerbose(boolean verbose);
+  void setVerbose(boolean verbose);
 
-  public void setInfo(boolean info);
+  void setInfo(boolean info);
 
-  public void setSilent(boolean silent);
+  void setSilent(boolean silent);
 
 
 }

@@ -31,7 +31,7 @@ public class UnoJarURLConnection extends JarURLConnection {
     super(url);
   }
 
-  public JarFile getJarFile() throws IOException {
+  public JarFile getJarFile() {
     return jarFile;
   }
 
@@ -43,7 +43,7 @@ public class UnoJarURLConnection extends JarURLConnection {
     String codebase = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
     // Handle the case where a URL points to the top-level jar file, i.e. no '!/' separator.
     if (separator >= 0) {
-      String jarFilename = jarWithContent, filename = null;
+      String jarFilename, filename;
       jarFilename = jarWithContent.substring(0, separator++);
       filename = jarWithContent.substring(++separator);
       jarFile = new UnoJarFile(codebase, jarFilename, filename);
