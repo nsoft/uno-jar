@@ -2,10 +2,10 @@ plugins {
   id 'groovy'
   id 'maven-publish'
   id 'java-gradle-plugin'
-  id 'com.gradle.plugin-publish' version '0.10.1'
+  id 'com.gradle.plugin-publish' version '0.11.0'
 }
 
-version = '1.0-SNAPSHOT'
+version = '1.0.0'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
