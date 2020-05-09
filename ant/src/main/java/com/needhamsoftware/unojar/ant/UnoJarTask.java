@@ -135,6 +135,8 @@ public class UnoJarTask extends Jar {
 
   /**
    * Constructor for use outside Ant: creates a wrapping project and gives it a name.
+   *
+   * @param project the project we are running under
    */
   public UnoJarTask(String project) {
     super();
@@ -151,7 +153,7 @@ public class UnoJarTask extends Jar {
   /**
    * Use &lt;main manifest="file"&gt; instead of this method.
    *
-   * @param manifest
+   * @param manifest the manifest to use
    */
   public void setMainManifest(File manifest) {
     mainManifest = manifest;
