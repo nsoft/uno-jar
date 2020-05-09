@@ -36,7 +36,6 @@
       <fileset dir="${classes.dir}">
         <include name=".version"/>
         <include name="com/**"/>
-        <include name="UnoJar.*"/>
         <exclude name="**/Detect*"/>
       </fileset>
       <fileset dir="${basedir}">
