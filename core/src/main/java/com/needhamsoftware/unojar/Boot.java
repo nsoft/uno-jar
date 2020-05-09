@@ -36,10 +36,6 @@ import java.util.zip.ZipFile;
  * Developer time JVM properties:
  * <pre>
  *   -Duno-jar.main.class={name}  Use named class as main class to run.
- *   -Duno-jar.record[=recording] Record loaded classes into "recording" directory.
- *                                Flatten jar.names into directory tree suitable
- *                                for use as a classpath.
- *   -Duno-jar.jar.names          Record loaded classes, preserve jar structure
  *   -Duno-jar.verbose            Run the JarClassLoader in verbose mode.
  *   -Duno-jar.silent             Run the JarClassLoader in silent mode.
  * </pre>
