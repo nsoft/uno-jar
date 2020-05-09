@@ -35,7 +35,11 @@ jar {
 
 task versionTxt()  {
   doLast {
-    new File(projectDir, "/src/main/resources/.version").text = "$version"
+    def file = new File(projectDir, "/src/main/resources/")
+    file.mkdirs()
+    file = new File(file,".version")
+    file.createNewFile()
+    file.text = "$version"
   }
 }
 
