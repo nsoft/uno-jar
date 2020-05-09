@@ -22,11 +22,8 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Run a java application which requires multiple support jars from inside
@@ -107,7 +104,7 @@ public class Boot {
    * is needed in the URL connection Handler when opening streams relative
    * to classes.
    *
-   * @return
+   * @return the classloader
    */
   public synchronized static JarClassLoader getClassLoader() {
     return loader;
@@ -131,14 +128,14 @@ public class Boot {
     initializeLogging();
 
     try {
-      if (Boolean.valueOf(System.getProperty(P_SHOW_PROPERTIES, "false")).booleanValue()) {
+      if (Boolean.parseBoolean(System.getProperty(P_SHOW_PROPERTIES, "false"))) {
         // What are the system properties.
         Properties props = System.getProperties();
-        String keys[] = (String[]) props.keySet().toArray(new String[]{});
+        @SuppressWarnings("SuspiciousToArrayCall")
+        String[] keys = props.keySet().toArray(new String[]{});
         Arrays.sort(keys);
 
-        for (int i = 0; i < keys.length; i++) {
-          String key = keys[i];
+        for (String key : keys) {
           PRINTLN(key + "=" + props.get(key));
         }
       }
@@ -224,7 +221,7 @@ public class Boot {
 
     mainClass = loader.load(mainClass);
 
-    if (mainClass == null )
+    if (mainClass == null)
       throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
 
     // Guard against the main.jar pointing back to this
@@ -233,144 +230,18 @@ public class Boot {
     if (bootClass.equals(mainClass))
       throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
 
+    @SuppressWarnings("rawtypes")
     Class cls = loader.loadClass(mainClass);
 
     endTime = System.currentTimeMillis();
     showTime();
 
-    Method main = cls.getMethod("main", new Class[]{String[].class});
+    @SuppressWarnings("unchecked")
+    Method main = cls.getMethod("main", String[].class);
     main.invoke(null, new Object[]{args});
   }
 
-  public static void run(String args[]) throws Exception {
-
-    args = processArgs(args);
-
-    initializeLogging();
-    statistics = JarClassLoader.getProperty(Boot.P_STATISTICS);
-
-    // Is the main class specified on the command line?  If so, boot it.
-    // Otherwise, read the main class out of the manifest.
-    String mainClass = null;
-
-    initializeProperties();
-    // Reinitialze Logging (property file could have other loglevel set)
-    initializeLogging();
-
-    try {
-      if (Boolean.valueOf(System.getProperty(P_SHOW_PROPERTIES, "false")).booleanValue()) {
-        // What are the system properties.
-        Properties props = System.getProperties();
-        String keys[] = (String[]) props.keySet().toArray(new String[]{});
-        Arrays.sort(keys);
-
-        for (int i = 0; i < keys.length; i++) {
-          String key = keys[i];
-          PRINTLN(key + "=" + props.get(key));
-        }
-      }
-
-      // Process developer properties:
-      mainClass = System.getProperty(P_MAIN_CLASS);
-
-      if (mainJar == null) {
-        String app = System.getProperty(P_MAIN_APP);
-        if (app != null) {
-          mainJar = "main/" + app + ".jar";
-        } else {
-          mainJar = System.getProperty(P_MAIN_JAR, MAIN_JAR);
-        }
-      }
-    } catch (SecurityException x) {
-      LOGGER.warning(x.toString());
-    }
-    // Pick some things out of the top-level JAR file.
-    String jar = getMyJarPath();
-    JarInputStream jis = new JarInputStream(new URL(jar).openConnection().getInputStream());
-    Manifest manifest = jis.getManifest();
-    Attributes attributes = manifest.getMainAttributes();
-    String bootLoaderName = attributes.getValue(ONE_JAR_CLASSLOADER);
-
-    if (mainJar == null) {
-      mainJar = attributes.getValue(ONE_JAR_DEFAULT_MAIN_JAR);
-    }
-
-    String mainargs = attributes.getValue(ONE_JAR_MAIN_ARGS);
-    if (mainargs != null && args.length == 0) {
-      // Replace the args with built-in.  Support escaped whitespace.
-      args = mainargs.split("[^\\\\]\\s");
-      for (int i = 0; i < args.length; i++) {
-        args[i] = args[i].replaceAll("\\\\(\\s)", "$1");
-        args[i] = JarClassLoader.replaceProps(System.getProperties(), args[i]);
-      }
-    }
-
-    // If no main-class specified, check the manifest of the main jar for
-    // a Boot-Class attribute.
-    if (mainClass == null) {
-      mainClass = attributes.getValue(ONE_JAR_MAIN_CLASS);
-    }
-
-    if (mainClass == null) {
-      // Still don't have one (default).  One final try: look for a jar file in a
-      // main directory.  There should be only one, and it's manifest
-      // Main-Class attribute is the main class.  The JarClassLoader will take
-      // care of finding it.
-      InputStream is = Boot.class.getResourceAsStream("/" + mainJar);
-      if (is != null) {
-        JarInputStream mis = new JarInputStream(is);
-        Manifest mainmanifest = mis.getManifest();
-        jis.close();
-        mainClass = mainmanifest.getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
-      } else {
-        // There is no main jar. Info unless mainJar is empty string.
-        // The load(mainClass) will scan for main jars anyway.
-        if (!"".equals(mainJar)) {
-          LOGGER.info("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
-        }
-      }
-    }
-
-    synchronized (Boot.class) {
-      if (loader != null) throw new RuntimeException("Attempt to set a second Boot loader");
-      String myJarPath = Boot.getMyJarPath();
-      loader = getBootLoader(bootLoaderName, myJarPath);
-    }
-    LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
-
-    // Allow injection of the URL factory.
-    String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
-    if (urlfactory != null) {
-      loader.setURLFactory(urlfactory);
-    }
-
-    String resolver = attributes.getValue(ONE_JAR_BINLIB_RESOLVER);
-    if (resolver != null) {
-      loader.setBinlibResolver(resolver);
-    }
-
-    mainClass = loader.load(mainClass);
-
-    if (mainClass == null )
-      throw new Exception(getMyJarName() + " main class was not found (fix: add main/main.jar with a Main-Class manifest attribute, or specify -D" + P_MAIN_CLASS + "=<your.class.name>), or use " + ONE_JAR_MAIN_CLASS + " in the manifest");
-
-    // Guard against the main.jar pointing back to this
-    // class, and causing an infinite recursion.
-    String bootClass = Boot.class.getName();
-    if (bootClass.equals(mainClass))
-      throw new Exception(getMyJarName() + " main class (" + mainClass + ") would cause infinite recursion: check main.jar/META-INF/MANIFEST.MF/Main-Class attribute: " + mainClass);
-
-    Class cls = loader.loadClass(mainClass);
-
-    endTime = System.currentTimeMillis();
-    showTime();
-
-    Method main = cls.getMethod("main", new Class[]{String[].class});
-    main.invoke(null, new Object[]{args});
-  }
-
-  private static void initializeProperties() throws IOException,
-      FileNotFoundException {
+  private static void initializeProperties() throws IOException {
     {
       // Default properties are in resource 'uno-jar.properties'.
       Properties properties = new Properties();
@@ -392,10 +263,8 @@ public class Boot {
         if (new File(props).exists()) {
           try {
             is = new FileInputStream(props);
-            if (is != null) {
-              LOGGER.fine("merging properties from " + props);
-              properties.load(is);
-            }
+            LOGGER.fine("merging properties from " + props);
+            properties.load(is);
           } finally {
             if (is != null) is.close();
           }
@@ -404,9 +273,10 @@ public class Boot {
         LOGGER.warning(x.toString());
       }
       // Set system properties only if not already specified.
-      Enumeration _enum = properties.propertyNames();
-      while (_enum.hasMoreElements()) {
-        String name = (String) _enum.nextElement();
+      @SuppressWarnings("rawtypes")
+      Enumeration enm = properties.propertyNames();
+      while (enm.hasMoreElements()) {
+        String name = (String) enm.nextElement();
         if (System.getProperty(name) == null) {
           System.setProperty(name, properties.getProperty(name));
         }
@@ -415,11 +285,11 @@ public class Boot {
   }
 
   private static void initializeLogging() {
-    if (Boolean.valueOf(System.getProperty(JarClassLoader.P_VERBOSE, "false")).booleanValue()) {
+    if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_VERBOSE, "false"))) {
       Logger.setLevel(Logger.LOGLEVEL_VERBOSE);
-    } else if (Boolean.valueOf(System.getProperty(JarClassLoader.P_INFO, "false")).booleanValue()) {
+    } else if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_INFO, "false"))) {
       Logger.setLevel(Logger.LOGLEVEL_INFO);
-    } else if (Boolean.valueOf(System.getProperty(JarClassLoader.P_SILENT, "false")).booleanValue()) {
+    } else if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_SILENT, "false"))) {
       Logger.setLevel(Logger.LOGLEVEL_NONE);
     }
   }
@@ -436,7 +306,7 @@ public class Boot {
   }
 
   public interface IJarPath {
-    public String getOneJarPath();
+    String getOneJarPath();
   }
 
   public static String getMyJarPath() {
@@ -451,13 +321,14 @@ public class Boot {
       try {
         String icb = System.getProperty("uno-jar.ijarpath");
         if (icb != null) {
-          Class cls = Class.forName(icb);
-          IJarPath ic = (IJarPath) cls.newInstance();
+          @SuppressWarnings("unchecked")
+          Class<IJarPath> cls = (Class<IJarPath>) Class.forName(icb);
+          IJarPath ic = cls.getDeclaredConstructor().newInstance();
           myJarPath = ic.getOneJarPath();
           return myJarPath;
         }
-      } catch (Exception ignore) {
-        ignore.printStackTrace();
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
     if (myJarPath == null) {
@@ -473,32 +344,6 @@ public class Boot {
     return new File(myJarPath).toURI().toString();
   }
 
-  public static void setMyJarPath(String url) {
-    myJarPath = url;
-    LOGGER.fine("setMyJarPath(" + url + ")");
-  }
-
-  public static JarEntry findJarEntry(JarInputStream jis, String name) throws IOException {
-    JarEntry entry;
-    while ((entry = jis.getNextJarEntry()) != null) {
-      if (entry.getName().equals(name)) {
-        return entry;
-      }
-    }
-    return null;
-  }
-
-  public static ZipEntry findZipEntry(ZipFile zip, String name) throws IOException {
-    Enumeration entries = zip.entries();
-    while (entries.hasMoreElements()) {
-      ZipEntry entry = (ZipEntry) entries.nextElement();
-      LOGGER.fine(("findZipEntry(): entry=" + entry.getName()));
-      if (entry.getName().equals(name))
-        return entry;
-    }
-    return null;
-  }
-
   public static int firstWidth(String[] table) {
     int width = 0;
     for (int i = 0; i < table.length; i += 2) {
@@ -508,13 +353,7 @@ public class Boot {
   }
 
   public static String pad(String indent, String string, int width) {
-    StringBuffer buf = new StringBuffer();
-    buf.append(indent);
-    buf.append(string);
-    for (int i = 0; i < width - string.length(); i++) {
-      buf.append(" ");
-    }
-    return buf.toString();
+    return indent + string + " ".repeat(Math.max(0, width - string.length()));
   }
 
   public static String wrap(String indent, String string, int width) {
@@ -523,12 +362,11 @@ public class Boot {
     return string;
   }
 
-  public static String[] processArgs(String args[]) throws Exception {
+  public static String[] processArgs(String[] args) throws Exception {
     // Check for arguments which matter to us, and strip them.
     LOGGER.fine("processArgs(" + Arrays.asList(args) + ")");
-    ArrayList list = new ArrayList();
-    for (int a = 0; a < args.length; a++) {
-      String argument = args[a];
+    ArrayList<String> list = new ArrayList<>();
+    for (String argument : args) {
       if (argument.startsWith(A_HELP)) {
         int width = firstWidth(HELP_ARGUMENTS);
         // Width of first column
@@ -560,7 +398,7 @@ public class Boot {
         list.add(argument);
       }
     }
-    return (String[]) list.toArray(new String[0]);
+    return list.toArray(new String[0]);
   }
 
   public static String version() throws IOException {
@@ -579,7 +417,9 @@ public class Boot {
         (PrivilegedAction<JarClassLoader>) () -> {
           if (loader != null) {
             try {
+              @SuppressWarnings("rawtypes")
               Class cls = Class.forName(bootLoaderName);
+              @SuppressWarnings("unchecked")
               Constructor<JarClassLoader> ctor = cls.getConstructor(ClassLoader.class);
               return ctor.newInstance(Boot.class.getClassLoader());
             } catch (Exception x) {
@@ -589,14 +429,6 @@ public class Boot {
           return new JarClassLoader(Boot.class.getClassLoader(), jarPath);
         }
     );
-  }
-
-  public static long getEndTime() {
-    return endTime;
-  }
-
-  public static long getStartTime() {
-    return startTime;
   }
 
 }
