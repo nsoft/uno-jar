@@ -10,7 +10,6 @@ package com.needhamsoftware.unojar;
 
 /**
  * Simple logger.
- * todo: replace this with log4j
  */
 public final class Logger {
 

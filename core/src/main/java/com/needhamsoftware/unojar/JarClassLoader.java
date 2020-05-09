@@ -113,28 +113,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
 
-  // this documentation appears to have become out of date
-  // TODO: figure out what it was all about...
 
   /*
-   * The main constructor for the Jar-capable classloader.
-   * @param $record	If true, the JarClassLoader will record all used classes
-   * 					into a recording directory (called 'recording' by default)
-   *				 	The name of each jar file will be used as a directory name
-   *					for the recorded classes.
-   * @param $flatten  Whether to flatten out the recorded classes (i.e. eliminate
-   * 					the jar-file name from the recordings).
+   * Layout of the uno-jar.jar file
    *
-   * Example: Given the following layout of the uno-jar.jar file
-   * <pre>
-   *    /
+   *  /
    *    /META-INF
-   *    | MANIFEST.MF
+   *      /MANIFEST.MF
    *    /com
    *      /needhamsoftware
    *        /unojar
    *          Boot.class
    *          JarClassLoader.class
+   *          (supporting classes)
    *    /main
    *      main.jar
    *        /com
@@ -145,8 +136,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    *        /com
    *          /util
    *            Util.class
-   * </pre>
-   *
    */
 
   /**
@@ -259,7 +248,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
   public String load(String mainClass) {
-    // Hack: if there is a uno-jar.jarname property, use it.
     return load(mainClass, oneJarPath);
   }
 
@@ -803,18 +791,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   protected boolean alreadyCached(String name, String jar, ByteArrayOutputStream baos) {
     // TODO: check resource map to see how we will map requests for this
-    // resource from this jar file.  Only a conflict if we are using a
-    // global map and the resource is defined by more than
-    // one jar file (default is to map to local jar).
+    //  resource from this jar file.  Only a conflict if we are using a
+    //  global map and the resource is defined by more than
+    //  one jar file (default is to map to local jar).
     ByteCode existing = byteCode.get(name);
     if (existing != null) {
       byte[] bytes = baos.toByteArray();
       // If bytecodes are identical, no real problem.  Likewise if it's in
       // META-INF.
       if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("META-INF")) {
-        // TODO: this really needs to be a warning, but there needs to be a way
-        // to shut it down.  INFO it for now.  Ideally we need to provide a
-        // logging layer (like commons-logging) to allow logging to be delegated.
         if (name.endsWith(".class")) {
           // This is probably trouble.
           LOGGER.warning(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
@@ -1043,8 +1028,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   /* (non-Javadoc)
    * @see java.lang.ClassLoader#findResource(java.lang.String)
    */
-  // TODO: Revisit the issue of protocol handlers for findResource()
-  // and findResources();
+  // TODO: Revisit the issue of protocol handlers for findResource() and findResources();
   // TODO: I'm not sure this method should be calling getResources at all. java.lang.Classloader will have already
   //  attempted "get" up the tree before calling "find" In a deep hierarchy this causes a redundant round
   //  of getResource requests all the way up the chain.
