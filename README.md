@@ -57,5 +57,5 @@ Maven - contributions for a maven task are welcome.
 ## Naming
 The name "uno-jar" is due to Simon's license which forbids endorsement of my code 
 with the trade marked name of his project (he trademarked One-JAR). Therefore aside
-from the discussion of differences from his wokr, attributions to his antecedent work 
+from the discussion of differences from his work, attributions to his antecedent work 
 and required licenses his name and the one-jar name will be removed from the project.
