@@ -5,7 +5,8 @@
  *
  * See the full license at https://github.com/nsoft/uno-jar/blob/master/LICENSE.txt
  * See addition code licenses at: https://github.com/nsoft/uno-jar/blob/master/NOTICE.txt
- */package com.needhamsoftware.unojar;
+ */
+package com.needhamsoftware.unojar;
 
 /**
  * Simple logger.
