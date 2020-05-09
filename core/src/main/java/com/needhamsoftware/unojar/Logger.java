@@ -1,12 +1,11 @@
 /*
  * Copyright (C) 2012 by Netcetera AG.
+ * Copyright (c) 2019=2020, Needham Software LLC
  * All rights reserved.
  *
- * See the full license at http://one-jar.sourceforge.net/one-jar-license.html
- * This license is also included in the distributions of this software
- * under doc/one-jar-license.txt
- */
-package com.needhamsoftware.unojar;
+ * See the full license at https://github.com/nsoft/uno-jar/blob/master/LICENSE.txt
+ * See addition code licenses at: https://github.com/nsoft/uno-jar/blob/master/NOTICE.txt
+ */package com.needhamsoftware.unojar;
 
 /**
  * Simple logger.
