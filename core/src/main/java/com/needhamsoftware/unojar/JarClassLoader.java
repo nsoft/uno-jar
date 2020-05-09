@@ -78,10 +78,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   private static final Logger LOGGER = Logger.getLogger("JarClassLoader");
 
+  // note: need to retain this name to avoid breaking support in classgraph
   protected String oneJarPath;
 
   public static final Pattern MR_PATTERN = Pattern.compile("META-INF/versions/(\\d+)/");
 
+  // note: need to retain this name to avoid breaking support in classgraph
   public String getOneJarPath() {
     return oneJarPath;
   }
@@ -142,10 +144,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    * The main constructor for the Jar-capable classloader.
    *
    * @param parent The parent for this class loader.
+   * @param unoJarPath the path to the uno-jar we are running from
    */
-  public JarClassLoader(ClassLoader parent, String oneJarPath) {
+  public JarClassLoader(ClassLoader parent, String unoJarPath) {
     super(parent);
-    this.oneJarPath = oneJarPath;
+    this.oneJarPath = unoJarPath;
     delegateToParent = true;
     setProperties(this);
     init();
@@ -648,6 +651,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   /**
    * Make a path canonical, removing . and ..
+   *
+   * @param path the path to refine
+   * @return the path refined to it's canonical version
    */
   protected String canon(String path) {
     path = path.replaceAll("/\\./", "/");
@@ -691,6 +697,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    * simply issue warnings if collisions occur.  This is not very satisfactory,
    * but is consistent with the somewhat limiting design of the resource name mapping
    * strategy in Java today.
+   *
+   * @param resource where to get the bytes
+   * @return a stream of bytes from the resource.
    */
   public InputStream getByteStream(String resource) {
 
