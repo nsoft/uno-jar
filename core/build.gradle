@@ -15,7 +15,7 @@ repositories {
 }
 
 sourceCompatibility = 1.11
-version = '2.0.0-SNAPSHOT'
+version = '1.0.1'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'

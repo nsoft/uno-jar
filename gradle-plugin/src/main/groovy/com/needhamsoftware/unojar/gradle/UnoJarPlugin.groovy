@@ -13,11 +13,34 @@ class UnoJarPlugin implements Plugin<Project> {
     project.task('packUnoJar') {
       group 'unojar'
       doLast {
+        // TODO: This entire process of getting the ant task installed seems like complete hooey.
+        //  There must be a better way...
         def cp = project.buildscript.configurations.getByName('classpath')
         def find = cp.find {
           if (it.canonicalPath.matches('.*needhamsoftware/unojar/ant/.*/ant-.*\\.jar')) return it
         }
         def ujjar = new URL('file://' + find)
+
+        // the above seems to work for mavenLocal() but not mavenCentral()... so... (issue #
+        if (!new File(find.toString()).exists()) {
+
+          def pd = project.projectDir
+          def ujd = new File(pd, ".unojar")
+          ujd.mkdirs()
+
+          // relies on the manifest attributes for the jar containing our plugin!
+          def pkg = UnoJarPlugin.class.getPackage()
+          def version = pkg.implementationVersion
+
+          def repoLoc = extension.repoUrl + "/com/needhamsoftware/unojar/ant/" + version + "/ant-" + version + ".jar";
+          def ujAnt = new File(ujd, "ant-" + version + ".jar")
+          if (!ujAnt.exists()) {
+            new URL(repoLoc).withInputStream{ i -> ujAnt.withOutputStream{ it << i }}
+          }
+
+          ujjar = ujAnt.toURI().toURL()
+        }
+
         ant.taskdef(name: "unojar", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
         def mf = Manifest.getDefaultManifest()
         extension.manifestAttrs.each { key, value -> mf.addConfiguredAttribute(new Manifest.Attribute(key, value)) }
@@ -41,4 +64,5 @@ class UnoJarExtension {
   String unoJar
   Object appFiles
   Object depLibs
+  String repoUrl = 'https://repo.maven.apache.org/maven2' // default
 }
