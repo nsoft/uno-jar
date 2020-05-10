@@ -13,10 +13,10 @@ buildscript {
 
 plugins {
   id 'java'
-  id 'com.needhamsoftware.unojar' version '1.0.1'
+  id 'com.needhamsoftware.unojar' version '2.0.0-SNAPSHOT'
 }
 
-version = '1.0.1'
+version = '2.0.0-SNAPSHOT'
 
 sourceCompatibility = 1.11
 
