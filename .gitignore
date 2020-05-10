@@ -5,3 +5,5 @@ dist
 .gradle
 **/out/
 /core/src/main/resources/.version
+/tests/.unojar/
+.DS_Store
