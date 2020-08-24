@@ -7,25 +7,25 @@ assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Description**
 
-**To Reproduce**
-Steps to reproduce the behavio (last step should cause the error/problem):
-1. Do X
-2. Do Y
-3. Do Z
+XXXX (replace all XXXX's)
 
-**Observed behavior**
-A clear and concise description of what happened after the last step
+**Steps To Reproduce**
+
+1. XXXX
+2. XXXX
+3. XXXX
 
 **Expected behavior**
-A clear and concise description of what you expected to happen.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Version [e.g. 22]
- - JDK Version [e.g. output from java -version]
+XXXX
 
-**Additional context**
-Add any other context about the problem here.
+**Observed behavior/Errors**
+
+XXXX
+
+**Environment:**
+ - OS/version: XXXX
+ - Version of UnoJar: XXXX
+ - JDK Version [e.g. output from java -version] XXXX
