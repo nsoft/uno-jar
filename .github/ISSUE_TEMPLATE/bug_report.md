@@ -9,20 +9,23 @@ assignees: ''
 
 **Describe the bug**
 
+XXXX (replace all XXXX's)
 
 **Steps To Reproduce**
 
-1. Do X
-2. Do Y
-3. Do Z
+1. XXXX
+2. XXXX
+3. XXXX
 
 **Expected behavior**
 
+XXXX
 
 **Observed behavior/Errors**
 
+XXXX
 
 **Environment:**
- - OS/version: 
- - Version of UnoJar: 
- - JDK Version [e.g. output from java -version]
+ - OS/version:   XXXX
+ - Version of UnoJar:   XXXX
+ - JDK Version [e.g. output from java -version]:  XXXX
