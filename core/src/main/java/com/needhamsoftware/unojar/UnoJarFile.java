@@ -63,7 +63,7 @@ public class UnoJarFile extends JarFile {
   public Enumeration<JarEntry> entries() {
     try {
       final JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile));
-      return new Enumeration<>() {
+      return new Enumeration<JarEntry>() {
 
         protected JarEntry next;
 
