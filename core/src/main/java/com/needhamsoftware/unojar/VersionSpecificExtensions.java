@@ -17,6 +17,14 @@ public class VersionSpecificExtensions {
   }
 
   public String getCaller(Set<String> byteCodeClasses) {
+    for (StackTraceElement stackTraceElement : new Throwable().getStackTrace()) {
+      String caller = stackTraceElement.getClassName();
+      String cls = getByteCodeName(caller);
+      if (byteCodeClasses.contains(cls) && !caller.startsWith("com.needhamsoftware.unojar")) {
+        return cls;
+      }
+    }
+
     return null;
   }
 
@@ -26,5 +34,9 @@ public class VersionSpecificExtensions {
       res.append(" ");
     }
     return res.toString();
+  }
+
+  protected static String getByteCodeName(String className) {
+    return className.replace(".", "/") + ".class";
   }
 }

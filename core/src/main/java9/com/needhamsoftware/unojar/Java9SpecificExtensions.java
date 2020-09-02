@@ -26,8 +26,4 @@ public class Java9SpecificExtensions extends VersionSpecificExtensions {
     }).findFirst());
     return firstByteCode.map(stackFrame -> getByteCodeName(stackFrame.getClassName())).orElse(null);
   }
-
-  private static String getByteCodeName(String className) {
-        return className.replace(".", "/") + ".class";
-    }
 }
