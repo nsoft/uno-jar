@@ -28,7 +28,7 @@ public class Handler extends URLStreamHandler {
   public static String PROTOCOL = "onejar";
 
   /**
-   * @see java.net.URLStreamHandler#openConnection(java.net.URL)
+   * @see URLStreamHandler#openConnection(URL)
    */
   protected URLConnection openConnection(final URL u) {
     final String resource = u.getPath();
@@ -37,7 +37,7 @@ public class Handler extends URLStreamHandler {
       }
 
       public String getContentType() {
-        FileNameMap fileNameMap = java.net.URLConnection.getFileNameMap();
+        FileNameMap fileNameMap = URLConnection.getFileNameMap();
         String contentType = fileNameMap.getContentTypeFor(resource);
         if (contentType == null)
           contentType = "text/plain";
