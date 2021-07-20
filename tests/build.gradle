@@ -29,6 +29,7 @@ configurations {
   ujconf
   log4jTest
   mrJarTest
+  hibJarTest
 }
 
 dependencies {
@@ -38,6 +39,8 @@ dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.12'
   log4jTest 'org.apache.logging.log4j:log4j-core:2.13.0'
   mrJarTest 'org.apache.logging.log4j:log4j-core:2.13.0'
+  testCompile 'org.hibernate:hibernate-core:5.4.28-SNAPSHOT'
+  testCompile 'org.hsqldb:hsqldb:2.3.4'
 }
 
 task libtestJar(type: Jar) {
@@ -57,6 +60,14 @@ task libtestJarLog4j(type: Jar) {
 }
 
 task libtestMRJar(type: Jar) {
+  dependsOn compileTestJava
+  from('build/classes/java/test') {
+    include '**/LibTestLog4jPlugin.class'
+  }
+  archiveName "libtestMRJar.jar"
+}
+
+task libtestHibernateJar(type: Jar) {
   dependsOn compileTestJava
   from('build/classes/java/test') {
     include '**/LibTestLog4jPlugin.class'
@@ -175,6 +186,49 @@ task testMRJar(dependsOn: [testClasses, libtestMRJar, ':ant:jar']) {
 
     def mf = Manifest.getDefaultManifest()
     mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMainLog4jMRJar"))
+    mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
+    def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
+    mff.write "" + mf;
+
+    ant.uj(destFile: 'build/testMRJar.jar', manifest: mff) {
+
+      main {
+        fileset(dir: 'build/classes/java/test') {
+          include(name: '**/TestMainLog4jMRJar.class')
+          include(name: '**/TestConsoleAppender**')
+        }
+        fileset(dir: 'build/resources/test') {
+          include(name: 'log4j2.xml')
+        }
+      }
+      lib {
+        fileset(dir: 'build/libs') {
+          include(name: 'libtestMRJar.jar')
+        }
+        configurations.log4jTest.addToAntBuilder(ant, 'fileset', FileCollection.AntType.FileSet)
+
+      }
+      // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
+      // manifest and then proceeds to throw it away. Many hours died to bring us this information...
+    }
+  }
+}
+
+task testHibernateJar(dependsOn: [testClasses, libtestHibernateJar, ':ant:jar']) {
+  def cp = project.buildscript.configurations.getByName('classpath')
+  def find = cp.find {
+    if (it.canonicalPath.matches('.*needhamsoftware/unojar/ant/.*/ant-.*\\.jar')) return it
+  }
+  def ujjar = new URL('file://' + find)
+  def p = ujjar.toURI().toString().substring(5)
+  println p
+  println '' + ujjar + ' ' + new File(p).exists()
+
+  doLast {
+    ant.taskdef(name: "uj", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
+
+    def mf = Manifest.getDefaultManifest()
+    mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMainHibernateJar"))
     mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
     def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
     mff.write "" + mf;

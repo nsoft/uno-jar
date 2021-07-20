@@ -27,13 +27,11 @@ import java.util.zip.ZipEntry;
 public class UnoJarFile extends JarFile {
 
   protected final String jarFilename;
-  protected final String filename;
   protected final JarEntry wrappedJarFile;
 
-  public UnoJarFile(String myJarPath, String jarFilename, String filename) throws IOException {
+  public UnoJarFile(String myJarPath, String jarFilename) throws IOException {
     super(myJarPath);
     this.jarFilename = jarFilename;
-    this.filename = filename;
     wrappedJarFile = super.getJarEntry(this.jarFilename);
   }
 
@@ -104,6 +102,7 @@ public class UnoJarFile extends JarFile {
   public synchronized InputStream getInputStream(ZipEntry ze) {
     if (ze == null)
       return null;
+    String filename = ze.getName();
     try {
       try (JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile))) {
         if (filename.equals(MANIFEST_NAME)) {
