@@ -51,7 +51,7 @@ the gradle task can be found at
 
 https://plugins.gradle.org/plugin/com.needhamsoftware.unojar
 
-the maven task can be found at
+the maven plugin can be found at
 
 https://github.com/greening/unojar-maven-plugin
 
