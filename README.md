@@ -51,8 +51,9 @@ the gradle task can be found at
 
 https://plugins.gradle.org/plugin/com.needhamsoftware.unojar
 
-### Unsupported
-Maven - contributions for a maven task are welcome. 
+the maven task can be found at
+
+https://github.com/greening/unojar-maven-plugin
 
 ## Naming
 The name "uno-jar" is due to Simon's license which forbids endorsement of my code 
