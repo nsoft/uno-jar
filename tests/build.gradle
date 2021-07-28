@@ -29,6 +29,7 @@ configurations {
   ujconf
   log4jTest
   mrJarTest
+  slashDirTests
 }
 
 dependencies {
@@ -38,6 +39,8 @@ dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.12'
   log4jTest 'org.apache.logging.log4j:log4j-core:2.13.0'
   mrJarTest 'org.apache.logging.log4j:log4j-core:2.13.0'
+  slashDirTests 'org.apache.logging.log4j:log4j-core:2.13.0'
+  slashDirTests group: 'junit', name: 'junit', version: '4.12'
 }
 
 task libtestJar(type: Jar) {
@@ -62,6 +65,15 @@ task libtestMRJar(type: Jar) {
     include '**/LibTestLog4jPlugin.class'
   }
   archiveName "libtestMRJar.jar"
+}
+
+task libtestDirWithSlashJar(type: Jar) {
+  dependsOn compileTestJava
+  from('build/classes/java/test') {
+    include '**/DirSlashTest.class'
+  }
+  from('build/resources/test')
+  archiveName "libtestDirWithSlashJar.jar"
 }
 
 unojar {
@@ -202,8 +214,54 @@ task testMRJar(dependsOn: [testClasses, libtestMRJar, ':ant:jar']) {
     }
   }
 }
+
+// todo: parameterize all this task creation, to avoid all this Copy/paste
+task testDirWithSlashJar(dependsOn: [testClasses, libtestDirWithSlashJar, ':ant:jar']) {
+  def cp = project.buildscript.configurations.getByName('classpath')
+  def find = cp.find {
+    if (it.canonicalPath.matches('.*needhamsoftware/unojar/ant/.*/ant-.*\\.jar')) return it
+  }
+  def ujjar = new URL('file://' + find)
+  def p = ujjar.toURI().toString().substring(5)
+  println p
+  println '' + ujjar + ' ' + new File(p).exists()
+
+  doLast {
+    ant.taskdef(name: "uj", classpath: ujjar, classname: "com.needhamsoftware.unojar.ant.UnoJarTask")
+
+    def mf = Manifest.getDefaultManifest()
+    mf.addConfiguredAttribute(new Manifest.Attribute("Uno-Jar-Main-Class", "com.needhamsoftware.unojar.TestMainDirWithSlash"))
+    mkdir("$projectDir/build/com.needhamsoftware.unojar/" + name)
+    def mff = new File("$projectDir/build/com.needhamsoftware.unojar/" + name + "/manifest.mf")
+    mff.write "" + mf;
+
+    ant.uj(destFile: 'build/testDirWithSlashJar.jar', manifest: mff) {
+
+      main {
+        fileset(dir: 'build/classes/java/test') {
+          include(name: '**/TestMainDirWithSlash.class')
+          include(name: '**/DirWithSlashTest.class')
+        }
+        fileset(dir: 'build/resources/test') {
+          include(name: 'log4j2.xml')
+        }
+      }
+      lib {
+        fileset(dir: 'build/libs') {
+          include(name: 'libtestDirWithSlashJar.jar')
+        }
+        configurations.slashDirTests.addToAntBuilder(ant, 'fileset', FileCollection.AntType.FileSet)
+
+      }
+      // note that we can't use a mainfest {} closure here because gradle creates a Gradle Manifest not an Ant
+      // manifest and then proceeds to throw it away. Many hours died to bring us this information...
+    }
+  }
+}
+
 packUnoJar.dependsOn libtestJar
 test.dependsOn testJar1
 test.dependsOn testJarLog4j
 test.dependsOn testMRJar
 test.dependsOn packUnoJar
+test.dependsOn testDirWithSlashJar

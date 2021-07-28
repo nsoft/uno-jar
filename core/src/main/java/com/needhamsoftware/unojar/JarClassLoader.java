@@ -781,6 +781,15 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     String caller = getCaller();
     ByteCode callerCode = byteCode.get(caller);
 
+    rsrc = findRsrc(resource, callerCode);
+    if (rsrc == null && resource.endsWith("/")) {
+      rsrc = findRsrc(resource.substring(0,resource.length() - 1), callerCode);
+    }
+    return rsrc;
+  }
+
+  private String findRsrc(String resource, ByteCode callerCode) {
+    String rsrc = null;
     if (callerCode != null) {
       // Jar-local first, then global.
       String tmp = callerCode.codebase + "/" + resource;

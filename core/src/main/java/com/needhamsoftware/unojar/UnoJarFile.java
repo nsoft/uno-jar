@@ -48,7 +48,7 @@ public class UnoJarFile extends JarFile {
       try (JarInputStream is = new JarInputStream(super.getInputStream(wrappedJarFile))) {
         JarEntry entry;
         while ((entry = is.getNextJarEntry()) != null) {
-          if (entry.getName().equals(filename)) {
+          if (entry.getName().equals(filename) || entry.getName().equals(filename + "/")) {
             return entry;
           }
         }

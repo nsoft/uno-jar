@@ -37,4 +37,10 @@ public class CommandLine extends TestCase {
     assertEquals("TEST:  ERROR [main] LibTestLog4jPlugin   - Log4J Success - library class", result.out.get(1));
   }
 
+  @Test
+  public void testUnoJarGradleTaskDirWithSlash() throws Exception {
+//    Invoker.Result result = Invoker.run("java -agentlib:jdwp=transport=dt_socket,server=n,address=ns-l1:5006,suspend=y -jar  build/testDirWithSlashJar.jar");
+    Invoker.Result result = Invoker.run("java -jar  build/testDirWithSlashJar.jar");
+    assertEquals("Expected failure did not occur: " + result, 0, result.status);
+  }
 }
