@@ -8,6 +8,7 @@ buildscript {
   dependencies {
     classpath 'org.apache.ant:ant:1.10.7'
     classpath files('../gradle-plugin/build/libs/gradle-plugin-1.0.2.jar')
+    classpath 'commons-io:commons-io:2.11.0'
   }
 }
 
@@ -74,22 +75,6 @@ task libtestDirWithSlashJar(type: Jar) {
   }
   from('build/resources/test')
   archiveName "libtestDirWithSlashJar.jar"
-}
-
-unojar {
-  unoJar "build/testJar2.jar"
-  manifestAttrs ("Test-Attribute" : "TestValue")
-  appMainClass "com.needhamsoftware.unojar.TestMain"
-  appFiles {
-    fileset(dir: 'build/classes/java/test') {
-      include(name: '**/TestMain.class')
-    }
-  }
-  depLibs {
-    fileset(dir: 'build/libs') {
-      include(name: 'libtest.jar')
-    }
-  }
 }
 
 task testJar1(dependsOn: [testClasses, libtestJar, ':ant:jar']) {
@@ -259,9 +244,19 @@ task testDirWithSlashJar(dependsOn: [testClasses, libtestDirWithSlashJar, ':ant:
   }
 }
 
-packUnoJar.dependsOn libtestJar
-test.dependsOn testJar1
+task testGradle(type: Exec) {
+  workingDir = rootProject.file('test-suite')
+  commandLine = ["./gradlew", "clean", "build"]
+}
+
 test.dependsOn testJarLog4j
+test.dependsOn testJar1
 test.dependsOn testMRJar
-test.dependsOn packUnoJar
 test.dependsOn testDirWithSlashJar
+test.dependsOn testGradle
+
+test {
+  testLogging {
+      events = ['PASSED', 'FAILED', 'SKIPPED']
+  }
+}

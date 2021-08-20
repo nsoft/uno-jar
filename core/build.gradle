@@ -15,6 +15,7 @@ repositories {
 }
 
 sourceCompatibility = 1.11
+group = 'com.needhamsoftware.unojar'
 version = '1.0.2'
 
 configurations.all {

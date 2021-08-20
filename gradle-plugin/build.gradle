@@ -8,6 +8,7 @@ plugins {
   id 'com.palantir.git-version' version '0.12.2'
 }
 
+group = 'com.needhamsoftware.unojar'
 version = '1.0.2'
 
 configurations.all {
@@ -20,9 +21,10 @@ repositories {
 }
 
 dependencies {
-  implementation 'com.needhamsoftware.unojar:ant:' + project.version
+  implementation 'com.needhamsoftware.unojar:core:' + project.version
+  implementation 'commons-io:commons-io:2.11.0'
+
   implementation gradleApi()
-  implementation localGroovy()
 }
 
 gradlePlugin {
@@ -68,5 +70,3 @@ pluginBundle {
   vcsUrl = 'https://github.com/nsoft/uno-jar.git'
   tags = ['jar', 'executable-jar', 'onejar', 'one-jar', 'shade', 'shadow', 'fatjar', 'uberjar','capsule']
 }
-
-compileJava.dependsOn ':ant:publishToMavenLocal'

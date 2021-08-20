@@ -14,14 +14,6 @@ public class CommandLine extends TestCase {
   }
 
   @Test
-  public void testUnoJarGradleTaskSmoke2() throws Exception {
-    Invoker.Result result = Invoker.run("java -jar build/testJar2.jar");
-    assertEquals("Expected failure did not occur: " + result, 0, result.status);
-    assertEquals( "System Out Success - main class", result.out.get(0));
-    assertEquals("System Err Success - library class", result.err.get(0));
-  }
-
-  @Test
   public void testUnoJarGradleTaskSmokeLog4j() throws Exception {
     Invoker.Result result = Invoker.run("java -jar build/testLog4j.jar");
     assertEquals("Expected failure did not occur: " + result, 0, result.status);
