@@ -98,11 +98,11 @@ Groovy DSL (`build.gradle`)
 ```
 # sample configuration, using all properties (including optional ones) 
 unojar {
-    version.set("1.0.2")                                 
-    archiveBaseName = "test"
+    version = "1.0.2"                                 
+    archiveBaseName = "myjar"
     archiveClassifier = "unojar"
     embedConfiguration = configurations.getByName("runtimeClasspath")
-    manifestAttributes = ["Test-Attribute": "TestValue"]
+    manifestAttributes = ["Test-Attribute": "Test-Value"]
 }
 ```
 
