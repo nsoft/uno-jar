@@ -70,7 +70,7 @@ task libtestMRJar(type: Jar) {
 task libtestDirWithSlashJar(type: Jar) {
   dependsOn compileTestJava
   from('build/classes/java/test') {
-    include '**/DirWithSlashTest.class'
+    include '**/DirSlashTest.class'
   }
   from('build/resources/test')
   archiveName "libtestDirWithSlashJar.jar"
