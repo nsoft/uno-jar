@@ -23,6 +23,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 public abstract class PackageUnoJarTask
     extends DefaultTask {
@@ -172,15 +173,11 @@ public abstract class PackageUnoJarTask
           .orElse(unoJarExtension.getArchiveClassifier())
           .orElse(DEFAULT_CLASSIFIER));
 
-      final List<String> archiveNameParts = new ArrayList<>();
-      for (final Provider<String> archiveNamePartProvider : archiveNamePartProviders) {
-        if (archiveNamePartProvider.isPresent()) {
-          final String archiveNamePart = archiveNamePartProvider.get().trim();
-          if (archiveNamePart.length() > 0) {
-            archiveNameParts.add(archiveNamePart);
-          }
-        }
-      }
+      final List<String> archiveNameParts = archiveNamePartProviders.stream()
+          .filter(Provider::isPresent)
+          .map(Provider::get)
+          .filter(part -> !part.isBlank())
+          .collect(Collectors.toList());
 
       final String extension = getArchiveExtension()
           .orElse(unoJarExtension.getArchiveExtension())
