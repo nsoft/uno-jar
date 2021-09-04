@@ -26,6 +26,15 @@ application {
 }
 ```
 
+Invocation
+```
+./gradlew packageUnoJar
+```
+
+The output file can be found at `${project.buildDir}/${project.libsDirName}/[archiveBaseName]-[archiveAppendix]-[archiveVersion]-[archiveClassifier].[archiveExtension]`
+
+With default settings: `build/libs/${project.archivesBaseName}-${project.version}-unojar.jar`
+
 ## Tasks
 
 ### Added tasks
@@ -75,8 +84,11 @@ tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJar
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
 | `mainClass` | `String` | No | Main class name. | 
-| `archiveBaseName` | `String` | No | Archive base name. Default: `project.name` |
+| `archiveBaseName` | `String` | No | Archive base name. Default: `project.archivesBaseName` |
+| `archiveAppendix` | `String` | No | Archive appendix. |
+| `archiveVersion` | `String` | No | Archive version. Default: `project.version` |
 | `archiveClassifier` | `String` | No | Archive classifier. Default: `"unojar"` |
+| `archiveExtension` | `String` | No | Archive extension. Default: `"jar"` |
 | `embedConfiguration` | `org.gradle.api.artifacts.Configuration` | No | Embed configuration. Library artifacts to include in the uno-jar. Default: `configurations.getByName("runtimeClasspath")` |
 | `manifestAttributes` | `Map<String, String>` | No | Manifest attributes. |
 
@@ -86,7 +98,6 @@ Kotlin DSL (`build.gradle.kts`)
 ```
 # sample configuration, using all properties (including optional ones) 
 unojar {
-    version.set("1.0.2")
     archiveBaseName.set("myjar")
     archiveClassifier.set("unojar")
     embedConfiguration.set(configurations.getByName("runtimeClasspath")) 
@@ -98,7 +109,6 @@ Groovy DSL (`build.gradle`)
 ```
 # sample configuration, using all properties (including optional ones) 
 unojar {
-    version = "1.0.2"                                 
     archiveBaseName = "myjar"
     archiveClassifier = "unojar"
     embedConfiguration = configurations.getByName("runtimeClasspath")
@@ -108,8 +118,10 @@ unojar {
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `version` | `String` | No | uno-jar version. Default: `"1.0.2"` | 
-| `archiveBaseName` | `String` | No | Archive base name. Default: `project.name` |
+| `archiveBaseName` | `String` | No | Archive base name. Default: `project.archivesBaseName` |
+| `archiveAppendix` | `String` | No | Archive appendix. |
+| `archiveVersion` | `String` | No | Archive version. Default: `project.version` |
 | `archiveClassifier` | `String` | No | Archive classifier. Default: `"unojar"` |
+| `archiveExtension` | `String` | No | Archive extension. Default: `"jar"` |
 | `embedConfiguration` | `org.gradle.api.artifacts.Configuration` | No | Embed configuration. Library artifacts to include in the uno-jar. Default: `configurations.getByName("runtimeClasspath")` |
 | `manifestAttributes` | `Map<String, String>` | No | Manifest attributes. |

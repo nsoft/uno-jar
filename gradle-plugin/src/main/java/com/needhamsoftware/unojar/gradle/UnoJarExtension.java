@@ -6,11 +6,17 @@ import org.gradle.api.provider.Property;
 
 public abstract class UnoJarExtension {
 
-  public abstract Property<String> getVersion();
+  //public abstract Property<String> getVersion();
 
   public abstract Property<String> getArchiveBaseName();
 
+  public abstract Property<String> getArchiveAppendix();
+
+  public abstract Property<String> getArchiveVersion();
+
   public abstract Property<String> getArchiveClassifier();
+
+  public abstract Property<String> getArchiveExtension();
 
   public abstract Property<Configuration> getEmbedConfiguration();
 
