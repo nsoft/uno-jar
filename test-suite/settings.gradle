@@ -1,0 +1,13 @@
+pluginManagement {
+    includeBuild("..")
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
+
+rootDir.eachDir {dir ->
+    if ((dir.name != "buildSrc") && (new File(dir, "build.gradle").isFile() || new File(dir, "build.gradle.kts").isFile())) {
+        include(dir.name)
+    }
+}

@@ -1,7 +1,6 @@
 plugins {
     application
     id("ca.cutterslade.analyze")
-    id("com.github.ben-manes.versions")
     id("com.needhamsoftware.unojar")
 }
 

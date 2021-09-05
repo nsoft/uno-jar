@@ -1,7 +1,6 @@
 plugins {
-    application
+    id("application")
     id("ca.cutterslade.analyze")
-    id("com.github.ben-manes.versions")
     id("com.needhamsoftware.unojar")
 }
 
@@ -11,12 +10,11 @@ java {
 }
 
 dependencies {
-    implementation(project(":test-lib-log4j"))
-    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
+    implementation(project(":test-lib"))
 }
 
 application {
-    mainClass.set("TestMainLog4jPlugin")
+    mainClass.set("TestMain")
 }
 
 tasks.build {

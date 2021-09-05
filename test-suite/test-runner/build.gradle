@@ -1,7 +1,7 @@
 import org.gradle.api.tasks.testing.logging.*
 
 plugins {
-    java
+    id("java")
 }
 
 dependencies {
@@ -18,6 +18,6 @@ tasks.test {
         ":test-log4j-mr-jar:build"
     )
     testLogging {
-        events = setOf(TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+        events = [TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED]
     }
 }
