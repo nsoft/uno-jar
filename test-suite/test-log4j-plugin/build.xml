@@ -1,0 +1,69 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
+    <import file="../ant-ivy.xml"/>
+
+    <property name="build.dir" value="build/ant"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="libs.dir" value="${build.dir}/libs"/>
+    <basename property="project.name" file="${basedir}"/>
+
+    <path id="unoJarClasspath">
+        <path location="../../ant/build/libs/ant-1.0.2.jar"/>
+    </path>
+
+    <taskdef name="unojar" classname="com.needhamsoftware.unojar.ant.UnoJarTask" classpathref="unoJarClasspath"/>
+
+    <target name="clean">
+        <echo message="==== ${project.name} - clean"/>
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <path id="classpath">
+        <path location="../test-lib-log4j/${libs.dir}/test-lib-log4j.jar"/>
+    </path>
+
+    <target name="resolve" depends="init-ivy" description="Use ivy to resolve classpaths">
+        <ivy:retrieve />
+        <ivy:cachefileset setid="ivyFileset" conf="default"/>
+        <ivy:cachepath pathid="ivyClasspath" conf="default"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <echo message="==== ${project.name} - compile"/>
+        <ant dir="../test-lib-log4j" inheritAll="false" target="jar"/>
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="src" destdir="${classes.dir}" includeAntRuntime="false">
+            <classpath refid="classpath"/>
+            <classpath refid="ivyClasspath"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <echo message="==== ${project.name} - jar"/>
+        <mkdir dir="${libs.dir}"/>
+        <jar destfile="${libs.dir}/${project.name}.jar">
+            <fileset dir="${classes.dir}"/>
+            <fileset dir="src/main/resources"/>
+        </jar>
+    </target>
+
+    <target name="packageUnoJar" depends="compile">
+        <echo message="==== ${project.name} - packageUnoJar"/>
+        <manifest file="${build.dir}/MANIFEST.MF">
+            <attribute name="Uno-Jar-Main-Class" value="TestMainLog4jPlugin"/>
+        </manifest>
+        <unojar destfile="${libs.dir}/${project.name}-unojar.jar" manifest="${build.dir}/MANIFEST.MF">
+            <main>
+                <fileset dir="${classes.dir}">
+                    <include name="**/*"/>
+                </fileset>
+                <fileset dir="src/main/resources"/>
+            </main>
+            <lib>
+                <fileset dir="../test-lib-log4j/${libs.dir}">
+                    <include name="test-lib-log4j.jar"/>
+                </fileset>
+                <fileset refid="ivyFileset"/>
+            </lib>
+        </unojar>
+    </target>
+</project>

@@ -1,0 +1,33 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
+    <import file="../ant-ivy.xml"/>
+
+    <property name="build.dir" value="build/ant"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="libs.dir" value="${build.dir}/libs"/>
+    <basename property="project.name" file="${basedir}"/>
+
+    <target name="clean">
+        <echo message="==== ${project.name} - clean"/>
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <target name="resolve" depends="init-ivy" description="Use ivy to resolve classpaths">
+        <ivy:retrieve />
+        <ivy:cachefileset setid="ivyFileset" conf="default"/>
+        <ivy:cachepath pathid="ivyClasspath" conf="default"/>
+    </target>
+
+    <target name="compile" depends="resolve">
+        <echo message="==== ${project.name} - compile"/>
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="src" destdir="${classes.dir}" includeAntRuntime="false">
+            <classpath refid="ivyClasspath"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <echo message="==== ${project.name} - jar"/>
+        <mkdir dir="${libs.dir}"/>
+        <jar destfile="${libs.dir}/${project.name}.jar" basedir="${classes.dir}"/>
+    </target>
+</project>

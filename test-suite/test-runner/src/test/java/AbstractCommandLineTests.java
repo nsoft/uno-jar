@@ -1,15 +1,51 @@
 import junit.framework.TestCase;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CommandLine
+public abstract class AbstractCommandLineTests
     extends TestCase {
+
+  private final String relativeDir;
+
+  protected AbstractCommandLineTests(String relativeDir) {
+    super();
+
+    this.relativeDir = relativeDir;
+  }
+
+  private File newFile(String projectName, String version, String classifier) {
+    final File projectDir = new File("..", projectName);
+    final File libsDir = new File(projectDir, relativeDir);
+    final List<String> parts = new ArrayList<>();
+    if (projectName != null) {
+      parts.add(projectName);
+    }
+    if (version != null) {
+      parts.add(version);
+    }
+    if (classifier != null) {
+      parts.add(classifier);
+    }
+    final String filename = StringUtils.join(parts, "-") + ".jar";
+    return new File(libsDir, filename);
+  }
+
+  private File newFile(String projectName, String version) {
+    return newFile(projectName, version, "unojar");
+  }
+
+  private File newFile(String projectName) {
+    return newFile(projectName, null);
+  }
 
   @Test
   public void testMain()
       throws Exception {
-    final File unoJarFile = new File("../test-main/build/libs/test-main-unojar.jar");
+    final File unoJarFile = newFile("test-main");
     assertTrue(unoJarFile.isFile());
     final Invoker.Result result = Invoker.run(String.format("java -jar %s", unoJarFile));
     assertEquals("Expected failure did not occur: " + result, 0, result.status);
@@ -20,7 +56,7 @@ public class CommandLine
   @Test
   public void testLog4jPlugin()
       throws Exception {
-    final File unoJarFile = new File("../test-log4j-plugin/build/libs/test-log4j-plugin-unojar.jar");
+    final File unoJarFile = newFile("test-log4j-plugin");
     assertTrue(unoJarFile.isFile());
     final Invoker.Result result = Invoker.run(String.format("java -jar %s", unoJarFile));
     assertEquals("Expected failure did not occur: " + result, 0, result.status);
@@ -31,7 +67,7 @@ public class CommandLine
   @Test
   public void testLog4jMrJar()
       throws Exception {
-    final File unoJarFile = new File("../test-log4j-mr-jar/build/libs/test-log4j-mr-jar-unojar.jar");
+    final File unoJarFile = newFile("test-log4j-mr-jar");
     assertTrue(unoJarFile.isFile());
     final Invoker.Result result = Invoker.run(String.format("java -jar %s", unoJarFile));
     assertEquals("Expected failure did not occur: " + result, 0, result.status);
@@ -42,19 +78,9 @@ public class CommandLine
   @Test
   public void testMainDirWithSlash()
       throws Exception {
-    final File unoJarFile = new File("../test-main-dir-with-slash/build/libs/test-main-dir-with-slash-unojar.jar");
+    final File unoJarFile = newFile("test-main-dir-with-slash");
     assertTrue(unoJarFile.isFile());
     final Invoker.Result result = Invoker.run(String.format("java -jar %s", unoJarFile));
     assertEquals("Expected failure did not occur: " + result, 0, result.status);
-  }
-
-  @Test
-  public void testGroovyDsl()
-      throws Exception {
-    final File unoJarFile = new File("../groovy-dsl/build/libs/test-unojar.jar");
-    assertTrue(unoJarFile.isFile());
-    final Invoker.Result result = Invoker.run(String.format("java -jar %s", unoJarFile));
-    assertEquals("Expected failure did not occur: " + result, 0, result.status);
-    assertEquals("Hello, world!", result.out.get(0));
   }
 }
