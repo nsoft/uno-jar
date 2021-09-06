@@ -1,14 +1,10 @@
 <project>
+    <import file="../ant-unojar.xml"/>
+
     <property name="build.dir" value="build/ant"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="libs.dir" value="${build.dir}/libs"/>
     <basename property="project.name" file="${basedir}"/>
-
-    <path id="unoJarClasspath">
-        <path location="../../ant/build/libs/ant-1.0.2.jar"/>
-    </path>
-
-    <taskdef name="unojar" classname="com.needhamsoftware.unojar.ant.UnoJarTask" classpathref="unoJarClasspath"/>
 
     <target name="clean">
         <echo message="==== ${project.name} - clean"/>
