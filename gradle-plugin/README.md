@@ -17,7 +17,7 @@ application {
 Groovy DSL (`build.gradle`)
 ```
 plugins {
-    application
+    id("application")
     id("com.needhamsoftware.unojar")
 }
 
@@ -34,6 +34,92 @@ Invocation
 The output file can be found at `${project.buildDir}/${project.libsDirName}/[archiveBaseName]-[archiveAppendix]-[archiveVersion]-[archiveClassifier].[archiveExtension]`
 
 With default settings: `build/libs/${project.archivesBaseName}-${project.version}-unojar.jar`
+
+Assuming your project name is `myproject`, the output file can be found at `build/libs/myproject-unojar.jar`
+
+### Example with project version
+
+Kotlin DSL (`build.gradle.kts`)
+```
+plugins {
+    application
+    id 'com.needhamsoftware.unojar'
+}
+
+project.version = 2.0
+
+application {
+    mainClass.set("org.gradle.sample.Main")
+}
+```
+
+Groovy DSL (`build.gradle`)
+```
+plugins {
+    id("application")
+    id("com.needhamsoftware.unojar")
+}
+
+project.version = 2.0
+
+application {
+    mainClass = 'org.gradle.sample.Main'
+}
+```
+
+Invocation
+```
+./gradlew packageUnoJar
+```
+
+Assuming your project name is `myproject`, the output file can be found at `build/libs/myproject-2.0-unojar.jar`
+
+### Example overriding some defaults
+
+Kotlin DSL (`build.gradle.kts`)
+```
+plugins {
+    application
+    id 'com.needhamsoftware.unojar'
+}
+
+project.version = 2.0
+
+application {
+    mainClass.set("org.gradle.sample.Main")
+}
+
+unojar {
+    archiveVersion.set("2.0.M1")
+    archiveClassifier.set("all")
+}
+```
+
+Groovy DSL (`build.gradle`)
+```
+plugins {
+    id("application")
+    id("com.needhamsoftware.unojar")
+}
+
+project.version = 2.0
+
+application {
+    mainClass = 'org.gradle.sample.Main'
+}
+
+unojar {
+    archiveVersion = "2.0.M1"
+    archiveClassifier = "all"
+}
+```
+
+Invocation
+```
+./gradlew packageUnoJar
+```
+
+Assuming your project name is `myproject`, the output file can be found at `build/libs/myproject-2.0.M1-all.jar`
 
 ## Tasks
 
