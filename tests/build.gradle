@@ -244,7 +244,7 @@ task testDirWithSlashJar(dependsOn: [testClasses, libtestDirWithSlashJar, ':ant:
   }
 }
 
-task testGradle(type: Exec) {
+task testSuite(type: Exec) {
   dependsOn(":core:publishToMavenLocal")
   workingDir = rootProject.file('test-suite')
   commandLine = ["./gradlew", "clean", "build"]
@@ -254,7 +254,7 @@ test.dependsOn testJarLog4j
 test.dependsOn testJar1
 test.dependsOn testMRJar
 test.dependsOn testDirWithSlashJar
-test.dependsOn testGradle
+test.dependsOn testSuite
 
 test {
   testLogging {
