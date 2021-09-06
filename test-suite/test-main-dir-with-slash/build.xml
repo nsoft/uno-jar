@@ -54,9 +54,7 @@
         </manifest>
         <unojar destfile="${libs.dir}/${project.name}-unojar.jar" manifest="${build.dir}/MANIFEST.MF">
             <main>
-                <fileset dir="${classes.dir}">
-                    <include name="**/*"/>
-                </fileset>
+                <fileset dir="${classes.dir}"/>
                 <fileset dir="src/main/resources"/>
             </main>
             <lib>
