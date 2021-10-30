@@ -9,5 +9,4 @@ rootProject.name = 'uno-jar'
 include 'ant'
 include 'core'
 include 'gradle-plugin'
-include 'tests'
 

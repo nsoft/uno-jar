@@ -1,0 +1,51 @@
+<project>
+    <import file="../ant-unojar.xml"/>
+
+    <property name="build.dir" value="build/ant"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="libs.dir" value="${build.dir}/libs"/>
+    <basename property="project.name" file="${basedir}"/>
+
+    <target name="clean">
+        <echo message="==== ${project.name} - clean"/>
+        <delete dir="${build.dir}"/>
+    </target>
+
+    <path id="classpath">
+        <path location="../test-lib/${libs.dir}/test-lib.jar"/>
+    </path>
+
+    <target name="compile">
+        <echo message="==== ${project.name} - compile"/>
+        <ant dir="../test-lib" inheritAll="false" target="jar"/>
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="src" destdir="${classes.dir}" includeAntRuntime="false">
+            <classpath refid="classpath"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <echo message="==== ${project.name} - jar"/>
+        <mkdir dir="${libs.dir}"/>
+        <jar destfile="${libs.dir}/${project.name}.jar">
+            <fileset dir="${classes.dir}"/>
+        </jar>
+    </target>
+
+    <target name="packageUnoJar" depends="compile">
+        <echo message="==== ${project.name} - packageUnoJar"/>
+        <manifest file="${build.dir}/MANIFEST.MF">
+            <attribute name="Uno-Jar-Main-Class" value="TestMain"/>
+        </manifest>
+        <unojar destfile="${libs.dir}/${project.name}-unojar.jar" manifest="${build.dir}/MANIFEST.MF">
+            <main>
+                <fileset dir="${classes.dir}"/>
+            </main>
+            <lib>
+                <fileset dir="../test-lib/${libs.dir}">
+                    <include name="test-lib.jar"/>
+                </fileset>
+            </lib>
+        </unojar>
+    </target>
+</project>
