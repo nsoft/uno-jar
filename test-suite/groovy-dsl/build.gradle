@@ -1,0 +1,31 @@
+plugins {
+  id 'application'
+  id 'ca.cutterslade.analyze'
+  id 'com.needhamsoftware.unojar'
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+}
+
+application {
+  mainClass = 'Main'
+}
+
+dependencies {
+  implementation 'io.javalin:javalin:3.13.10'
+  runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
+}
+
+tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJarTask) {
+  dependsOn "jar"
+  mainClass = "Main2"
+  archiveBaseName = "test"
+  embedConfiguration = configurations.getByName("runtimeClasspath")
+  manifestAttributes = ["Test-Attribute": "TestValue"]
+}
+
+tasks.build {
+  dependsOn("packageUnoJar", "packageUnoJar2")
+}

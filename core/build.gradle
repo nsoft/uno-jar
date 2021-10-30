@@ -15,7 +15,8 @@ repositories {
 }
 
 sourceCompatibility = 1.11
-version = '2.0.0-SNAPSHOT'
+group = 'com.needhamsoftware.unojar'
+version = '1.0.2'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'

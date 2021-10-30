@@ -15,4 +15,18 @@ dependencies {
   testCompile 'junit:junit:4.12'
 }
 
+task testSuite(type: Exec) {
+  dependsOn(":core:publishToMavenLocal")
+  workingDir = rootProject.file('test-suite')
+  commandLine = ["./gradlew", "clean", "build"]
+}
+
+test {
+  testLogging {
+    events = ['PASSED', 'FAILED', 'SKIPPED']
+  }
+}
+
 build.dependsOn ':core:build'
+test.dependsOn testSuite
+testSuite.dependsOn ':ant:build'
