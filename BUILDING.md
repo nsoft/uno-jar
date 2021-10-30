@@ -1,16 +1,7 @@
 # Building
 
-This project is difficult to build because it includes a gradle plugin that 
-depends on other modules and thus has chicken/egg issues. The current 
-bootstrapping process when things get out of sync is:
-
-1. Edit settings.gradle to comment out the tests module
-1. Run publishToMavenLocal
-1. Edit settings.gradle to uncomment the tests module
-1. Now you should be able to run until you manage do publish a broken/bugged 
-   version of something to mavenlocal, or blow away your maven caches... 
-   
-You will need to publish to mavenLocal to see changes in one module in
-when running another module.
-
-I am definitely not pleased with the situation, and looking to improve it.
+This project contains two builds. The first is a usual sort of build, the second is a composite build relying on
+artifacts from the main build. This should work out of the box with the ./gradlew command, however if you wish to use
+an ide such as intellij to work on this code it may be necessary to add /test-suite/build.gradle to the project
+manually to see it in the gralde side bar. This is entirely optional however as the main build runs the test-suite
+build as a dependency for the test target. 

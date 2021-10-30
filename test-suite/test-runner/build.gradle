@@ -1,0 +1,57 @@
+import org.gradle.api.tasks.testing.logging.*
+
+plugins {
+    id("java")
+}
+
+dependencies {
+    testImplementation("junit:junit:4.13.2")
+    implementation("org.apache.commons:commons-lang3:3.12.0")
+}
+
+ByteArrayOutputStream whichCommandOutputStream = new ByteArrayOutputStream()
+project.exec {
+    commandLine 'which', 'ant'
+    standardOutput = whichCommandOutputStream
+}
+def antCmd = whichCommandOutputStream.toString().trim()
+
+tasks {
+    task antBuildTestMain(type: Exec) {
+        workingDir '../test-main'
+        commandLine antCmd, 'clean', 'packageUnoJar'
+    }
+
+    task antBuildTestMainDirWithSlash(type: Exec) {
+        workingDir '../test-main-dir-with-slash'
+        commandLine antCmd, 'clean', 'packageUnoJar'
+    }
+
+    task antBuildTestLog4jPlugin(type: Exec) {
+        workingDir '../test-log4j-plugin'
+        commandLine antCmd, 'clean', 'packageUnoJar'
+    }
+
+    task antBuildTestLog4jMrJar(type: Exec) {
+        workingDir '../test-log4j-mr-jar'
+        commandLine antCmd, 'clean', 'packageUnoJar'
+    }
+}
+
+tasks.test {
+    dependsOn(
+        ":groovy-dsl:build",
+        ":kotlin-dsl:build",
+        ":test-main:build",
+        ":test-main-dir-with-slash:build",
+        ":test-log4j-plugin:build",
+        ":test-log4j-mr-jar:build",
+        "antBuildTestMain",
+        "antBuildTestMainDirWithSlash",
+        "antBuildTestLog4jPlugin",
+        "antBuildTestLog4jMrJar"
+    )
+    testLogging {
+        events = [TestLogEvent.PASSED, TestLogEvent.FAILED, TestLogEvent.SKIPPED]
+    }
+}

@@ -1,0 +1,9 @@
+<project>
+    <property name="unojar.version" value="1.0.2" />
+
+    <path id="unoJarClasspath">
+        <path location="${basedir}/../../ant/build/libs/ant-${unojar.version}.jar"/>
+    </path>
+
+    <taskdef name="unojar" classname="com.needhamsoftware.unojar.ant.UnoJarTask" classpathref="unoJarClasspath"/>
+</project>

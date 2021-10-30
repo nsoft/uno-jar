@@ -1,0 +1,7 @@
+<ivy-module version="2.0">
+    <info organisation="com.needhamsoftware.unojar" module="test-log4j-mr-jar"/>
+    <dependencies>
+        <dependency org="org.apache.logging.log4j" name="log4j-api" rev="2.14.1" conf="default"/>
+        <dependency org="org.apache.logging.log4j" name="log4j-core" rev="2.14.1" conf="default"/>
+    </dependencies>
+</ivy-module>
