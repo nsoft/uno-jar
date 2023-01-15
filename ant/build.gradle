@@ -22,7 +22,7 @@ version = '1.0.2'
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
-  compile 'org.apache.ant:ant:1.10.7'
+  implementation 'org.apache.ant:ant:1.10.7'
 }
 
 task copyCore(type: Copy) {

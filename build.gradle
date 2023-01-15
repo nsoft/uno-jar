@@ -12,7 +12,7 @@ allprojects {
 }
 
 dependencies {
-  testCompile 'junit:junit:4.12'
+  testImplementation 'junit:juni t:4.13.1'
 }
 
 task testSuite(type: Exec) {
