@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id "com.needhamsoftware.unojar" version "2.0.0-SNAPSHOT"
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
+
+
+unojar {
+    archiveBaseName="testJar2.jar"
+    manifestAttributes = ["Test-Attribute" : "TestValue"]
+    mainClass = "com.needhamsoftware.unojar.jdk8.Main"
+}
+
+tasks.packageUnoJar {
+    dependsOn "jar"
+}
+tasks.register("runPackagedJar", Exec.class) {
+
+}

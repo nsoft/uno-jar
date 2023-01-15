@@ -35,7 +35,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
+import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -115,8 +115,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     public int mrVersion;
   }
 
-
-
   /*
    * Layout of the uno-jar.jar file
    *
@@ -187,7 +185,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       // BUG-2833948
       // Delegate back into this classloader, use ThreadLocal to avoid recursion.
       externalClassLoader = AccessController.doPrivileged(
-          new PrivilegedAction<>() {
+          new PrivilegedAction<ClassLoader>() {
             public ClassLoader run() {
               return new URLClassLoader(urls, JarClassLoader.this) {
                 // Handle recursion for classes, and mutual recursion for resources.
@@ -247,7 +245,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
               };
             }
           });
-
     }
   }
 
@@ -287,7 +284,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
               Manifest m = mis.getManifest();
               // Is this a jar file with a manifest?
               if (m != null) {
-                mainClass = mis.getManifest().getMainAttributes().getValue(Attributes.Name.MAIN_CLASS);
+                mainClass = mis.getManifest().getMainAttributes().getValue(Name.MAIN_CLASS);
                 mainJar = $entry;
               }
             } else if (mainJar != null) {
@@ -353,7 +350,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
       loadBytes(entry, bais, jar, manifest);
     }
-
   }
 
   protected void loadBytes(JarEntry entry, InputStream is, String jar, Manifest man) throws IOException {
@@ -367,7 +363,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     int index2 = entryName.lastIndexOf('/', index - 1);
     if (entryName.endsWith(CLASS) && index2 > -1) {
       String packageName = entryName.substring(0, index2).replace('/', '.');
-      if (getDefinedPackage(packageName) == null) {
+      if (VERSION_SPECIFIC.getDefinedPackage(this, packageName) == null) {
         // Defend against null manifest.
         if (man != null) {
           definePackage(packageName, man, urlFactory.getCodeBase(jar));
@@ -411,7 +407,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
       cacheBytes(entry, jar, man, entryName, baos);
       LOGGER.fine("cached bytes for entry name " + entryName);
-
     }
   }
 
@@ -532,7 +527,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       if (i != -1) {
         String pkgname = name.substring(0, i);
         // Check if package already loaded.
-        Package pkg = getDefinedPackage(pkgname);
+        Package pkg = VERSION_SPECIFIC.getDefinedPackage(this, pkgname);
         Manifest man = bytecode.manifest;
         if (pkg != null) {
           // Package found, so check package sealing.
@@ -834,24 +829,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return false;
   }
 
-
   protected String getCaller() {
-    StackWalker walker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
-    Optional<StackWalker.StackFrame> firstByteCode = walker.walk(s -> s.filter(f -> {
-      String caller = f.getClassName();
-      String cls = getByteCodeName(caller);
-      if (byteCode.get(cls) != null) {
-        return !caller.startsWith("com.needhamsoftware.unojar");
-      }
-      return false;
-    }).findFirst());
-    return firstByteCode.map(stackFrame -> getByteCodeName(stackFrame.getClassName())).orElse(null);
+    return VERSION_SPECIFIC.getCaller(byteCode.keySet());
   }
-
-  private String getByteCodeName(String className) {
-    return className.replace(".", "/") + ".class";
-  }
-
 
   public void setVerbose(boolean verbose) {
     if (verbose) {
@@ -1022,7 +1002,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     return binlib;
   };
 
-
   protected IBinlibResolver binlibResolver = defaultBinlibResolver;
 
   // Allow override for urlFactory
@@ -1085,7 +1064,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       LOGGER.warning("unable to locate " + $resource + " due to " + mux);
     }
     return null;
-
   }
 
   protected Enumeration<URL> findResources(String name) throws IOException {
@@ -1103,7 +1081,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       }
     }
     final Iterator<URL> ri = resources.iterator();
-    return new Enumeration<>() {
+    return new Enumeration<URL>() {
       public boolean hasMoreElements() {
         return ri.hasNext();
       }
@@ -1132,9 +1110,9 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
   public String toString() {
-    return super.toString() + (getName() != null ? "(" + getName() + ")" : "");
+    String name = VERSION_SPECIFIC.getName(this);
+    return super.toString() + (name != null ? "(" + name + ")" : "");
   }
-
 
   /**
    * Preloader for {@link JarClassLoader#findTheLibrary(String, String)} to allow arch-specific native libraries
@@ -1214,7 +1192,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         // Return null by default to search the java.library.path
         LOGGER.warning("Unable to load native library: " + e);
       }
-
     }
 
     return result;
@@ -1236,5 +1213,4 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public static boolean getProperty(String key) {
     return Boolean.parseBoolean(System.getProperty(key, "false"));
   }
-
 }

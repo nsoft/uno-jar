@@ -2,5 +2,6 @@
     <info organisation="com.needhamsoftware.unojar" module="test-main-dir-with-slash"/>
     <dependencies>
         <dependency org="junit" name="junit" rev="4.13.2" conf="default"/>
+        <dependency org="com.needhamsoftware.unojar" name="core" rev="2.0.0-SNAPSHOT" conf="default"/>
     </dependencies>
 </ivy-module>

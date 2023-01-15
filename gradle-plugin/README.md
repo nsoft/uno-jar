@@ -10,7 +10,7 @@ plugins {
 }
 
 application {
-    mainClass.set("org.gradle.sample.Main")
+    mainClass.set("org.example.Main")
 }
 ```
 
@@ -22,7 +22,7 @@ plugins {
 }
 
 application {
-    mainClass = 'org.gradle.sample.Main'
+    mainClass = 'org.example.Main'
 }
 ```
 
@@ -37,33 +37,34 @@ With default settings: `build/libs/${project.archivesBaseName}-${project.version
 
 Assuming your project name is `myproject`, the output file can be found at `build/libs/myproject-unojar.jar`
 
-### Example with project version
+### Example with project version & not using application plugin
+The application plugin is not required if you set main class.
 
 Kotlin DSL (`build.gradle.kts`)
 ```
 plugins {
-    application
     id 'com.needhamsoftware.unojar'
 }
 
 project.version = 2.0
 
-application {
-    mainClass.set("org.gradle.sample.Main")
+unojar {
+    archiveBaseName.set("example-app")
+    mainClass.set("org.example.Main")
 }
 ```
 
 Groovy DSL (`build.gradle`)
 ```
 plugins {
-    id("application")
     id("com.needhamsoftware.unojar")
 }
 
 project.version = 2.0
 
-application {
-    mainClass = 'org.gradle.sample.Main'
+unojar {
+  archiveBaseName = "example-app"
+  mainClass = "org.example.Main"
 }
 ```
 
@@ -72,7 +73,7 @@ Invocation
 ./gradlew packageUnoJar
 ```
 
-Assuming your project name is `myproject`, the output file can be found at `build/libs/myproject-2.0-unojar.jar`
+The output file can be found at `build/libs/example-app-2.0-unojar.jar`
 
 ### Example overriding some defaults
 
@@ -169,7 +170,7 @@ tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJar
 
 | Name | Type | Required | Description |
 | --- | --- | --- | --- |
-| `mainClass` | `String` | No | Main class name. | 
+| `mainClass` | `String` | No | Main class name. |
 | `archiveBaseName` | `String` | No | Archive base name. Default: `project.archivesBaseName` |
 | `archiveAppendix` | `String` | No | Archive appendix. |
 | `archiveVersion` | `String` | No | Archive version. Default: `project.version` |
@@ -182,18 +183,18 @@ tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJar
 
 Kotlin DSL (`build.gradle.kts`)
 ```
-# sample configuration, using all properties (including optional ones) 
+# sample configuration, using several properties (including optional ones)
 unojar {
     archiveBaseName.set("myjar")
     archiveClassifier.set("unojar")
-    embedConfiguration.set(configurations.getByName("runtimeClasspath")) 
+    embedConfiguration.set(configurations.getByName("runtimeClasspath"))
     manifestAttributes.set(mapOf("Test-Attribute" to "Test-Value"))
 }
 ```
 
 Groovy DSL (`build.gradle`)
 ```
-# sample configuration, using all properties (including optional ones) 
+# sample configuration, using several properties (including optional ones)
 unojar {
     archiveBaseName = "myjar"
     archiveClassifier = "unojar"

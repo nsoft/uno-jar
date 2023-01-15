@@ -1,5 +1,5 @@
 <project>
-    <property name="unojar.version" value="1.0.2" />
+    <property name="unojar.version" value="2.0.0-SNAPSHOT" />
 
     <path id="unoJarClasspath">
         <path location="${basedir}/../../ant/build/libs/ant-${unojar.version}.jar"/>
