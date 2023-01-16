@@ -43,7 +43,7 @@ public class BootTest {
         replay();
         String[] strings = Boot.parseMainArgs(new String[0], attributesMock);
         assertEquals("Foo", strings[0]);
-        assertEquals("BAR", strings[0]);
-        assertEquals("baz bam", strings[1]);
+        assertEquals("BAR", strings[1]);
+        assertEquals("baz bam", strings[2]);
     }
 }
