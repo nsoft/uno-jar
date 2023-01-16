@@ -1,4 +1,4 @@
-import org.gradle.api.tasks.testing.logging.*
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("java")
@@ -9,30 +9,40 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
 }
 
-ByteArrayOutputStream whichCommandOutputStream = new ByteArrayOutputStream()
-project.exec {
-    commandLine 'which', 'ant'
-    standardOutput = whichCommandOutputStream
+
+if (!project.hasProperty('ant.home') ) {
+    throw new GradleException("\n" +
+        "\n**********************************************************************************************************" +
+        "\nPlease set ant.home property to the bin directory of your ant distribution in your local gradle properties" +
+        "\nThis can be accomplished via a gradle.properties in /uno-jar/test-suite or via ~/.gradle/gradle.properties" +
+        "\nas per your personal preference" +
+        "\n**********************************************************************************************************\n")
 }
-def antCmd = whichCommandOutputStream.toString().trim()
+
+def antCmd = project.getProperty('ant.home')
+if (System.properties['os.name'].toLowerCase().contains('windows')) {
+    antCmd = project.getProperty("ant.home") + "ant.bat"
+} else {
+    antCmd = project.getProperty("ant.home") + "ant"
+}
 
 tasks {
-    task antBuildTestMain(type: Exec) {
+    tasks.register("antBuildTestMain", Exec.class) {
         workingDir '../test-main'
         commandLine antCmd, 'clean', 'packageUnoJar'
     }
 
-    task antBuildTestMainDirWithSlash(type: Exec) {
+    tasks.register("antBuildTestMainDirWithSlash", Exec.class) {
         workingDir '../test-main-dir-with-slash'
         commandLine antCmd, 'clean', 'packageUnoJar'
     }
 
-    task antBuildTestLog4jPlugin(type: Exec) {
+    tasks.register("antBuildTestLog4jPlugin", Exec.class) {
         workingDir '../test-log4j-plugin'
         commandLine antCmd, 'clean', 'packageUnoJar'
     }
 
-    task antBuildTestLog4jMrJar(type: Exec) {
+    tasks.register("antBuildTestLog4jMrJar", Exec.class) {
         workingDir '../test-log4j-mr-jar'
         commandLine antCmd, 'clean', 'packageUnoJar'
     }
