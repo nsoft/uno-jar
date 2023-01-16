@@ -24,7 +24,8 @@ configurations.all {
 
 
 dependencies {
-  testImplementation 'junit:junit:4.12'
+  testImplementation 'com.needhamsoftware:easier-mock:2.0'
+  testImplementation 'junit:junit:4.13.1'
 }
 
 jar {

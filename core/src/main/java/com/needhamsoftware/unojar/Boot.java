@@ -124,7 +124,7 @@ public class Boot {
     String mainClass = null;
     initializeProperties();
 
-    // Reinitialze Logging (property file could have other loglevel set)
+    // Reinitialize Logging (property file could have other loglevel set)
     initializeLogging();
 
     try {
@@ -165,15 +165,7 @@ public class Boot {
       mainJar = attributes.getValue(ONE_JAR_DEFAULT_MAIN_JAR);
     }
 
-    String mainargs = attributes.getValue(ONE_JAR_MAIN_ARGS);
-    if (mainargs != null && args.length == 0) {
-      // Replace the args with built-in.  Support escaped whitespace.
-      args = mainargs.split("[^\\\\]\\s");
-      for (int i = 0; i < args.length; i++) {
-        args[i] = args[i].replaceAll("\\\\(\\s)", "$1");
-        args[i] = JarClassLoader.replaceProps(System.getProperties(), args[i]);
-      }
-    }
+    args = parseMainArgs(args, attributes);
 
     // If no main-class specified, check the manifest of the main jar for
     // a Boot-Class attribute.
@@ -239,6 +231,22 @@ public class Boot {
     @SuppressWarnings("unchecked")
     Method main = cls.getMethod("main", String[].class);
     main.invoke(null, new Object[]{args});
+  }
+
+  static String[] parseMainArgs(String[] args, Attributes attributes) {
+    if (args.length == 0) {
+      String mainargs = attributes.getValue(ONE_JAR_MAIN_ARGS);
+      if (mainargs != null) {
+
+        // Replace the args with built-in.  Support escaped whitespace.
+        args = mainargs.split("[^\\\\]\\s");
+        for (int i = 0; i < args.length; i++) {
+          args[i] = args[i].replaceAll("\\\\(\\s)", "$1");
+          args[i] = JarClassLoader.replaceProps(System.getProperties(), args[i]);
+        }
+      }
+    }
+    return args;
   }
 
   private static void initializeProperties() throws IOException {
