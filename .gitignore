@@ -7,3 +7,4 @@ dist
 /core/src/main/resources/.version
 /tests/.unojar/
 .DS_Store
+gradle.properties

@@ -21,9 +21,9 @@ if (!project.hasProperty('ant.home') ) {
 
 def antCmd = project.getProperty('ant.home')
 if (System.properties['os.name'].toLowerCase().contains('windows')) {
-    antCmd = project.getProperty("ant.home") + "ant.bat"
+    antCmd = project.getProperty("ant.home") + "/ant.bat"
 } else {
-    antCmd = project.getProperty("ant.home") + "ant"
+    antCmd = project.getProperty("ant.home") + "/ant"
 }
 
 tasks {
