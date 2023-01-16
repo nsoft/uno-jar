@@ -64,6 +64,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   public final static String P_RECORD = PROPERTY_PREFIX + "record";
   // System properties.
   public final static String P_EXPAND_DIR = JarClassLoader.PROPERTY_PREFIX + "expand.dir";
+  @SuppressWarnings("RegExpEmptyAlternationBranch")
   public final static String P_PATH_SEPARATOR = "|";
   public final static String P_ONE_JAR_CLASS_PATH = JarClassLoader.PROPERTY_PREFIX + "class.path";
   public final static String MANIFEST = "META-INF/MANIFEST.MF";
@@ -238,7 +239,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                   }
                 }
 
-                protected boolean reentered(String name) {
+                private boolean reentered(String name) {
                   // Defend against null name: not sure about semantics there.
                   Object old = current.get();
                   return old != null && old.equals(name);
@@ -479,7 +480,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   public boolean isJarClassLoaderAParent(ClassLoader loader) {
     return loader instanceof JarClassLoader
-        || loader.getParent() != null && isJarClassLoaderAParent(loader.getParent());
+        || loader != null && (loader.getParent() != null && isJarClassLoaderAParent(loader.getParent()));
   }
 
   /**
@@ -777,7 +778,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
     if (resource.startsWith("/")) resource = resource.substring(1);
 
-    String rsrc = null;
+    String rsrc;
     String caller = getCaller();
     ByteCode callerCode = byteCode.get(caller);
 
