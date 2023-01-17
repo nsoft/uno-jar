@@ -10,7 +10,7 @@ java {
 }
 
 dependencies {
-    implementation("com.needhamsoftware.unojar:core")
+    implementation("com.needhamsoftware.unojar:core:1.1.0-SNAPSHOT")
     implementation("junit:junit:4.13.2")
 }
 

@@ -13,6 +13,8 @@ import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.PrivilegedAction;
@@ -24,6 +26,8 @@ import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+
+import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
 
 /**
  * Run a java application which requires multiple support jars from inside
@@ -40,9 +44,7 @@ import java.util.jar.Manifest;
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
 public class Boot {
-
   private final static Logger LOGGER = Logger.getLogger("Boot");
-
 
   public final static String ONE_JAR_CLASSLOADER = "Uno-Jar-Class-Loader";
   public final static String ONE_JAR_MAIN_CLASS = "Uno-Jar-Main-Class";
@@ -70,7 +72,7 @@ public class Boot {
       JarClassLoader.P_JAR_NAMES, "true:  Recorded classes are kept in directories corresponding to their jar names.\n" +
       "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
       JarClassLoader.P_VERBOSE, "true:  Print verbose classloading information",
-      JarClassLoader.P_SILENT, "true:  Dont' print any classloading information",
+      JarClassLoader.P_SILENT, "true:  Don't print any classloading information",
       JarClassLoader.P_INFO, "true:  Print informative classloading information",
       P_STATISTICS, "true:  Shows statistics about the Uno-Jar Classloader",
       P_JARPATH, "Full path of the uno-Jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
@@ -92,12 +94,10 @@ public class Boot {
   protected static long startTime = System.currentTimeMillis();
   protected static long endTime = 0;
 
-
   // Singleton loader.  This must not be changed once it is set, otherwise all
   // sorts of nasty class-cast exceptions will ensue.  Hence we control
   // access to it strongly.
   private static JarClassLoader loader = null;
-
 
   /**
    * This method provides access to the bootstrap Uno-Jar classloader which
@@ -270,7 +270,7 @@ public class Boot {
       try {
         if (new File(props).exists()) {
           try {
-            is = new FileInputStream(props);
+            is = Files.newInputStream(Paths.get(props));
             LOGGER.fine("merging properties from " + props);
             properties.load(is);
           } finally {
@@ -361,13 +361,12 @@ public class Boot {
   }
 
   public static String pad(String indent, String string, int width) {
-    return indent + string + " ".repeat(Math.max(0, width - string.length()));
+    return VERSION_SPECIFIC.pad(indent, string, width);
   }
 
   public static String wrap(String indent, String string, int width) {
     String padding = pad(indent, "", width);
-    string = string.replaceAll("\n", "\n" + padding);
-    return string;
+    return string.replaceAll("\n", "\n" + padding);
   }
 
   public static String[] processArgs(String[] args) throws Exception {
@@ -438,5 +437,4 @@ public class Boot {
         }
     );
   }
-
 }

@@ -17,6 +17,7 @@ for the restrictions on using his code. The original project can be found at:
 http://one-jar.sourceforge.net/
 
 ## Documentation
+
 User documentation can be found in our wiki: https://github.com/nsoft/uno-jar/wiki
 
 ## Goals
@@ -27,8 +28,7 @@ creating an "SDK" that can be used to jump-start a project with it. Back in the 
 was a popular pattern, but In this day and age it has become redundant with modern
 tools such as maven and gradle. These tools already have jump-starting capabilities via archetypes, and most IDE's 
 will lay out a standard project layout. Uno-jar will endeavor to carry forward the **basic** functionality
-of One-JAR and leave behind the outdated features as much as possible. Support for modern JVM's and new features such as 
-Multi-release jars (MRJars) will be added. 
+of One-JAR and leave behind the outdated features as much as possible. 
 
 The PRIMARY use case in all of this is to add an ant task, or gradle task to a build that packages an application
 into an executable "fat jar" that loads its classes from distinct jar files contained within the final
@@ -36,17 +36,20 @@ single distributable jar, that runs with a simple `java -jar` invocation. Facili
 or the like are not likely to be supported going forward. The focus must be kept narrow so that the tool can remain 
 light and hopefully be more easily maintained. 
 
-Updating of builds, tests, code-style, and use of modern java constructs where beneficial will also be 
-conducted over time.
 
 ## Status
 
-### Working
-1. Core libraries for simple executable case.
-1. Ant task
-1. Gradle task
-1. Unit test validating execution of Uno-Jar-Main-Class, and access to lib
-1. Example of invoking the ant task from gradle
+Uno-Jar is now fully ready to use, it works with Java 11, but does not have any particular support for the Java 9+ 
+module system. Modular jars are expected to generally work or fail as they would on any other classpath, though
+this has not been extensively tested, and distribution of a fully modular application via uno-jar is untested.
+Uno-Jar does however support multi-release jars (a. k. a. MR jars) as libraries and correctly loads the appropriate
+classes for the JVM in use. Core and ant jars can be found on maven central here: 
+
+https://search.maven.org/search?q=g:com.needhamsoftware.unojar
+
+the gradle task can be found at 
+
+https://plugins.gradle.org/plugin/com.needhamsoftware.unojar
 
 ### Unsupported
 Anything else. If you miss a One-Jar feature and wish to contribute to its resurrection and subsequent 

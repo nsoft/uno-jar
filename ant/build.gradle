@@ -1,11 +1,9 @@
-import java.text.SimpleDateFormat
-
 plugins {
   id 'java'
   id 'maven'
   id 'signing'
   id 'maven-publish'
-  id 'com.palantir.git-version' version '0.12.2'
+  id 'com.palantir.git-version'
 }
 
 repositories {
@@ -18,7 +16,7 @@ configurations.all {
 }
 
 sourceCompatibility = 1.11
-version = '1.0.2'
+version = '1.1.0-SNAPSHOT'
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
@@ -37,9 +35,9 @@ jar {
   def gitDetails = versionDetails();
   manifest {
     attributes(
-        'Built-By': System.properties['user.name'],
-        'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-        'Build-Revision': version + ' (' + gitDetails.gitHashFull + ')' + (gitDetails.clean ? '' : '(with uncommitted files)'),
+        'Implementation-Version': version,
+        'Build-Tool': "Gradle ${gradle.gradleVersion}",
+        'Build-Revision': gitDetails.gitHashFull + (gitDetails.clean ? '' : ' (with uncommitted files)'),
         'Created-By': "Gradle ${gradle.gradleVersion}",
         'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
         'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
@@ -200,10 +198,7 @@ def getManifestAttributes() {
   return [
       'Implementation-Version': version,
       'Build-Tool': "Gradle ${gradle.gradleVersion}",
-      'Main-Class': "com.needhamsoftware.unojar.Boot",
-      'Built-By': System.properties['user.name'],
-      'Build-Timestamp': new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
-      'Build-Revision': version + ' (' + gitDetails.gitHashFull + ')' + (gitDetails.clean ? '' : '(with uncommitted files)'),
+      'Build-Revision': gitDetails.gitHashFull + (gitDetails.clean ? '' : ' (with uncommitted files)'),
       'Created-By': "Gradle ${gradle.gradleVersion}",
       'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
       'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"]

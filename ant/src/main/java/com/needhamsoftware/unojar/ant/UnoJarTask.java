@@ -32,26 +32,24 @@ import java.util.zip.ZipFile;
  * @author simon
  * The Uno-Jar Ant task.  Extends &lt;jar&gt;
  */
+@SuppressWarnings("unused")
 public class UnoJarTask extends Jar {
-  public static final List<Object> DEBUGTMP = new ArrayList<>();
-
   public static final int BUFFER_SIZE = 8192;
   public static final String META_INF_MANIFEST = "META-INF/MANIFEST.MF";
   public static final String MAIN_MAIN_JAR = "main/main.jar";
   public static final String CLASS = ".class";
-  public static final String NL = "\n";
-
   public static final String MAIN_CLASS = Attributes.Name.MAIN_CLASS.toString();
 
   protected Main main;
   protected MainJars mainJars;
-  protected ZipFile onejar;
+  protected ZipFile unoJar;
   protected File mainManifest;
   protected String oneJarMainClass;
   protected boolean manifestSet;
 
+  @SuppressWarnings("unused")
   public static class Main extends Task {
-    protected List filesets = new ArrayList();
+    protected List<FileSet> filesets = new ArrayList<>();
     protected File manifest;
     protected File jar;
 
@@ -71,6 +69,7 @@ public class UnoJarTask extends Jar {
     }
   }
 
+  @SuppressWarnings("unused")
   public static class MainJars extends Task {
     List<ZipFileSet> filesets = new ArrayList<>();
     protected String app;
@@ -81,8 +80,9 @@ public class UnoJarTask extends Jar {
     }
   }
 
+  @SuppressWarnings("unused")
   public static class Lib extends Task {
-    protected List filesets = new ArrayList();
+    protected List<ZipFileSet> filesets = new ArrayList<>();
 
     public void addFileSet(ZipFileSet fileset) {
       log("Lib.addFileSet() ", Project.MSG_VERBOSE);
@@ -91,18 +91,16 @@ public class UnoJarTask extends Jar {
 
     public void addConfiguredClasspath(final Path classpath) {
       log("adding classpath: " + classpath, Project.MSG_VERBOSE);
-      final Iterator pathIter = classpath.iterator();
-      while (pathIter.hasNext()) {
-        final Resource res = (Resource) pathIter.next();
+      for (Resource res : classpath) {
         if (res instanceof FileResource) {
-          final FileResource fres = (FileResource) res;
-          log("res.name: " + fres.getName()
-                  + " res.exists: " + fres.isExists()
-                  + " res.class: " + fres.getClass().getName()
-                  + " res.file: " + fres.getFile()
-              , Project.MSG_DEBUG);
-          final File dir = fres.getFile().getParentFile();
-          final String name = fres.getFile().getName();
+          final FileResource fileResource = (FileResource) res;
+          log("res.name: " + fileResource.getName()
+                          + " res.exists: " + fileResource.isExists()
+                          + " res.class: " + fileResource.getClass().getName()
+                          + " res.file: " + fileResource.getFile()
+                  , Project.MSG_DEBUG);
+          final File dir = fileResource.getFile().getParentFile();
+          final String name = fileResource.getFile().getName();
           final ZipFileSet fileset = new ZipFileSet();
           fileset.setProject(getProject());
           fileset.setDir(dir);
@@ -117,8 +115,9 @@ public class UnoJarTask extends Jar {
 
 
 
+  @SuppressWarnings("unused")
   public static class BinLib extends Task {
-    protected List filesets = new ArrayList();
+    protected List<ZipFileSet> filesets = new ArrayList<>();
 
     public void addFileSet(ZipFileSet fileset) {
       log("BinLib.addFileSet() ", Project.MSG_VERBOSE);
@@ -129,6 +128,7 @@ public class UnoJarTask extends Jar {
   /**
    * Default constructor.
    */
+  @SuppressWarnings("unused")
   public UnoJarTask() {
     super();
   }
@@ -138,6 +138,7 @@ public class UnoJarTask extends Jar {
    *
    * @param project the project we are running under
    */
+  @SuppressWarnings("unused")
   public UnoJarTask(String project) {
     super();
     setTaskName("uno-jar");
@@ -166,7 +167,7 @@ public class UnoJarTask extends Jar {
 
   public void setOneJarBoot(ZipFile jar) {
     log("setOneJarBoot(" + jar + ")", Project.MSG_VERBOSE);
-    this.onejar = jar;
+    this.unoJar = jar;
   }
 
   public void addBoot(ZipFileSet files) {
@@ -181,9 +182,7 @@ public class UnoJarTask extends Jar {
 
   public void addConfiguredLib(Lib lib) {
     log("addLib()", Project.MSG_VERBOSE);
-    Iterator iter = lib.filesets.iterator();
-    while (iter.hasNext()) {
-      ZipFileSet fileset = (ZipFileSet) iter.next();
+    for (ZipFileSet fileset : lib.filesets) {
       fileset.setPrefix("lib/");
       super.addFileset(fileset);
     }
@@ -197,9 +196,7 @@ public class UnoJarTask extends Jar {
   public void addConfiguredMainJars(MainJars jars) {
     this.mainJars = jars;
     log("addMainJar()", Project.MSG_VERBOSE);
-    Iterator iter = jars.filesets.iterator();
-    while (iter.hasNext()) {
-      ZipFileSet fileset = (ZipFileSet) iter.next();
+    for (ZipFileSet fileset : jars.filesets) {
       fileset.setPrefix("main/");
       super.addFileset(fileset);
     }
@@ -209,21 +206,19 @@ public class UnoJarTask extends Jar {
 
   public void addConfiguredBinLib(BinLib lib) {
     log("addBinLib()", Project.MSG_VERBOSE);
-    Iterator iter = lib.filesets.iterator();
-    while (iter.hasNext()) {
-      ZipFileSet fileset = (ZipFileSet) iter.next();
+    for (ZipFileSet fileset : lib.filesets) {
       fileset.setPrefix("binlib/");
       super.addFileset(fileset);
     }
   }
 
 
-  protected class PipedThread extends Thread {
+  protected static class PipedThread extends Thread {
     protected boolean done = false;
     protected PipedInputStream pin = new PipedInputStream();
     protected PipedOutputStream pout = new PipedOutputStream();
 
-    protected Set entries = new HashSet();
+    protected Set<String> entries = new HashSet<>();
 
     public PipedThread() {
       try {
@@ -253,28 +248,28 @@ public class UnoJarTask extends Jar {
       // all <filesets> from <main>.
       // TODO: Ignore duplicates (first takes precedence).
       if (main != null) {
-        Iterator iter = main.filesets.iterator();
-        java.util.zip.ZipOutputStream zout = new java.util.zip.ZipOutputStream(pout);
+        Iterator<FileSet> iter = main.filesets.iterator();
+        java.util.zip.ZipOutputStream zOut = new java.util.zip.ZipOutputStream(pout);
 
 
         try {
           // Write the manifest file.
           ZipEntry m = new ZipEntry(META_INF_MANIFEST);
-          zout.putNextEntry(m);
+          zOut.putNextEntry(m);
           if (main.manifest != null) {
-            copy(new FileInputStream(main.manifest), zout, true);
+            copy(new FileInputStream(main.manifest), zOut, true);
           } else if (mainManifest != null) {
-            copy(new FileInputStream(mainManifest), zout, true);
+            copy(new FileInputStream(mainManifest), zOut, true);
           }
-          zout.closeEntry();
+          zOut.closeEntry();
           // Now the rest of the main.jar entries
           while (iter.hasNext()) {
-            FileSet fileset = (FileSet) iter.next();
+            FileSet fileset = iter.next();
             FileScanner scanner = fileset.getDirectoryScanner(getProject());
             String[] files = scanner.getIncludedFiles();
             File basedir = scanner.getBasedir();
-            for (int i = 0; i < files.length; i++) {
-              String file = files[i].replace('\\', '/');
+            for (String s : files) {
+              String file = s.replace('\\', '/');
               if (entries.contains(file)) {
                 log("Duplicate entry " + target + " (ignored): " + file, Project.MSG_WARN);
                 continue;
@@ -285,16 +280,16 @@ public class UnoJarTask extends Jar {
               if (p != null) {
                 String dirs = p.replace('\\', '/');
                 if (!entries.contains(dirs)) {
-                  String toks[] = dirs.split("/");
+                  String[] tokens = dirs.split("/");
                   String dir = "";
-                  for (int d = 0; d < toks.length; d++) {
-                    dir += toks[d] + "/";
+                  for (String tok : tokens) {
+                    dir += tok + "/";
                     if (!entries.contains(dir)) {
                       ZipEntry ze = new ZipEntry(dir);
-                      zout.putNextEntry(ze);
-                      // Suppress FindBugs AM warning.
-                      zout.flush();
-                      zout.closeEntry();
+                      zOut.putNextEntry(ze);
+                      // Suppress FindBugs warning.
+                      zOut.flush();
+                      zOut.closeEntry();
                       entries.add(dir);
                     }
                   }
@@ -303,14 +298,14 @@ public class UnoJarTask extends Jar {
               }
 
               ZipEntry ze = new ZipEntry(file);
-              zout.putNextEntry(ze);
+              zOut.putNextEntry(ze);
               log("processing " + file, Project.MSG_DEBUG);
               FileInputStream fis = new FileInputStream(new File(basedir, file));
-              copy(fis, zout, true);
-              zout.closeEntry();
+              copy(fis, zOut, true);
+              zOut.closeEntry();
             }
           }
-          zout.close();
+          zOut.close();
           synchronized (this) {
             done = true;
             notify();
@@ -324,9 +319,9 @@ public class UnoJarTask extends Jar {
 
   protected void includeZip(ZipFile zip, ZipOutputStream zOut) {
     try {
-      Enumeration entries = zip.entries();
+      Enumeration<? extends ZipEntry> entries = zip.entries();
       while (entries.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) entries.nextElement();
+        ZipEntry entry = entries.nextElement();
         if (entry.getName().endsWith(CLASS) || entry.getName().equals(".version")) {
           log("ZipPump: " + entry.getName(), Project.MSG_DEBUG);
           super.zipFile(zip.getInputStream(entry), zOut, entry.getName(), System.currentTimeMillis(), null, ZipFileSet.DEFAULT_FILE_MODE);
@@ -337,14 +332,14 @@ public class UnoJarTask extends Jar {
     }
   }
 
-  protected byte buf[] = new byte[BUFFER_SIZE];
+  protected byte[] buf = new byte[BUFFER_SIZE];
 
-  protected void copy(InputStream is, OutputStream os, boolean closein) throws IOException {
-    int len = -1;
+  protected void copy(InputStream is, OutputStream os, boolean closeIn) throws IOException {
+    int len;
     while ((len = is.read(buf)) >= 0) {
       os.write(buf, 0, len);
     }
-    if (closein) is.close();
+    if (closeIn) is.close();
   }
 
   protected void copy(String s, OutputStream os) throws IOException {
@@ -372,10 +367,10 @@ public class UnoJarTask extends Jar {
     if (zOut == null)
       return;
     // Uno-Jar bootstrap files
-    if (onejar != null) {
+    if (unoJar != null) {
       // this path seems to assume the user is adding their own manifest at a later time
       // the manifest from the specified jar is not copied.
-      includeZip(onejar, zOut);
+      includeZip(unoJar, zOut);
     } else {
       // Pick up default uno-jar boot files as a resource relative to
       // this class.
@@ -386,12 +381,14 @@ public class UnoJarTask extends Jar {
       // Pull the manifest out and use it.
       JarInputStream jis = new JarInputStream(is);
       Manifest manifest = new Manifest();
-      java.util.jar.Manifest jmanifest = jis.getManifest();
-      java.util.jar.Attributes jattributes = jmanifest.getMainAttributes();
       try {
         // Specify our Created-By and Main-Class attributes as overrides.
         manifest.addConfiguredAttribute(new Attribute("Archive-Type", "uno-jar"));
-        manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS, jattributes.getValue(MAIN_CLASS)));
+        // Slightly ugly to hard code the class name, but it will be caught by unit tests if it changes.
+        // Avoids having an oddball Main-Class declaration in the library jar file, just so we can
+        // pull it out of the manifest and use it here. Specific tests that check this are the tests
+        // run by AntTests which will all fail if this class name is incorrect.
+        manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS,"com.needhamsoftware.unojar.Boot"));
         if (oneJarMainClass != null) {
           manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));
         }
@@ -434,7 +431,7 @@ public class UnoJarTask extends Jar {
     checkMain();
     checkManifest();
 
-    // Add com.simontuffs.onejar classes
+    // Add com.needhamsoftware.unojar classes
     addOneJarBoot(zOut);
 
     // Add main/main.jar
