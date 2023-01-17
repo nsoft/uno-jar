@@ -19,22 +19,22 @@ import org.gradle.api.tasks.TaskAction;
 import org.gradle.api.tasks.bundling.Jar;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.jar.Manifest;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public abstract class PackageUnoJarTask
     extends DefaultTask {
 
-  private static final String DEFAULT_UNOJAR_VERSION = "1.0.2";
+  private static final String DEFAULT_UNOJAR_VERSION = "1.1.0-SNAPSHOT" ;
   private static final String DEFAULT_CLASSIFIER = "unojar";
   private static final String DEFAULT_EXTENSION = "jar";
+  public static final String BLANK = "\\s*";
+
+  public static final Pattern BLANK_PAT = Pattern.compile(BLANK);
 
   @Input
   @Optional
@@ -64,6 +64,7 @@ public abstract class PackageUnoJarTask
   @Optional
   public abstract Property<String> getMainClass();
 
+  @SuppressWarnings("UnstableApiUsage")
   @Input
   @Optional
   public abstract MapProperty<String, String> getManifestAttributes();
@@ -108,7 +109,9 @@ public abstract class PackageUnoJarTask
           .getResolvedArtifacts();
 
       final File libsDir = basePluginConvention.getLibsDirectory().getAsFile().get();
-      libsDir.mkdirs();
+      if (!libsDir.exists() && !libsDir.mkdirs()) {
+        throw new RuntimeException("Can't make directory: " + libsDir);
+      }
       final File outputFile = new File(libsDir, getArchiveFileName());
 
       final Manifest manifest = new Manifest();
@@ -116,7 +119,7 @@ public abstract class PackageUnoJarTask
         manifest.getMainAttributes().putValue(entry.getKey(), entry.getValue());
       }
 
-      try (final UnoJarPackager unoJarPackager = new UnoJarPackager(new FileOutputStream(outputFile), mainClass,
+      try (final UnoJarPackager unoJarPackager = new UnoJarPackager(Files.newOutputStream(outputFile.toPath()), mainClass,
           manifest)) {
         for (final ResolvedArtifact resolvedArtifact : unoJarResolvedArtifacts) {
           getLogger().info("adding boot classes: {}", resolvedArtifact.getModuleVersion());
@@ -155,13 +158,13 @@ public abstract class PackageUnoJarTask
       }
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private String getArchiveFileName() {
       final Property<String> projectVersionProperty = project.getObjects().property(String.class);
-      if (project.getVersion() != null) {
-        final String projectVersion = project.getVersion().toString();
-        if (!projectVersion.equals("unspecified")) {
-          projectVersionProperty.set(projectVersion);
-        }
+      project.getVersion();
+      final String projectVersion = project.getVersion().toString();
+      if (!projectVersion.equals("unspecified")) {
+        projectVersionProperty.set(projectVersion);
       }
 
       final List<Provider<String>> archiveNamePartProviders = new ArrayList<>();
@@ -180,7 +183,7 @@ public abstract class PackageUnoJarTask
       final List<String> archiveNameParts = archiveNamePartProviders.stream()
           .filter(Provider::isPresent)
           .map(Provider::get)
-          .filter(part -> !part.isBlank())
+          .filter(( part) -> !BLANK_PAT.matcher(part).matches())
           .collect(Collectors.toList());
 
       final String extension = getArchiveExtension()
@@ -201,6 +204,7 @@ public abstract class PackageUnoJarTask
     }
 
     private Configuration doGetEmbedConfiguration() {
+      //noinspection UnstableApiUsage
       return getEmbedConfiguration()
           .orElse(unoJarExtension.getEmbedConfiguration())
           .getOrElse(getProject().getConfigurations().getByName("runtimeClasspath"));
@@ -210,6 +214,9 @@ public abstract class PackageUnoJarTask
       if (getMainClass().isPresent()) {
         return getMainClass().get();
       }
+      if (unoJarExtension.getMainClass().isPresent()) {
+        return unoJarExtension.getMainClass().get();
+      }
       final JavaApplication javaApplication = getProject().getExtensions().findByType(JavaApplication.class);
       if (javaApplication == null) {
         throw new GradleException("mainClass not specified");
@@ -217,9 +224,10 @@ public abstract class PackageUnoJarTask
       if (javaApplication.getMainClass().isPresent()) {
         return javaApplication.getMainClass().get();
       }
-      throw new GradleException("mainClass not specified");
+      throw new GradleException("mainClass not found");
     }
 
+    @SuppressWarnings("UnstableApiUsage")
     private Map<String, String> doGetManifestAttributes() {
       return getManifestAttributes()
           .orElse(unoJarExtension.getManifestAttributes())

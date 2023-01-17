@@ -4,6 +4,10 @@ pluginManagement {
         mavenLocal()
         gradlePluginPortal()
     }
+    plugins {
+        id"ca.cutterslade.analyze" version "1.9.0"
+        id"com.needhamsoftware.unojar" version "1.1.0-SNAPSHOT"
+    }
 }
 
 rootDir.eachDir {dir ->

@@ -1,7 +1,9 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     application
     id("ca.cutterslade.analyze")
-    id("com.needhamsoftware.unojar")
+    id("com.needhamsoftware.unojar") version("1.1.0-SNAPSHOT")
 }
 
 java {

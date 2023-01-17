@@ -1,3 +1,5 @@
+import com.needhamsoftware.unojar.gradle.PackageUnoJarTask
+
 plugins {
   id 'application'
   id 'ca.cutterslade.analyze'
@@ -18,11 +20,11 @@ dependencies {
   runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
 }
 
-tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJarTask) {
+tasks.register("packageUnoJar2", PackageUnoJarTask) {
   dependsOn "jar"
   mainClass = "Main2"
   archiveBaseName = "test"
-  embedConfiguration = configurations.getByName("runtimeClasspath")
+  embedConfiguration = configurations.named("runtimeClasspath")
   manifestAttributes = ["Test-Attribute": "TestValue"]
 }
 

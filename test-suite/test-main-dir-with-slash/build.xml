@@ -14,7 +14,7 @@
 
     <path id="classpath">
         <path location="../test-lib/${libs.dir}/test-lib.jar"/>
-        <path location="../../core/build/libs/core-1.0.2.jar"/>
+        <path location="../../core/build/libs/core-1.1.0.jar"/>
     </path>
 
     <target name="resolve" depends="init-ivy" description="Use ivy to resolve classpaths">

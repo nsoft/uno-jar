@@ -20,5 +20,8 @@ public abstract class UnoJarExtension {
 
   public abstract Property<Configuration> getEmbedConfiguration();
 
+  @SuppressWarnings("UnstableApiUsage")
   public abstract MapProperty<String, String> getManifestAttributes();
+
+  public abstract Property<String> getMainClass();
 }
