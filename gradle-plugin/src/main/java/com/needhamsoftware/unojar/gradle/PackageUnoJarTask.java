@@ -76,6 +76,11 @@ public abstract class PackageUnoJarTask
     taskHandler.action();
   }
 
+  @Override
+  public String getGroup() {
+    return "build";
+  }
+
   private class TaskHandler {
 
     private final Project project;
