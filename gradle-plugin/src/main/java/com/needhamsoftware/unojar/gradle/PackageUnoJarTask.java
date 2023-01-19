@@ -130,6 +130,7 @@ public abstract class PackageUnoJarTask
   }
 
   @Override
+  @Input
   public String getGroup() {
     return "build";
   }
