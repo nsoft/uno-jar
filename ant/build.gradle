@@ -6,17 +6,23 @@ plugins {
   id 'com.palantir.git-version'
 }
 
-repositories {
-  mavenLocal()
-  mavenCentral()
+java {
+  toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
+  }
 }
+
+group = 'com.needhamsoftware.unojar'
+version = '1.1.0-SNAPSHOT'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
-sourceCompatibility = 1.11
-version = '1.1.0-SNAPSHOT'
+repositories {
+  mavenLocal()
+  mavenCentral()
+}
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version

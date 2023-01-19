@@ -1,0 +1,48 @@
+<project xmlns:ns="antlib:com.needhamsoftware.unojar.ant" basedir="." name="testJdk8">
+
+  <echo message="Java Version is ${ant.java.version}"/>
+  <fail message="This build is only meant to test java 8 compatibility">
+    <condition>
+      <not>
+        <equals arg1="${ant.java.version}" arg2="1.8"/>
+      </not>
+    </condition>
+  </fail>
+
+  <property name="src" location="src/main/java"/>
+  <property name="build" location="build"/>
+
+  <path id="unojar.lib.path">
+    <fileset dir="../ant/build/libs" includes="*.jar"/>
+  </path>
+
+  <target name="buildUnoJar" depends="compile">
+    <taskdef uri="antlib:com.needhamsoftware.unojar.ant"
+             classpathref="unojar.lib.path" resource="com/needhamsoftware/unojar/antlib.xml"/>
+    <ns:unojar destfile="${basedir}/build/antTestJdk8-unojar.jar"  >
+      <ns:main>
+        <fileset dir="${build}" includes="**/*.class"/>
+      </ns:main>
+      <ns:manifest>
+        <attribute name="Uno-Jar-Main-Class" value="com.needhamsoftware.unojar.jdk8.Main"/>
+      </ns:manifest>
+    </ns:unojar>
+  </target>
+
+  <target name="init">
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+          description="compile the source">
+    <!-- Compile the Java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}"/>
+  </target>
+
+  <target name="clean"
+          description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+  </target>
+</project>
