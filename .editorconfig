@@ -5,18 +5,14 @@ indent_size = 2
 indent_style = space
 insert_final_newline = false
 max_line_length = 120
-tab_width = 4
+tab_width = 2
 trim_trailing_whitespace = true
-ij_continuation_indent_size = 8
+ij_continuation_indent_size = 4
 ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_wrap_on_typing = false
-
-[]
-max_line_length = 2147483647
-ij_csv_wrap_long_lines = false
 
 [*.css]
 ij_css_align_closing_brace_with_properties = false
@@ -544,7 +540,6 @@ ij_typescript_ternary_operation_wrap = off
 ij_typescript_union_types_wrap = on_every_item
 ij_typescript_use_chained_calls_group_indents = false
 ij_typescript_use_double_quotes = true
-ij_typescript_use_explicit_js_extension = global
 ij_typescript_use_path_mapping = always
 ij_typescript_use_public_modifier = false
 ij_typescript_use_semicolon_after_statement = true
@@ -794,7 +789,6 @@ ij_javascript_ternary_operation_wrap = off
 ij_javascript_union_types_wrap = on_every_item
 ij_javascript_use_chained_calls_group_indents = false
 ij_javascript_use_double_quotes = true
-ij_javascript_use_explicit_js_extension = global
 ij_javascript_use_path_mapping = always
 ij_javascript_use_public_modifier = false
 ij_javascript_use_semicolon_after_statement = true
