@@ -12,11 +12,13 @@ java {
 }
 
 application {
-  mainClass = 'Main'
+  mainClass = 'Main1'
+}
+unojar {
+  manifestAttributes = ["Test-Attribute": "Groovy-Extension"]
 }
 
 dependencies {
-  implementation 'io.javalin:javalin:3.13.10'
   runtimeOnly 'org.slf4j:slf4j-simple:1.7.32'
 }
 
@@ -25,7 +27,7 @@ tasks.register("packageUnoJar2", PackageUnoJarTask) {
   mainClass = "Main2"
   archiveBaseName = "test"
   embedConfiguration = configurations.named("runtimeClasspath")
-  manifestAttributes = ["Test-Attribute": "TestValue"]
+  manifestAttributes = ["Test-Attribute": "Groovy-Register"]
 }
 
 tasks.build {
