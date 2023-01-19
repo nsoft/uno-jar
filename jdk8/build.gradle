@@ -18,14 +18,11 @@ java {
 
 
 unojar {
-    archiveBaseName="testJar2.jar"
+    archiveBaseName="gradleTestJdk8.jar"
     manifestAttributes = ["Test-Attribute" : "TestValue"]
     mainClass = "com.needhamsoftware.unojar.jdk8.Main"
 }
 
 tasks.packageUnoJar {
     dependsOn "jar"
-}
-tasks.register("runPackagedJar", Exec.class) {
-
 }

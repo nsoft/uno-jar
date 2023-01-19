@@ -19,9 +19,9 @@
   <target name="buildUnoJar" depends="compile">
     <taskdef uri="antlib:com.needhamsoftware.unojar.ant"
              classpathref="unojar.lib.path" resource="com/needhamsoftware/unojar/antlib.xml"/>
-    <ns:unojar destfile="${basedir}/build/antTestJdk8-unojar.jar"  >
+    <ns:unojar destfile="${basedir}/build/libs/antTestJdk8-unojar.jar"  >
       <ns:main>
-        <fileset dir="${build}" includes="**/*.class"/>
+        <fileset dir="${build}/ant" includes="**/*.class"/>
       </ns:main>
       <ns:manifest>
         <attribute name="Uno-Jar-Main-Class" value="com.needhamsoftware.unojar.jdk8.Main"/>
@@ -31,13 +31,13 @@
 
   <target name="init">
     <!-- Create the build directory structure used by compile -->
-    <mkdir dir="${build}"/>
+    <mkdir dir="${build}/ant"/>
   </target>
 
   <target name="compile" depends="init"
           description="compile the source">
     <!-- Compile the Java code from ${src} into ${build} -->
-    <javac srcdir="${src}" destdir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}/ant"/>
   </target>
 
   <target name="clean"
