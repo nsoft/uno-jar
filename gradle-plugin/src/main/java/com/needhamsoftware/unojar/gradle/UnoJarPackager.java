@@ -4,17 +4,8 @@ import com.needhamsoftware.unojar.Boot;
 import com.needhamsoftware.unojar.JarClassLoader;
 import org.apache.commons.io.IOUtils;
 
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.jar.Attributes;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+import java.io.*;
+import java.util.jar.*;
 import java.util.zip.CRC32;
 
 public class UnoJarPackager
@@ -35,6 +26,7 @@ public class UnoJarPackager
     adjustedManifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, DEFAULT_BOOT_CLASS_NAME);
     adjustedManifest.getMainAttributes().putValue(Boot.ONE_JAR_MAIN_CLASS, mainClassName);
     adjustedManifest.getMainAttributes().putValue("Archive-Type", "uno-jar");
+    adjustedManifest.getMainAttributes().putValue("Multi-Release", "true");
 
     jarOutputStream = new JarOutputStream(outputStream, adjustedManifest);
   }

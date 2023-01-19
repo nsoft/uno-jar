@@ -39,6 +39,7 @@ public class UnoJarTask extends Jar {
   public static final String MAIN_MAIN_JAR = "main/main.jar";
   public static final String CLASS = ".class";
   public static final String MAIN_CLASS = Attributes.Name.MAIN_CLASS.toString();
+  public static final String MULTI_RELEASE = "Multi-Release";
 
   protected Main main;
   protected MainJars mainJars;
@@ -389,6 +390,7 @@ public class UnoJarTask extends Jar {
         // pull it out of the manifest and use it here. Specific tests that check this are the tests
         // run by AntTests which will all fail if this class name is incorrect.
         manifest.addConfiguredAttribute(new Attribute(MAIN_CLASS,"com.needhamsoftware.unojar.Boot"));
+        manifest.addConfiguredAttribute(new Attribute(MULTI_RELEASE,"true"));
         if (oneJarMainClass != null) {
           manifest.addConfiguredAttribute(new Attribute(Boot.ONE_JAR_MAIN_CLASS, oneJarMainClass));
         }
