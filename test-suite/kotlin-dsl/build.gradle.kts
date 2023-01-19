@@ -3,7 +3,7 @@
 plugins {
     application
     id("ca.cutterslade.analyze")
-    id("com.needhamsoftware.unojar") version("1.1.0-SNAPSHOT")
+    id("com.needhamsoftware.unojar") version("1.1.0")
 }
 
 java {

@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 public abstract class PackageUnoJarTask
     extends DefaultTask {
 
-  private static final String DEFAULT_UNOJAR_VERSION = "1.1.0-SNAPSHOT" ;
+  private static final String DEFAULT_UNOJAR_VERSION = "1.1.0" ;
   private static final String DEFAULT_CLASSIFIER = "unojar";
   private static final String DEFAULT_EXTENSION = "jar";
   public static final String BLANK = "\\s*";
