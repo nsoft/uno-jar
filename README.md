@@ -1,18 +1,16 @@
 # Uno-Jar
 
-Single jar packaging based on a JarClassLoader. Unlike maven shade and gradle shadow, this form of packaging
-does not intermix classes into a single directory, and thereby maintains a degree of separation between
-libraries with distinct licensing concerns. I am not a Lawyer, and can't give legal advice, but I feel that
-this method is much more consistent with LGPL license restrictions than shade/shadow because the original
-distributed binary jar is maintained intact as distributed. Unpacking and fiddling with package names 
-changes the work and (in my own, not a lawyer opinion) is clearly creating a derived work 
-for which source code would need to be published. 
+Single jar packaging based on a JarClassLoader. 
+Unlike maven shade and gradle shadow, this form of packaging does not intermix classes into a single directory, and thereby maintains a degree of separation between libraries with distinct licensing concerns. 
+I am not a Lawyer, and can't give legal advice, but I feel that this method is much more consistent with LGPL license restrictions than shade/shadow because the original distributed binary jar is maintained intact as distributed. 
+The distributed Jar file simply acts as a compressed file system in Uno-Jar. Unpacking and fiddling with package names as done in shade or shadow changes the work and (in my own, not a lawyer opinion) is running the risk of creating a derived work for which source code would need to be published. 
 
-Unlike capsule, it does not want to extract jar files onto the user's filesystem, and is not normally hindered by
-a lack of write access to the filesystem.
+Unlike capsule ([dead since 2017](https://github.com/puniverse/capsule)), it does not want to extract jar files onto the user's filesystem, and is not normally hindered by a lack of write access to the filesystem.
 
-This project is based on a fork of One-JAR by Simon Tuffs. Please be sure to see the NOTICE.txt file
-for the restrictions on using his code. The original project can be found at:
+This project is based on a fork of One-JAR<sup>(TM)</sup> by Simon Tuffs. Please be sure to see the NOTICE.txt file
+for the restrictions on using his code. 
+Be especially aware that he trademarked the name One-Jar (which is why we don't use it for this project)
+The original project can be found at:
 
 http://one-jar.sourceforge.net/
 
@@ -39,11 +37,10 @@ light and hopefully be more easily maintained.
 
 ## Status
 
-Uno-Jar is now fully ready to use, it works with Java 11, but does not have any particular support for the Java 9+ 
-module system. Modular jars are expected to generally work or fail as they would on any other classpath, though
-this has not been extensively tested, and distribution of a fully modular application via uno-jar is untested.
-Uno-Jar does however support multi-release jars (a. k. a. MR jars) as libraries and correctly loads the appropriate
-classes for the JVM in use. Core and ant jars can be found on maven central here: 
+Uno-Jar is now fully ready to use, it works with Java 11, but does not have any particular support for the Java 9+ module system. 
+Modular jars are expected to generally work or fail as they would on any other classpath, though this has not been extensively tested, and distribution of a fully modular application via uno-jar is untested.
+Uno-Jar does however support multi-release jars (a. k. a. MR jars) as libraries and correctly loads the appropriate classes for the JVM in use. 
+Core and ant jars can be found on maven central here: 
 
 https://search.maven.org/search?q=g:com.needhamsoftware.unojar
 
@@ -56,9 +53,13 @@ Anything else. If you miss a One-Jar feature and wish to contribute to its resur
 maintenance, please file an issue.
 
 ### Versions
-Version number will carry forward from One-Jar's numbers, and 0.99 will be next, as soon as the WIP/TODO
-sections above are complete, followed by 1.0 after I fully cull things that won't be supported going 
-forward and can eliminate the old directory.
+Versions of Uno-Jar will generally attempt to maintain semantic version expected patterns. 
+Starting with 1.1, major breaks in back compatibility will increment the major version. 
+Versions before 1.1 have a lot of changes related to the porting/fork/adoption from One-Jar
+and may have some variation in back compatability. Also see our Java Version support policy on the wiki at:
+
+https://github.com/nsoft/uno-jar/wiki/Java-Version-Support
+
 
 ## Disclaimer 
 Please note that I do not claim to have 100% fully understood Simon's code, so I may be breaking things 
