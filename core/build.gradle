@@ -1,6 +1,5 @@
 plugins {
   id 'java-library'
-  id 'maven'
   id 'signing'
   id 'maven-publish'
   id 'com.palantir.git-version'
@@ -19,6 +18,8 @@ java {
 
 group = 'com.needhamsoftware.unojar'
 version = '1.1.0-SNAPSHOT'
+ext.shortDesc = 'Uno-Jar Core'
+description = 'Libraries for packaging FatJars with a JarClassLoader'
 
 configurations.all {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
@@ -110,46 +111,6 @@ task versionTxt()  {
 }
 
 classes.dependsOn(versionTxt)
-/*
-
- Maven Publishing stuff to publish to central. This also allows you to publish
- to a local repository on your system byt setting the version to -LOCAL instead
- of -SNAPSHOT. Specifically:
-
-  To test pom and artifact generation locally...
-
-  1. Ensure GPG keyring in .gnupg dir
-  2. Check that the value (above) for ext.
-  3. Change version to remove -SNAPSHOT and add -LOCAL
-  4. Run gradle uploadArchives
-  5. observe archives uploaded to ext.uploadRepo (adjust location as needed)
-
-
-  To release to central
-
-  1. Ensure GPG keyring in .gnupg dir
-  2. Ensure passwords for sonatype in gradle.properties
-  3. Test the production of artifacts locally with -LOCAL (see above)
-  4. No really, test it, and read everything...
-  5. Seriously, don't skip #3!
-  6. Change version to remove -SNAPSHOT
-  7. Run gradle uploadRelease
-  8. Hope to hell you didn't miss anything in step 3....
-  9. you skipped #3? OMG you suck... *sigh*
-
- */
-
-ext.isSnapshot = version.endsWith('-SNAPSHOT')
-ext.isLocal = version.endsWith('-LOCAL')
-ext.isRelease = !(isLocal || isSnapshot)
-
-ext.releaseRepo = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
-ext.snapshotRepo = 'https://oss.sonatype.org/content/repositories/snapshots'
-ext.testingRepo = 'file:///tmp/myRepo/'
-ext.uploadRepo = isRelease ? releaseRepo : (isSnapshot ? snapshotRepo : testingRepo)
-
-task uploadSnapshot(dependsOn: uploadArchives, group: 'upload') {}
-task uploadRelease(dependsOn: uploadArchives, group: 'upload') {}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
   from sourceSets.main.allSource
@@ -160,95 +121,12 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
-  archiveFileName = 'core-'+project.version+'-javadoc.jar'
+  archiveClassifier = "javadoc"
 }
 
 artifacts {
   archives sourcesJar
   archives javadocJar
-}
-
-// A little idiot proofing...
-task checkUploadDest {
-  doLast {
-    if (gradle.taskGraph.hasTask(':core:uploadRelease')) {
-      if (isSnapshot) {
-        ant.fail('Release should not have suffix of -SNAPSHOT')
-      }
-      if (isLocal) {
-        ant.fail('Release should not have suffix of -LOCAL')
-      }
-    } else if (gradle.taskGraph.hasTask(':core:uploadSnapshot')) {
-      if (!isSnapshot) {
-        ant.fail('Snapshot should have suffix of SNAPSHOT')
-      }
-    } else {
-      if (!isLocal) {
-        ant.fail('This is not a local version, ' +
-            'please use either uploadRelease or uploadSnapshot, or change the version suffix to -LOCAL')
-      }
-    }
-  }
-}
-
-// Uncomment this to do sonatype uploads (fails on all other machines looking for gpg key otherwise)
-//
-signing {
-  required { !isLocalVersion && gradle.taskGraph.hasTask('uploadArchives') }
-  sign configurations.archives
-}
-
-ext.isLocalVersion = !version.endsWith("LOCAL")
-
-uploadArchives {
-  it.dependsOn checkUploadDest
-  repositories {
-    mavenDeployer {
-      beforeDeployment { deployment -> signing.signPom(deployment) }
-      repository(url: project.uploadRepo) {
-        authentication(userName: propOrDefault('sonatypeUsername','foo'), password: propOrDefault('sonatypePassword','foo'))
-      }
-      pom.project {
-        //noinspection GroovyAssignabilityCheck
-        parent {
-          groupId 'org.sonatype.oss'
-          artifactId 'oss-parent'
-          version '7'
-        }
-        groupId 'com.needhamsoftware.unojar'
-        artifactId 'core'
-        name 'Uno-Jar Core'
-        description 'Libraries for packaging FatJars with a JarClassLoader'
-        url 'https://github.com/nsoft/uno-jar'
-        licenses {
-          license {
-            name 'MIT/One-JAR'
-            url 'https://github.com/nsoft/uno-jar/blob/master/LICENSE.txt'
-            distribution 'repo'
-          }
-        }
-        scm {
-          connection 'scm:git:git@github.com:nsoft/uno-jar.git'
-          developerConnection 'scm:git:git@github.com:nsoft/uno-jar.git'
-          url 'git@github.com:nsoft/uno-jar.git'
-        }
-        developers {
-          developer {
-            id 'nsoft'
-            name 'Patrick Heck'
-            email 'gus@needhamsoftware.com'
-          }
-        }
-      }
-      pom.withXml { root ->
-        def children = root.asNode().children()
-        def versionIndex = children.indexOf(children.find { it.name().localPart == 'version' })
-        // Stuff that sonatype wants... there may be a way to make these appear automatically but...
-        // http://issues.gradle.org/browse/GRADLE-1285
-        children.add(versionIndex + 1, new Node(null, 'packaging', 'jar'))
-      }
-    }
-  }
 }
 
 jar.manifest.attributes getManifestAttributes()
@@ -269,22 +147,4 @@ def getManifestAttributes() {
   ]
 }
 
-def propOrDefault(String prop, String defaultVal) {
-  return project.hasProperty(prop) ? project.getProperty(prop) : defaultVal
-}
-
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      groupId 'com.needhamsoftware.unojar'
-      artifactId 'core'
-      version project.version
-      from components.java
-      artifact sourcesJar {
-        classifier "sources"
-      }
-    }
-  }
-}
-
-publishMavenJavaPublicationToMavenLocal.dependsOn(sourcesJar)
+apply from: file('../gradle/publishing/publishing.gradle')

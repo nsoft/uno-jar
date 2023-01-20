@@ -16,7 +16,6 @@ java {
     }
 }
 
-
 unojar {
     archiveBaseName="gradleTestJdk8.jar"
     manifestAttributes = ["Test-Attribute" : "TestValue"]
