@@ -12,6 +12,16 @@ java {
   }
 }
 
+//OMG https://github.com/gradle/gradle/issues/17236 Seriously??
+gradle.taskGraph.whenReady {
+  List<Task> tasks = project.gradle.taskGraph.getAllTasks()
+  for (Task task : tasks) {
+    if (task.hasProperty("duplicatesStrategy")) {
+      task.setProperty("duplicatesStrategy", "WARN")
+    }
+  }
+}
+
 group = 'com.needhamsoftware.unojar'
 version = '2.0.0-SNAPSHOT'
 
