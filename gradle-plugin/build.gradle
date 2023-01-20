@@ -1,5 +1,6 @@
 plugins {
   id 'groovy'
+  id 'signing'
   id 'maven-publish'
   id 'java-gradle-plugin'
   id 'com.gradle.plugin-publish'
@@ -66,6 +67,8 @@ def getManifestAttributes() {
       'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"]
 }
 
+ext.testingRepo = 'file:///tmp/myPluginRepo/'
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
@@ -73,6 +76,12 @@ publishing {
       artifactId 'gradle-plugin'
       version project.version
       from components.java
+    }
+  }
+  repositories {
+    maven {
+      name = 'localPluginRepository'
+      url = testingRepo
     }
   }
 }
