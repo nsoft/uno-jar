@@ -1,10 +1,11 @@
 plugins {
-    id("base")
-    id("ca.cutterslade.analyze") version "1.7.1"
+  id("base")
+  id("ca.cutterslade.analyze") version "1.7.1"
 }
 
 subprojects {
-    repositories {
-        mavenCentral()
-    }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
 }
