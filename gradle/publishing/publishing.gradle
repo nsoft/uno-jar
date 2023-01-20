@@ -73,13 +73,6 @@ publishing {
         // http://issues.gradle.org/browse/GRADLE-1285
         children.add(versionIndex + 1, new Node(null, 'packaging', 'jar'))
       }
-
-      pom.withXml {
-        def parentNode = asNode().appendNode('parent')
-        parentNode.appendNode('groupId', 'org.sonatype.oss')
-        parentNode.appendNode('artifactId', 'oss-parent')
-        parentNode.appendNode('version', '7')
-      }
       from components.java
       artifact sourcesJar {
         classifier "sources"
