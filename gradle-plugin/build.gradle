@@ -3,8 +3,8 @@ plugins {
   id 'signing'
   id 'maven-publish'
   id 'java-gradle-plugin'
-  id 'com.gradle.plugin-publish'
-  id 'com.palantir.git-version'
+  id 'com.palantir.git-version' version '3.0.0'
+  id("com.gradle.plugin-publish") version "1.2.1"
 }
 
 java {
@@ -61,7 +61,7 @@ def getManifestAttributes() {
   return [
       'Implementation-Version': version,
       'Build-Tool': "Gradle ${gradle.gradleVersion}",
-      'Build-Revision': gitDetails.gitHashFull + (gitDetails.clean ? '' : ' (with uncommitted files)'),
+      'Build-Revision': gitDetails.gitHashFull + (gitDetails.isCleanTag ? '' : ' (with uncommitted files)'),
       'Created-By': "Gradle ${gradle.gradleVersion}",
       'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
       'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"]
@@ -86,8 +86,22 @@ publishing {
   }
 }
 
-pluginBundle {
+gradlePlugin {
   website = 'https://github.com/nsoft/uno-jar'
   vcsUrl = 'https://github.com/nsoft/uno-jar.git'
-  tags = ['jar', 'executable-jar', 'onejar', 'one-jar', 'shade', 'shadow', 'fatjar', 'uberjar','capsule']
+
+  //Note: this won't be considered tested and working until we can do a release. What you see here is known
+  // to placate Gradle 8.6 and newest version of gradle plugin.
+  plugins {
+    unoJarPlugin {
+      id = 'com.needhamsoftware.unojar'
+      implementationClass = 'com.needhamsoftware.unojar.gradle.PackageUnoJarTask'
+      displayName = 'Uno-Jar Plugin'
+      description = 'Single jar packaging based on a JarClassLoader. Unlike maven shade and gradle shadow, ' +
+          'this form of packaging does not intermix classes into a single directory, and thereby maintains a ' +
+          'degree of separation between libraries with distinct licensing concerns. Does not require write ' +
+          'access to the filesystem like capsule'
+      tags.set(['jar', 'executable-jar', 'onejar', 'one-jar', 'shade', 'shadow', 'fatjar', 'uberjar', 'capsule'])
+    }
+  }
 }
