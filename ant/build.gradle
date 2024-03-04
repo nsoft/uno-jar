@@ -27,7 +27,11 @@ repositories {
 
 dependencies {
   implementation 'com.needhamsoftware.unojar:core:' + project.version
-  implementation 'org.apache.ant:ant:1.10.7'
+  implementation 'org.apache.ant:ant:1.10.14'
+}
+
+javadoc {
+  dependsOn 'copyCore', 'copyCoreJar'
 }
 
 task copyCore(type: Copy) {
@@ -39,10 +43,10 @@ task copyCore(type: Copy) {
 
 jar {
   dependsOn copyCore
-  def gitDetails = versionDetails();
+  def gitDetails = versionDetails()
   manifest {
     attributes(
-        'Implementation-Version': version,
+        'Implementation-Version': archiveVersion,
         'Build-Tool': "Gradle ${gradle.gradleVersion}",
         'Build-Revision': gitDetails.gitHashFull + (gitDetails.clean ? '' : ' (with uncommitted files)'),
         'Created-By': "Gradle ${gradle.gradleVersion}",
@@ -54,15 +58,18 @@ jar {
 
 
 task sourcesJar(type: Jar, dependsOn: classes) {
-  classifier = 'sources'
+  dependsOn 'copyCoreJar'
+  mustRunAfter "classes"
+  archiveClassifier = 'sources'
   from sourceSets.main.allSource
-  archiveName = 'ant-'+project.version+'-sources.jar'
+  archiveFileName = 'ant-'+project.version+'-sources.jar'
 }
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
-  classifier = 'javadoc'
+  dependsOn 'copyCoreJar'
+  archiveClassifier = 'javadoc'
   from javadoc.destinationDir
-  archiveName = 'ant-'+project.version+'-javadoc.jar'
+  archiveFileName = 'ant-'+project.version+'-javadoc.jar'
 }
 
 artifacts {
@@ -76,7 +83,7 @@ javadocJar.manifest.attributes getManifestAttributes()
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 def getManifestAttributes() {
-  def gitDetails = versionDetails();
+  def gitDetails = versionDetails()
   return [
       'Implementation-Version': version,
       'Build-Tool': "Gradle ${gradle.gradleVersion}",
