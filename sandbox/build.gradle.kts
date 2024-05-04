@@ -1,6 +1,5 @@
 // experimental kotlin build... take nothing here seriously, see README
 
-
 buildscript {
   repositories {
     mavenLocal()
@@ -22,13 +21,14 @@ repositories {
 }
 
 dependencies {
+  implementation("com.needhamsoftware.unojar:core:2.0.0-SNAPSHOT")
   testImplementation(platform("org.junit:junit-bom:5.10.0"))
   testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
 unojar {
   archiveBaseName.set("sandbox")
-  manifestAttributes.set(mapOf("Test-Attribute" to "TestValue"))
+  manifestAttributes.set(mapOf("Relaunch-Increment" to "2"))
   mainClass.set("com.needhamsoftware.sandbox.relaunch.Main")
 }
 
