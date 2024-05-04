@@ -1,0 +1,7 @@
+== Code Sandbox
+
+This area is for creating toy implemntations or experimenting with ideas that might be used in uno-jar. The rules are:
+
+. It should be related to uno-jar somehow
+. It can be any level of readiness or usefulness.
+. Nothing here should be takend seriously
