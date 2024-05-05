@@ -28,8 +28,11 @@ dependencies {
 
 unojar {
   archiveBaseName.set("sandbox")
-  manifestAttributes.set(mapOf("Relaunch-Increment" to "2"))
-  mainClass.set("com.needhamsoftware.sandbox.relaunch.Main")
+  manifestAttributes.set(mapOf(
+      "Relaunch-Increment" to "2",
+      "UnoJar-SystemClassLoaderClass" to "com.needhamsoftware.unojar.TestClassLoader"
+  ))
+  mainClass.set("com.needhamsoftware.sandbox.relaunch.CustomCLRelaunch")
 }
 
 tasks.test {
