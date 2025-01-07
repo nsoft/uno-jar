@@ -5,12 +5,17 @@ buildscript {
   }
 }
 
+
 plugins {
   id('java')
   id('wrapper')
   id 'com.needhamsoftware.unojar' version '2.0.0-SNAPSHOT'
 }
 
-unojar {
+repositories {
+  mavenLocal()
+}
 
+unojar {
+  mainClass = 'com.needhamsoftware.unojar.example.PrintSysprops'
 }

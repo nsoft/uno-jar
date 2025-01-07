@@ -17,16 +17,36 @@
 
 package com.needhamsoftware.unojar;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.net.URLStreamHandler;
 import java.security.AccessController;
 import java.security.CodeSource;
 import java.security.PrivilegedAction;
 import java.security.ProtectionDomain;
 import java.security.cert.Certificate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.JarEntry;
@@ -35,6 +55,7 @@ import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.needhamsoftware.unojar.UnoJarPrintlnLogger.defer;
 import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
 
 /**
@@ -54,12 +75,9 @@ import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
  *
  * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
  */
-public class JarClassLoader extends ClassLoader implements IProperties {
+public class JarClassLoader extends ClassLoader {
 
   public final static String PROPERTY_PREFIX = "uno-jar.";
-  public final static String P_INFO = PROPERTY_PREFIX + "info";
-  public final static String P_VERBOSE = PROPERTY_PREFIX + "verbose";
-  public final static String P_SILENT = PROPERTY_PREFIX + "silent";
   public final static String P_JAR_NAMES = PROPERTY_PREFIX + "jar.names";
   public final static String P_RECORD = PROPERTY_PREFIX + "record";
   // System properties.
@@ -77,7 +95,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   protected ClassLoader externalClassLoader;
 
-  private static final Logger LOGGER = Logger.getLogger("JarClassLoader");
+  private static final UnoJarPrintlnLogger LOGGER = UnoJarPrintlnLogger.getLogger("JarClassLoader");
 
   // note: need to retain this name to avoid breaking support in classgraph
   protected String oneJarPath;
@@ -149,9 +167,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     super(parent);
     this.oneJarPath = unoJarPath;
     delegateToParent = true;
-    setProperties(this);
     init();
-    // System.out.println(PREFIX() + this + " parent=" + parent + " loaded by " + this.getClass().getClassLoader());
   }
 
   protected static ThreadLocal<String> current = new ThreadLocal<>();
@@ -181,7 +197,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         }
       }
       final URL[] urls = list.toArray(new URL[0]);
-      LOGGER.info("external URLs=" + Arrays.asList(urls));
+      LOGGER.info("external URLs=%s", defer(() -> Arrays.asList(urls).toString()));
       // BUG-2833948
       // Delegate back into this classloader, use ThreadLocal to avoid recursion.
       externalClassLoader = AccessController.doPrivileged(
@@ -200,7 +216,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                   if (reentered(LOAD_CLASS + name)) {
                     throw new ClassNotFoundException(name);
                   }
-                  LOGGER.fine("externalClassLoader.loadClass(" + name + ")");
+                  LOGGER.debug("externalClassLoader.loadClass(%s)", name);
                   String old = current.get();
                   current.set(LOAD_CLASS + name);
                   try {
@@ -213,7 +229,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 public URL getResource(String name) {
                   if (reentered(GET_RESOURCE + name))
                     return null;
-                  LOGGER.fine("externalClassLoader.getResource(" + name + ")");
+                  LOGGER.debug("externalClassLoader.getResource(%s)",name);
                   String old = current.get();
                   current.set(GET_RESOURCE + name);
                   try {
@@ -226,7 +242,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 public URL findResource(String name) {
                   if (reentered(FIND_RESOURCE + name))
                     return null;
-                  LOGGER.fine("externalClassLoader.findResource(" + name + ")");
+                  LOGGER.debug("externalClassLoader.findResource(%s)", name);
                   String old = current.get();
                   current.set(name);
                   try {
@@ -253,7 +269,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   }
 
   public String load(String mainClass, String jarName) {
-    LOGGER.fine("load(" + mainClass + "," + jarName + ")");
+    LOGGER.debug("load(%s,%s)", mainClass, jarName);
 
     try {
       if (jarName == null) {
@@ -270,8 +286,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         if ($entry.startsWith(LIB) || $entry.startsWith(MAIN_PREFIX)) {
 
           // Load it!
-          LOGGER.fine("caching " + $entry);
-          LOGGER.fine("using jarFile.getInputStream(" + entry + ")");
+          LOGGER.debug("caching %s", $entry);
+          LOGGER.debug("using jarFile.getInputStream(%s)", entry);
 
           // Note: loadByteCode consumes the input stream, so make sure its scope
           // does not extend beyond here.
@@ -288,25 +304,25 @@ public class JarClassLoader extends ClassLoader implements IProperties {
                 mainJar = $entry;
               }
             } else if (mainJar != null) {
-              LOGGER.warning("A main class is defined in multiple jar files inside " + MAIN_PREFIX + mainJar + " and " + $entry);
-              LOGGER.warning("The main class " + mainClass + " from " + mainJar + " will be used");
+              LOGGER.warning("A main class is defined in multiple jar files inside %s%s and %s", MAIN_PREFIX, mainJar, $entry);
+              LOGGER.warning("The main class %s from %s will be used", mainClass, mainJar);
             }
           }
         } else if ($entry.endsWith(CLASS)) {
           // A plain vanilla class file rooted at the top of the jar file.
           loadBytes(entry, jis, "/", manifest);
-          LOGGER.fine("Uno-Jar class: " + jarName + "!/" + entry.getName());
+          LOGGER.debug("Uno-Jar class: %s!/%s", jarName, entry.getName());
         } else {
           // A resource?
           loadBytes(entry, jis, "/", manifest);
-          LOGGER.fine("Uno-Jar resource: " + jarName + "!/" + entry.getName());
+          LOGGER.debug("Uno-Jar resource: %s!/%s", jarName, entry.getName());
         }
       }
       // If mainClass is still not defined, return null.  The caller is then responsible
       // for determining a main class.
 
     } catch (IOException iox) {
-      LOGGER.severe("Unable to load resource: " + iox);
+      LOGGER.error("Unable to load resource: %s", iox);
       iox.printStackTrace(System.err);
     }
     return mainClass;
@@ -336,7 +352,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     // TODO: implement lazy loading of bytecode.
     Manifest manifest = jis.getManifest();
     if (manifest == null) {
-      LOGGER.warning("Null manifest from input stream associated with: " + jar);
+      LOGGER.warning("Null manifest from input stream associated with: %s", jar);
     }
     while ((entry = jis.getNextJarEntry()) != null) {
       // if (entry.isDirectory()) continue;
@@ -385,7 +401,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     if (type.equals("class")) {
       if (alreadyCached(entryName, jar, baos)) return;
       cacheBytes(entry, jar, man, entryName, baos);
-      LOGGER.fine("cached bytes for class " + entryName);
+      LOGGER.debug("cached bytes for class %s", entryName);
     } else {
       // https://github.com/nsoft/uno-jar/issues/10 - package names must not end in /
       if (entryName.endsWith(File.separator)) {
@@ -400,13 +416,13 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       // Keep a set of jar names so we can do multiple-resource lookup by name
       // as in findResources().
       jarNames.add(jar);
-      LOGGER.fine("cached bytes for local name " + localname);
+      LOGGER.debug("cached bytes for local name $s", localname);
       // Only keep the first non-local entry: this is like classpath where the first
       // to define wins.
       if (alreadyCached(entryName, jar, baos)) return;
 
       cacheBytes(entry, jar, man, entryName, baos);
-      LOGGER.fine("cached bytes for entry name " + entryName);
+      LOGGER.debug("cached bytes for entry name %s", entryName);
     }
   }
 
@@ -500,11 +516,11 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
     // Look up the class in the byte codes.
     // Translate path?
-    LOGGER.fine("findClass(" + name + ")");
+    LOGGER.debug("findClass(%s)", name);
     String cache = name.replace('.', '/') + CLASS;
     ByteCode bytecode = byteCode.get(cache);
     if (bytecode != null) {
-      LOGGER.fine("found " + name + " in codebase '" + bytecode.codebase + "'");
+      LOGGER.debug("found %s in codebase '%s'", name,bytecode.codebase);
       // Use a protectionDomain to associate the codebase with the
       // class.
       ProtectionDomain pd = pdCache.get(bytecode.codebase);
@@ -555,7 +571,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
       return defineClass(name, bytes, pd);
     }
-    LOGGER.fine(name + " not found");
+    LOGGER.debug(name + " not found");
     throw new ClassNotFoundException(name);
 
   }
@@ -641,7 +657,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   @SuppressWarnings("rawtypes")
   protected Class defineClass(String name, byte[] bytes, ProtectionDomain pd) throws ClassFormatError {
     // Simple, non wrapped class definition.
-    LOGGER.fine("defineClass(" + name + ")");
+    LOGGER.debug("defineClass(" + name + ")");
     return defineClass(name, bytes, 0, bytes.length, pd);
   }
 
@@ -699,7 +715,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
    */
   public InputStream getByteStream(String resource) {
 
-    LOGGER.fine("getByteStream(" + resource + ")");
+    LOGGER.debug("getByteStream(%s)", resource);
 
     InputStream result = null;
     if (externalClassLoader != null) {
@@ -733,7 +749,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     if (result == null) {
       if (jarNames.contains(resource)) {
         // resource wanted is an actual jar
-        LOGGER.info("loading resource file directly" + resource);
+        LOGGER.info("loading resource file directly %s", resource);
         result = super.getResourceAsStream(resource);
       }
     }
@@ -745,7 +761,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     if (result == null && delegateToParent) {
       result = checkParent(resource);
     }
-    LOGGER.fine("getByteStream(" + resource + ") -> " + result);
+    LOGGER.debug("getByteStream(%s) -> %s", resource, result);
     return result;
   }
 
@@ -799,7 +815,8 @@ public class JarClassLoader extends ClassLoader implements IProperties {
         rsrc = resource;
       }
     }
-    LOGGER.fine("resource " + resource + " resolved to " + rsrc + (callerCode != null ? " in codebase " + callerCode.codebase : " (unknown codebase)"));
+    String finalRsrc = rsrc;
+    LOGGER.debug("resource %s resolved to %s", resource, defer(()-> finalRsrc + (callerCode != null ? " in codebase " + callerCode.codebase : " (unknown codebase)")));
     return rsrc;
   }
 
@@ -816,12 +833,12 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       if (!Arrays.equals(existing.bytes, bytes) && !name.startsWith("META-INF")) {
         if (name.endsWith(".class")) {
           // This is probably trouble.
-          LOGGER.warning(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytecode)");
+          LOGGER.warning( "%s in %s is hidden by %s (with different bytecode)", existing.name, jar, existing.codebase);
         } else {
-          LOGGER.info(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with different bytes)");
+          LOGGER.info( "%s in %s is hidden by %s (with different bytes)", existing.name, jar, existing.codebase);
         }
       } else {
-        LOGGER.fine(existing.name + " in " + jar + " is hidden by " + existing.codebase + " (with same bytecode)");
+        LOGGER.debug( "%s in %s is hidden by %s (with same bytecode)", existing.name, jar, existing.codebase);
       }
       // Speedup GC.
       return true;
@@ -831,26 +848,6 @@ public class JarClassLoader extends ClassLoader implements IProperties {
 
   protected String getCaller() {
     return VERSION_SPECIFIC.getCaller(byteCode.keySet());
-  }
-
-  public void setVerbose(boolean verbose) {
-    if (verbose) {
-      Logger.setLevel(Logger.LOGLEVEL_VERBOSE);
-    } else {
-      Logger.setLevel(Logger.LOGLEVEL_INFO);
-    }
-  }
-
-  public void setInfo(boolean info) {
-    Logger.setLevel(Logger.LOGLEVEL_INFO);
-  }
-
-  public void setSilent(boolean silent) {
-    if (silent) {
-      Logger.setLevel(Logger.LOGLEVEL_NONE);
-    } else {
-      Logger.setLevel(Logger.LOGLEVEL_INFO);
-    }
   }
 
   // Injectable URL factory.
@@ -1030,19 +1027,19 @@ public class JarClassLoader extends ClassLoader implements IProperties {
   // TODO: I'm not sure this method should be calling getResources at all. java.lang.Classloader will have already
   //  attempted "get" up the tree before calling "find" In a deep hierarchy this causes a redundant round
   //  of getResource requests all the way up the chain.
-  protected URL findResource(String $resource) {
+  protected URL findResource(String unresolvedResource) {
     try {
-      LOGGER.fine("findResource(\"" + $resource + "\")");
-      URL url = externalClassLoader != null ? externalClassLoader.getResource($resource) : null;
+      LOGGER.debug("findResource(\"%s\")",unresolvedResource);
+      URL url = externalClassLoader != null ? externalClassLoader.getResource(unresolvedResource) : null;
       if (url != null) {
-        LOGGER.info("findResource() found in external: \"" + $resource + "\"");
+        LOGGER.info("findResource() found in external: \"%s\"", unresolvedResource);
         //LOGGER.VERBOSE("findResource(): " + $resource + "=" + url);
         return url;
       }
       // Delegate to parent.
       ClassLoader parent = getParent();
       if (parent != null) {
-        url = parent.getResource($resource);
+        url = parent.getResource(unresolvedResource);
         if (url != null) {
           return url;
         }
@@ -1050,25 +1047,25 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       // Do we have the named resource in our cache?  If so, construct a
       // 'onejar:' URL so that a later attempt to access the resource
       // will be redirected to our Handler class, and thence to this class.
-      String resource = resolve($resource);
+      String resource = resolve(unresolvedResource);
       if (resource != null) {
         // We know how to handle it.
         ByteCode entry = byteCode.get(resource);
-        LOGGER.info("findResource() found: \"" + $resource + "\" for caller " + getCaller() + " in codebase " + entry.codebase);
-        return urlFactory.getURL(entry.codebase, $resource);
+        LOGGER.info("findResource() found: \"%s\" for caller %s in codebase %s", unresolvedResource,getCaller(),entry.codebase);
+        return urlFactory.getURL(entry.codebase, unresolvedResource);
       }
-      LOGGER.info("findResource(): unable to locate \"" + $resource + "\"");
+      LOGGER.info("findResource(): unable to locate \"%s\"", unresolvedResource);
       // If all else fails, return null.
       return null;
     } catch (MalformedURLException mux) {
-      LOGGER.warning("unable to locate " + $resource + " due to " + mux);
+      LOGGER.warning("unable to locate %s due to %s", unresolvedResource, mux);
     }
     return null;
   }
 
   protected Enumeration<URL> findResources(String name) throws IOException {
-    LOGGER.info("findResources(" + name + ")");
-    LOGGER.info("findResources: looking in " + jarNames);
+    LOGGER.info("findResources(%s)", name);
+    LOGGER.info("findResources: looking in %s", jarNames);
     Iterator<String> iter = jarNames.iterator();
     final List<URL> resources = new ArrayList<>();
     while (iter.hasNext()) {
@@ -1076,7 +1073,7 @@ public class JarClassLoader extends ClassLoader implements IProperties {
       ByteCode entry = byteCode.get(resource);
       if (byteCode.containsKey(resource)) {
         URL url = urlFactory.getURL(entry.codebase, name);
-        LOGGER.info("findResources(): Adding " + url + " to resources list.");
+        LOGGER.info("findResources(): Adding %s to resources list.", url);
         resources.add(url);
       }
     }
@@ -1125,14 +1122,14 @@ public class JarClassLoader extends ClassLoader implements IProperties {
     if (binlibResolver != defaultBinlibResolver && binlib == null)
       binlib = defaultBinlibResolver.find(BINLIB_PREFIX);
 
-    LOGGER.fine("Using arch-specific native library path: " + binlib);
+    LOGGER.debug("Using arch-specific native library path: %s", binlib);
 
     String retValue = findTheLibrary(binlib, name);
     if (retValue != null) {
-      LOGGER.fine("Found in arch-specific directory!");
+      LOGGER.debug("Found in arch-specific directory!");
       return retValue;
     } else {
-      LOGGER.fine("Search in standard native directory!");
+      LOGGER.debug("Search in standard native directory!");
       return findTheLibrary(BINLIB_PREFIX, name);
     }
   }
@@ -1178,39 +1175,22 @@ public class JarClassLoader extends ClassLoader implements IProperties {
           os = new FileOutputStream(tempNativeLib);
           copy(is, os);
           os.close();
-          LOGGER.fine("Stored native library " + name + " at " + tempNativeLib);
+          LOGGER.debug("Stored native library %s at %s", name, tempNativeLib);
           result = tempNativeLib.getPath();
           binLibPath.put(resourcePath, result);
         } else {
           // Library is not in the jar
           // Return null by default to search the java.library.path
-          LOGGER.fine("No native library at " + resourcePath +
-              "java.library.path will be searched instead.");
+          LOGGER.debug("No native library at %s java.library.path will be searched instead.", resourcePath);
         }
       } catch (Throwable e) {
         // Couldn't load the library
         // Return null by default to search the java.library.path
-        LOGGER.warning("Unable to load native library: " + e);
+        LOGGER.warning("Unable to load native library: %s", e);
       }
     }
 
     return result;
   }
 
-  public void setProperties(IProperties jarLoader) {
-    LOGGER.info("setProperties(" + jarLoader + ")");
-    if (JarClassLoader.getProperty(JarClassLoader.P_VERBOSE)) {
-      jarLoader.setVerbose(true);
-    }
-    if (JarClassLoader.getProperty(JarClassLoader.P_INFO)) {
-      jarLoader.setInfo(true);
-    }
-    if (JarClassLoader.getProperty(JarClassLoader.P_SILENT)) {
-      jarLoader.setSilent(true);
-    }
-  }
-
-  public static boolean getProperty(String key) {
-    return Boolean.parseBoolean(System.getProperty(key, "false"));
-  }
 }

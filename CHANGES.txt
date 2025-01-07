@@ -3,7 +3,15 @@ Uno-Jar Release Notes
 Below are release notes about changes that users and developers should be aware of. Numbers are github issue numbers,
 prefix indicates the type of issue, (Bugfix vs Enhancement)
 
-==================  1.0.0 ==================
+================== 2.0.0 ==================
+ENH #43 : Logging simplification: There is now only one system property to control logging (unojar.log.level)
+          and it accepts values of DEBUG, INFO, WARN, ERROR, NONE
+
+================== 1.1.0 ==================
+
+ENH #24 : Restored support for Java 8
+
+================== 1.0.0 ==================
 
 ENH #5 :  Multi Release Jar Support
 

@@ -9,7 +9,11 @@
 
 package com.needhamsoftware.unojar;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -27,6 +31,7 @@ import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
+import static com.needhamsoftware.unojar.UnoJarPrintlnLogger.defer;
 import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
 
 /**
@@ -37,14 +42,23 @@ import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
  * Developer time JVM properties:
  * <pre>
  *   -Duno-jar.main.class={name}  Use named class as main class to run.
- *   -Duno-jar.verbose            Run the JarClassLoader in verbose mode.
- *   -Duno-jar.silent             Run the JarClassLoader in silent mode.
  * </pre>
  *
- * @author simon@simontuffs.com (<a href="http://www.simontuffs.com">http://www.simontuffs.com</a>)
+ * Logging for uno-jar itself is kept rudimentary and limited to console
+ * output (System.out.println) because uno-jar's code is being kept dependency
+ * free. By default only Errors are printed. Obviously in some environments any
+ * output to std-out is unacceptable, and
  */
 public class Boot {
-  private final static Logger LOGGER = Logger.getLogger("Boot");
+
+  public static final String P_DEBUG_PROP_LOADING = JarClassLoader.PROPERTY_PREFIX + "debug.property.loading";
+
+  static {
+    // important to load up our properties before anything else happens
+    initializeProperties();
+  }
+
+  private final static UnoJarPrintlnLogger LOGGER = UnoJarPrintlnLogger.getLogger("Boot");
 
   public final static String ONE_JAR_CLASSLOADER = "Uno-Jar-Class-Loader";
   public final static String ONE_JAR_MAIN_CLASS = "Uno-Jar-Main-Class";
@@ -68,12 +82,11 @@ public class Boot {
   public final static String[] HELP_PROPERTIES = {
       P_MAIN_CLASS, "Specifies the name of the class which should be executed \n(via public static void main(String[])",
       P_MAIN_APP, "Specifies the name of the main/<app>.jar to be executed",
+      P_DEBUG_PROP_LOADING, "true: enable special printlns for debugging loading of properties",
       JarClassLoader.P_RECORD, "true:  Enables recording of the classes loaded by the application",
       JarClassLoader.P_JAR_NAMES, "true:  Recorded classes are kept in directories corresponding to their jar names.\n" +
       "false: Recorded classes are flattened into a single directory.  \nDuplicates are ignored (first wins)",
-      JarClassLoader.P_VERBOSE, "true:  Print verbose classloading information",
-      JarClassLoader.P_SILENT, "true:  Don't print any classloading information",
-      JarClassLoader.P_INFO, "true:  Print informative classloading information",
+      UnoJarPrintlnLogger.P_LOG_LEVEL, "Control logging level, NONE, ERROR, WARN, INFO, DEBUG, defaults to only print ERROR",
       P_STATISTICS, "true:  Shows statistics about the Uno-Jar Classloader",
       P_JARPATH, "Full path of the uno-Jar file being executed.  \nOnly needed if java.class.path does not contain the path to the jar, e.g. on Max OS/X.",
       JarClassLoader.P_ONE_JAR_CLASS_PATH, "Extra classpaths to be added to the execution environment.  \nUse platform independent path separator '" + JarClassLoader.P_PATH_SEPARATOR + "'",
@@ -95,7 +108,7 @@ public class Boot {
   protected static long endTime = 0;
 
   // Singleton loader.  This must not be changed once it is set, otherwise all
-  // sorts of nasty class-cast exceptions will ensue.  Hence we control
+  // sorts of nasty class-cast exceptions will ensue.  Hence, we control
   // access to it strongly.
   private static JarClassLoader loader = null;
 
@@ -116,16 +129,12 @@ public class Boot {
 
   public static void main(String[] args) throws Exception {
     args = processArgs(args);
-    initializeLogging();
-    statistics = JarClassLoader.getProperty(Boot.P_STATISTICS);
+    statistics = Boolean.getBoolean(P_STATISTICS);
 
     // Is the main class specified on the command line?  If so, boot it.
     // Otherwise, read the main class out of the manifest.
     String mainClass = null;
     initializeProperties();
-
-    // Reinitialize Logging (property file could have other loglevel set)
-    initializeLogging();
 
     try {
       if (Boolean.parseBoolean(System.getProperty(P_SHOW_PROPERTIES, "false"))) {
@@ -188,7 +197,7 @@ public class Boot {
         // There is no main jar. Info unless mainJar is empty string.
         // The load(mainClass) will scan for main jars anyway.
         if (!"".equals(mainJar)) {
-          LOGGER.info("Unable to locate main jar '" + mainJar + "' in the JAR file " + getMyJarPath());
+          LOGGER.info("Unable to locate main jar '%s' in the JAR file %s", mainJar, getMyJarPath());
         }
       }
     }
@@ -198,7 +207,7 @@ public class Boot {
       String myJarPath1 = Boot.getMyJarPath();
       loader = getBootLoader(bootLoaderName, myJarPath1);
     }
-    LOGGER.info("using JarClassLoader: " + getClassLoader().getClass().getName());
+    LOGGER.info("using JarClassLoader: %s", getClassLoader().getClass().getName());
 
     // Allow injection of the URL factory.
     String urlfactory = attributes.getValue(ONE_JAR_URL_FACTORY);
@@ -249,36 +258,13 @@ public class Boot {
     return args;
   }
 
-  private static void initializeProperties() throws IOException {
+  private static void initializeProperties()  {
     {
-      // Default properties are in resource 'uno-jar.properties'.
-      Properties properties = new Properties();
-      String props = "uno-jar.properties";
-      InputStream is = Boot.class.getResourceAsStream("/" + props);
+      Properties properties;
       try {
-
-        if (is != null) {
-          LOGGER.fine("loading properties from " + props);
-          properties.load(is);
-        }
-      } finally {
-        if (is != null)
-          is.close();
-      }
-
-      // Merge in anything in a local file with the same name.
-      try {
-        if (new File(props).exists()) {
-          try {
-            is = Files.newInputStream(Paths.get(props));
-            LOGGER.fine("merging properties from " + props);
-            properties.load(is);
-          } finally {
-            if (is != null) is.close();
-          }
-        }
-      } catch (SecurityException x) {
-        LOGGER.warning(x.toString());
+        properties = getUnoJarProperties();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
       // Set system properties only if not already specified.
       @SuppressWarnings("rawtypes")
@@ -292,13 +278,45 @@ public class Boot {
     }
   }
 
-  private static void initializeLogging() {
-    if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_VERBOSE, "false"))) {
-      Logger.setLevel(Logger.LOGLEVEL_VERBOSE);
-    } else if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_INFO, "false"))) {
-      Logger.setLevel(Logger.LOGLEVEL_INFO);
-    } else if (Boolean.parseBoolean(System.getProperty(JarClassLoader.P_SILENT, "false"))) {
-      Logger.setLevel(Logger.LOGLEVEL_NONE);
+  private static Properties getUnoJarProperties() throws IOException {
+    // Default properties are in resource 'uno-jar.properties'.
+    // NOTE: DO NOT use LOGGER in this method it won't be initialized yet.
+    Properties properties = new Properties();
+    String props = "uno-jar.properties";
+    InputStream is = Boot.class.getResourceAsStream("/" + props);
+    try {
+
+      if (is != null) {
+        propDebug(defer(() -> "loading properties from " + props));
+        properties.load(is);
+      }
+    } finally {
+      if (is != null)
+        is.close();
+    }
+
+    // Merge in anything in a local file with the same name.
+    try {
+      if (new File(props).exists()) {
+        try {
+          is = Files.newInputStream(Paths.get(props));
+          propDebug(defer(() -> "merging properties from " + props));
+          properties.load(is);
+        } finally {
+          if (is != null) is.close();
+        }
+      }
+    } catch (SecurityException e) {
+      System.out.println(e);
+    }
+    return properties;
+  }
+
+  private static void propDebug(UnoJarPrintlnLogger.DeferredLogValue msg) {
+    // don't use LOGGER because properties loaded may influence logger level so don't cause
+    // that class to load by referencing it before properties are loaded.
+    if (Boolean.getBoolean(P_DEBUG_PROP_LOADING)) {
+      System.out.println(msg);
     }
   }
 
@@ -344,7 +362,7 @@ public class Boot {
       ProtectionDomain pDomain = cls.getProtectionDomain();
       CodeSource cSource = pDomain.getCodeSource();
       myJarPath = cSource.getLocation().toString();
-      LOGGER.info("myJarPath=" + myJarPath);
+      LOGGER.info("myJarPath=%s", myJarPath);
       return myJarPath;
     }
     // Normalize those annoying DOS backslashes.
@@ -371,7 +389,7 @@ public class Boot {
 
   public static String[] processArgs(String[] args) throws Exception {
     // Check for arguments which matter to us, and strip them.
-    LOGGER.fine("processArgs(" + Arrays.asList(args) + ")");
+    LOGGER.debug("processArgs(%s)", defer(() -> Arrays.asList(args).toString()));
     ArrayList<String> list = new ArrayList<>();
     for (String argument : args) {
       if (argument.startsWith(A_HELP)) {
@@ -430,7 +448,7 @@ public class Boot {
               Constructor<JarClassLoader> ctor = cls.getConstructor(ClassLoader.class);
               return ctor.newInstance(Boot.class.getClassLoader());
             } catch (Exception x) {
-              LOGGER.warning("Unable to instantiate " + loader + ": " + x + " continuing using default " + JarClassLoader.class.getName());
+              LOGGER.warning("Unable to instantiate %s: %s continuing using default %s", loader,x,JarClassLoader.class.getName());
             }
           }
           return new JarClassLoader(Boot.class.getClassLoader(), jarPath);

@@ -125,6 +125,18 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
   archiveClassifier = "javadoc"
 }
 
+task updateLoggerTestJar(type:Copy) {
+  from "../examples/build/libs/uno-jar-examples-unojar.jar"
+  into "src/test/resources"
+}
+
+test {
+  def jdk8 = System.getProperty("unojar.jdk.8")
+  def jdk11 = System.getProperty("unojar.jdk.11")
+  dependsOn(updateLoggerTestJar)
+  systemProperties(["unojar.jdk.8":jdk8,"unojar.jdk.11":jdk11])
+}
+
 artifacts {
   archives sourcesJar
   archives javadocJar

@@ -1,0 +1,7 @@
+= Resources for tests
+
+Because of it's command line utility status and it's classloading at boot time, UnoJar tests can be a bit wonky.
+Some of them will need to load jars and run the jar and such chars are meant to be found here.
+Below are some tips for updating these jars if the tests need a jar with modernized content:
+
+ - LoggerTest - This relies on a jar copied to this directory by :examples:updateLoggerTestJar task.
