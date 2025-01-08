@@ -93,7 +93,7 @@ public class JarClassLoader extends ClassLoader {
   public final static String CLASS = ".class";
   public static final String LIB = "lib/";
 
-  protected ClassLoader externalClassLoader;
+  protected UnoJarDependencyLoader externalClassLoader;
 
   private static final UnoJarPrintlnLogger LOGGER = UnoJarPrintlnLogger.getLogger("JarClassLoader");
 
@@ -170,8 +170,6 @@ public class JarClassLoader extends ClassLoader {
     init();
   }
 
-  protected static ThreadLocal<String> current = new ThreadLocal<>();
-
   /**
    * Common initialization code: establishes a classloader for delegation
    * to uno-jar.class.path resources.
@@ -198,69 +196,17 @@ public class JarClassLoader extends ClassLoader {
       }
       final URL[] urls = list.toArray(new URL[0]);
       LOGGER.info("external URLs=%s", defer(() -> Arrays.asList(urls).toString()));
-      // BUG-2833948
-      // Delegate back into this classloader, use ThreadLocal to avoid recursion.
-      externalClassLoader = AccessController.doPrivileged(
-          new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-              return new URLClassLoader(urls, JarClassLoader.this) {
-                // Handle recursion for classes, and mutual recursion for resources.
-                final static String LOAD_CLASS = "loadClass():";
-                final static String GET_RESOURCE = "getResource():";
-                final static String FIND_RESOURCE = "findResource():";
+      // BUG-2833948  (see also https://sourceforge.net/p/one-jar/bugs/32/)
+      // Delegates back into this classloader, uses ThreadLocals to avoid recursion.
 
-                // Protect entry points which could lead to recursion.  Strangely
-                // inelegant because you can't proxy a class.  Or use closures.
-                @SuppressWarnings("rawtypes")
-                public Class loadClass(String name) throws ClassNotFoundException {
-                  if (reentered(LOAD_CLASS + name)) {
-                    throw new ClassNotFoundException(name);
-                  }
-                  LOGGER.debug("externalClassLoader.loadClass(%s)", name);
-                  String old = current.get();
-                  current.set(LOAD_CLASS + name);
-                  try {
-                    return super.loadClass(name);
-                  } finally {
-                    current.set(old);
-                  }
-                }
-
-                public URL getResource(String name) {
-                  if (reentered(GET_RESOURCE + name))
-                    return null;
-                  LOGGER.debug("externalClassLoader.getResource(%s)",name);
-                  String old = current.get();
-                  current.set(GET_RESOURCE + name);
-                  try {
-                    return super.getResource(name);
-                  } finally {
-                    current.set(old);
-                  }
-                }
-
-                public URL findResource(String name) {
-                  if (reentered(FIND_RESOURCE + name))
-                    return null;
-                  LOGGER.debug("externalClassLoader.findResource(%s)", name);
-                  String old = current.get();
-                  current.set(name);
-                  try {
-                    current.set(FIND_RESOURCE + name);
-                    return super.findResource(name);
-                  } finally {
-                    current.set(old);
-                  }
-                }
-
-                private boolean reentered(String name) {
-                  // Defend against null name: not sure about semantics there.
-                  Object old = current.get();
-                  return old != null && old.equals(name);
-                }
-              };
-            }
-          });
+      //todo: This is slightly wonky. passing in the empty URLs and then adding an ext with the urls
+      // is odd. But for now, this is a direct use of the essentially unmodified class from JesterJ.
+      // Enhancements will come later. Particularly it seems like JarClassloader probably just wants to
+      // extend UnoJarDependencyLoader... Need to think through the implications of that for
+      // the related goal of loading subordinate unojars with preference for their local
+      // libs (to any depth of nesting unojars)
+      externalClassLoader = new UnoJarDependencyLoader(new URL[]{}, this);
+      externalClassLoader.addExtLoader(new URLClassLoader(urls, null));
     }
   }
 
@@ -601,10 +547,12 @@ public class JarClassLoader extends ClassLoader {
    * @param man  the Manifest containing package version and sealing
    *             information
    * @param url  the code source url for the package, or null if none
+   * @return The loaded package
    * @throws IllegalArgumentException if the package name duplicates an existing package either
    *                                  in this class loader or one of its ancestors
    */
-  protected void definePackage(String name, Manifest man, URL url) throws IllegalArgumentException {
+  @SuppressWarnings("UnusedReturnValue")
+  protected Package definePackage(String name, Manifest man, URL url) throws IllegalArgumentException {
     String path = name.concat("/");
     String specTitle = null, specVersion = null, specVendor = null;
     String implTitle = null, implVersion = null, implVendor = null;
@@ -651,7 +599,7 @@ public class JarClassLoader extends ClassLoader {
         sealBase = url;
       }
     }
-    definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
+    return definePackage(name, specTitle, specVersion, specVendor, implTitle, implVersion, implVendor, sealBase);
   }
 
   @SuppressWarnings("rawtypes")

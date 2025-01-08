@@ -9,7 +9,10 @@ import org.junit.Test;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static com.copyright.easiertest.EasierMocks.*;
+import static com.copyright.easiertest.EasierMocks.prepareMocks;
+import static com.copyright.easiertest.EasierMocks.replay;
+import static com.copyright.easiertest.EasierMocks.reset;
+import static com.copyright.easiertest.EasierMocks.verify;
 import static org.easymock.EasyMock.expect;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -20,37 +23,52 @@ public class JarClassLoaderTest {
     @Mock
     private JarClassLoader jclMock;
 
-    public JarClassLoaderTest() {
-        prepareMocks(this);
-    }
+  public JarClassLoaderTest() {
+    prepareMocks(this);
+  }
 
-    @Before
-    public void setUp() {
-        reset();
-    }
+  @Before
+  public void setUp() {
+    reset();
+  }
 
-    @After
-    public void tearDown() {
-        verify();
-    }
+  @After
+  public void tearDown() {
+    verify();
+  }
 
-    @Test
-    public void testLoaderIsInstanceOfJarClassLoader() {
-        replay();
-        assertTrue(object.isJarClassLoaderAParent(jclMock));
-    }
+  @Test
+  public void testLoaderIsInstanceOfJarClassLoader() {
+    replay();
+    assertTrue(object.isJarClassLoaderAParent(jclMock));
+  }
 
-    @Test
-    public void testParentLoaderIsInstanceOfJarClassLoader() {
-        URLClassLoader ucl = new URLClassLoader(new URL[]{},jclMock);
-        expect(object.isJarClassLoaderAParent(jclMock)).andReturn(true);
-        replay();
-        assertTrue(object.isJarClassLoaderAParent(ucl));
-    }
+  @Test
+  public void testParentLoaderIsInstanceOfJarClassLoader() {
+    URLClassLoader ucl = new URLClassLoader(new URL[]{}, jclMock);
+    expect(object.isJarClassLoaderAParent(jclMock)).andReturn(true);
+    replay();
+    assertTrue(object.isJarClassLoaderAParent(ucl));
+  }
 
-    @Test
-    public void testLoaderIsNull() {
-        replay();
-        assertFalse(object.isJarClassLoaderAParent(null));
-    }
+  @Test
+  public void testLoaderIsNull() {
+    replay();
+    assertFalse(object.isJarClassLoaderAParent(null));
+  }
+
+  @Test
+  public void testDelegateToExt() {
+    // TODO: In replacing simon's anonymous subclass of UrlClassLoader in JarClassLoader for
+    //  handling externally loaded classes a few questions remain and I don't see any good tests
+    //  of this functionality. Reading https://sourceforge.net/p/one-jar/bugs/32/ seems to indicate
+    //  that at least one use case is for database implementation jars (probably GPL ones such as
+    //  mysql etc. that can't be included for license reasons). In this class we should write a
+    //  simple test verifying that the external classloader is consulted. In other tests (probably in
+    //  the test-suite area) that demonstrates an infinite loop when a simple UrlClassLoader is used
+    //  (as per the code prior to the above linked issue) and then verify it doesn't fail with the code
+    //  used for that issue, and then finally replace it with our UnoJarDependencyLoader class to show that
+    //  that too solves the infinite loop.
+    replay();
+  }
 }

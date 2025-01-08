@@ -22,7 +22,7 @@ ext.shortDesc = 'Uno-Jar Core'
 description = 'Libraries for packaging FatJars with a JarClassLoader'
 
 
-configurations.all {
+configurations.configureEach {
   resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
@@ -101,11 +101,11 @@ jar {
   }
 }
 
-task versionTxt()  {
+tasks.register('versionTxt') {
   doLast {
     def file = new File(projectDir, "/src/main/resources/")
     file.mkdirs()
-    file = new File(file,".version")
+    file = new File(file, ".version")
     file.createNewFile()
     file.text = "$version"
   }
@@ -113,22 +113,26 @@ task versionTxt()  {
 
 classes.dependsOn(versionTxt)
 
-task sourcesJar(type: Jar, dependsOn: classes) {
+tasks.register('sourcesJar', Jar) {
+  dependsOn classes
   from sourceSets.main.allSource
   from sourceSets.java9.allSource
   from sourceSets.java11.allSource
   duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+tasks.register('javadocJar', Jar) {
+  dependsOn javadoc
   from javadoc.destinationDir
   archiveClassifier = "javadoc"
 }
 
-task updateLoggerTestJar(type:Copy) {
+tasks.register('updateLoggerTestJar', Copy) {
   from "../examples/build/libs/uno-jar-examples-unojar.jar"
   into "src/test/resources"
 }
+
+processTestResources.mustRunAfter(updateLoggerTestJar)
 
 test {
   def jdk8 = System.getProperty("unojar.jdk.8")
@@ -148,7 +152,7 @@ javadocJar.manifest.attributes getManifestAttributes()
 
 @SuppressWarnings("GroovyAssignabilityCheck")
 def getManifestAttributes() {
-  def gitDetails = versionDetails();
+  def gitDetails = versionDetails()
   return [
   'Implementation-Version': version,
   'Build-Tool': "Gradle ${gradle.gradleVersion}",
