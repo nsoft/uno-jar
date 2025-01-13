@@ -5,12 +5,6 @@ plugins {
   id 'com.palantir.git-version'
 }
 
-java {
-  toolchain {
-    languageVersion.set(JavaLanguageVersion.of(8))
-  }
-}
-
 group = 'com.needhamsoftware.unojar'
 version = '2.0.0-SNAPSHOT'
 ext.shortDesc = 'Uno-Jar Ant Task'

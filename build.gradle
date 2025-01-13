@@ -9,8 +9,8 @@ allprojects {
     mavenCentral()
   }
   compileJava {
-    sourceCompatibility = 8
-    targetCompatibility = 8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
   }
 }
 

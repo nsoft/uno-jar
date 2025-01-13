@@ -18,16 +18,13 @@ public class LoggerTest {
   public void testOutput() throws IOException, InterruptedException {
     URL exampleJar = getClass().getClassLoader().getResource("uno-jar-examples-unojar.jar");
     assert exampleJar != null;
-    System.out.println(exampleJar.getPath());
     final AtomicInteger bootInfoCount = new AtomicInteger(0);
     final AtomicInteger jclDebugCount = new AtomicInteger(0);
 
-    String javaHome = System.getProperty("unojar.jdk.8");
-    System.out.println(javaHome);
+    String javaHome = System.getProperty("java.home");
     ProcessBuilder builder = new ProcessBuilder(javaHome+"/bin/java", "-Duno-jar.log.level=DEBUG", "-jar", exampleJar.getPath());
-    //builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
-    System.out.println(builder.command());
     Process start = builder.start();
+    @SuppressWarnings("unused") // side effects of filter are required
     String output = new BufferedReader(
         new InputStreamReader(start.getInputStream(), StandardCharsets.UTF_8))
         .lines().filter(l -> {
@@ -40,15 +37,10 @@ public class LoggerTest {
           return true;
         })
         .collect(Collectors.joining("\n"));
-    String error = new BufferedReader(
-        new InputStreamReader(start.getErrorStream(), StandardCharsets.UTF_8))
-        .lines()
-        .collect(Collectors.joining("\n"));
     start.waitFor();
-    System.out.println("Output:"+output);
-    System.out.println("Error:"+error);
-    System.out.println("Exit:"+start.exitValue());
     assertEquals(2,bootInfoCount.get());
-    assertEquals(88,jclDebugCount.get());
+    // note, new classes or deleted classes cause this to fail, just change the number
+    // we are not really concerned unless actual becomes zero or some fantastically large or small number
+    assertEquals(82,jclDebugCount.get());
   }
 }

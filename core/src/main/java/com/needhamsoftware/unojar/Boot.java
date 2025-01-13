@@ -32,7 +32,6 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 
 import static com.needhamsoftware.unojar.UnoJarPrintlnLogger.defer;
-import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
 
 /**
  * Run a java application which requires multiple support jars from inside
@@ -379,7 +378,7 @@ public class Boot {
   }
 
   public static String pad(String indent, String string, int width) {
-    return VERSION_SPECIFIC.pad(indent, string, width);
+    return indent + string + " ".repeat(Math.max(0, width - string.length()));
   }
 
   public static String wrap(String indent, String string, int width) {
@@ -413,7 +412,7 @@ public class Boot {
         System.exit(0);
       } else if (argument.startsWith(A_VERSION)) {
         String version = version();
-        if (version != null && !"".equals(version.trim())) {
+        if (version != null && !version.trim().isEmpty()) {
           System.out.println("Uno-Jar version " + version);
         } else {
           System.out.println("Unable to determine Uno-Jar version (missing /.version resource in Uno-Jar archive)");

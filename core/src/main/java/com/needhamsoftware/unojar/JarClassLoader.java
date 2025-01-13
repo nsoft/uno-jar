@@ -46,6 +46,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
@@ -56,7 +57,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.needhamsoftware.unojar.UnoJarPrintlnLogger.defer;
-import static com.needhamsoftware.unojar.VersionSpecific.VERSION_SPECIFIC;
+import static java.lang.StackWalker.Option.RETAIN_CLASS_REFERENCE;
 
 /**
  * Loads classes from pre-defined locations inside the jar file containing this
@@ -325,7 +326,7 @@ public class JarClassLoader extends ClassLoader {
     int index2 = entryName.lastIndexOf('/', index - 1);
     if (entryName.endsWith(CLASS) && index2 > -1) {
       String packageName = entryName.substring(0, index2).replace('/', '.');
-      if (VERSION_SPECIFIC.getDefinedPackage(this, packageName) == null) {
+      if (getDefinedPackage(packageName) == null) {
         // Defend against null manifest.
         if (man != null) {
           definePackage(packageName, man, urlFactory.getCodeBase(jar));
@@ -489,7 +490,7 @@ public class JarClassLoader extends ClassLoader {
       if (i != -1) {
         String pkgname = name.substring(0, i);
         // Check if package already loaded.
-        Package pkg = VERSION_SPECIFIC.getDefinedPackage(this, pkgname);
+        Package pkg = getDefinedPackage(pkgname);
         Manifest man = bytecode.manifest;
         if (pkg != null) {
           // Package found, so check package sealing.
@@ -795,7 +796,16 @@ public class JarClassLoader extends ClassLoader {
   }
 
   protected String getCaller() {
-    return VERSION_SPECIFIC.getCaller(byteCode.keySet());
+    StackWalker walker = StackWalker.getInstance(RETAIN_CLASS_REFERENCE);
+    Optional<StackWalker.StackFrame> firstByteCode = walker.walk(s -> s.filter(f -> {
+      String caller = f.getClassName();
+      String cls = getByteCodeName(caller);
+      return byteCode.containsKey(cls) && !caller.startsWith("com.needhamsoftware.unojar");
+    }).findFirst());
+    return firstByteCode.map(stackFrame -> getByteCodeName(stackFrame.getClassName())).orElse(null);
+  }
+  private static String getByteCodeName(String className) {
+    return className.replace(".", "/") + ".class";
   }
 
   // Injectable URL factory.
@@ -1026,7 +1036,7 @@ public class JarClassLoader extends ClassLoader {
       }
     }
     final Iterator<URL> ri = resources.iterator();
-    return new Enumeration<URL>() {
+    return new Enumeration<>() {
       public boolean hasMoreElements() {
         return ri.hasNext();
       }
@@ -1055,8 +1065,7 @@ public class JarClassLoader extends ClassLoader {
   }
 
   public String toString() {
-    String name = VERSION_SPECIFIC.getName(this);
-    return super.toString() + (name != null ? "(" + name + ")" : "");
+    return super.toString() + (getName() != null ? "(" + getName() + ")" : "");
   }
 
   /**

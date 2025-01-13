@@ -1,6 +1,0 @@
-= Jdk 8 test build
-
-This build is meant to trivially test that a project running jdk 8 can use
-the gradle plugin. It should be compiled/run only with jdk 8. It is not expected to
-function properly until the main build has deployed to mavenLocal. This is not ideal
-for automation, and so this may change when github actions are enabled.
