@@ -1012,6 +1012,9 @@ public class JarClassLoader extends ClassLoader {
   }
 
   protected Enumeration<URL> findResources(String name) throws IOException {
+    if (name.length()>1 && name.endsWith("/")) {
+      return findResources(name.substring(0, name.length() - 1));
+    }
     LOGGER.info("findResources(%s)", name);
     LOGGER.info("findResources: looking in %s", jarNames);
     Iterator<String> iter = jarNames.iterator();
