@@ -1028,6 +1028,9 @@ public class JarClassLoader extends ClassLoader {
         resources.add(url);
       }
     }
+    if (name.endsWith("micronaut/")) {
+      System.out.println("resources = " + resources);
+    }
     final Iterator<URL> ri = resources.iterator();
     return new Enumeration<URL>() {
       public boolean hasMoreElements() {

@@ -28,7 +28,7 @@ tasks {
         dependsOn("jar")
         mainClass.set("MainK2")
         archiveBaseName.set("test")
-        embedConfiguration.set(configurations.getByName("runtimeClasspath"))
+        from(configurations.runtimeClasspath)
         manifestAttributes.set(mapOf("Test-Attribute" to "Kotlin-Register"))
     }
 }

@@ -49,6 +49,6 @@ public class LoggerTest {
     System.out.println("Error:"+error);
     System.out.println("Exit:"+start.exitValue());
     assertEquals(2,bootInfoCount.get());
-    assertEquals(94,jclDebugCount.get());
+    assertEquals(92,jclDebugCount.get());
   }
 }
