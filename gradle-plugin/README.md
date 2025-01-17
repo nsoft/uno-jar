@@ -150,7 +150,7 @@ tasks {
         dependsOn("jar")
         mainClass.set("Main2")
         archiveBaseName.set("test")
-        embedConfiguration.set(configurations.getByName("runtimeClasspath"))
+        from(configurations.runtimeClasspath)
         manifestAttributes.set(mapOf("Test-Attribute" to "Test-Value"))
     }
 }
@@ -162,22 +162,22 @@ tasks.register("packageUnoJar2", com.needhamsoftware.unojar.gradle.PackageUnoJar
   dependsOn "jar"
   mainClass = "Main2"
   archiveBaseName = "test"
-  embedConfiguration = configurations.getByName("runtimeClasspath")
+  from(configurations.runtimeClasspath)
   manifestAttributes = ["Test-Attribute": "Test-Value"]
 }
 ```
 
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `mainClass` | `String` | No | Main class name. |
-| `archiveBaseName` | `String` | No | Archive base name. Default: `project.archivesBaseName` |
-| `archiveAppendix` | `String` | No | Archive appendix. |
-| `archiveVersion` | `String` | No | Archive version. Default: `project.version` |
-| `archiveClassifier` | `String` | No | Archive classifier. Default: `"unojar"` |
-| `archiveExtension` | `String` | No | Archive extension. Default: `"jar"` |
-| `embedConfiguration` | `org.gradle.api.artifacts.Configuration` | No | Embed configuration. Library artifacts to include in the uno-jar. Default: `configurations.getByName("runtimeClasspath")` |
-| `manifestAttributes` | `Map<String, String>` | No | Manifest attributes. |
+| Name                 | Type | Required | Description                                                             |
+|----------------------| --- | --- |-------------------------------------------------------------------------|
+| `mainClass`          | `String` | No | Main class name.                                                        |
+| `archiveBaseName`    | `String` | No | Archive base name. Default: `project.archivesBaseName`                  |
+| `archiveAppendix`    | `String` | No | Archive appendix.                                                       |
+| `archiveVersion`     | `String` | No | Archive version. Default: `project.version`                             |
+| `archiveClassifier`  | `String` | No | Archive classifier. Default: `"unojar"`                                 |
+| `archiveExtension`   | `String` | No | Archive extension. Default: `"jar"`                                     |
+| `artifacts`          | `ArtifactDetails` | No | Library artifacts to include in the uno-jar. Default: runtime classpath |
+| `manifestAttributes` | `Map<String, String>` | No | Manifest attributes.                                                    |
 
 ## Extension
 
@@ -187,7 +187,7 @@ Kotlin DSL (`build.gradle.kts`)
 unojar {
     archiveBaseName.set("myjar")
     archiveClassifier.set("unojar")
-    embedConfiguration.set(configurations.getByName("runtimeClasspath"))
+    from(configurations.runtimeClasspath)
     manifestAttributes.set(mapOf("Test-Attribute" to "Test-Value"))
 }
 ```
@@ -198,17 +198,17 @@ Groovy DSL (`build.gradle`)
 unojar {
     archiveBaseName = "myjar"
     archiveClassifier = "unojar"
-    embedConfiguration = configurations.getByName("runtimeClasspath")
+    from(configurations.runtimeClasspath)
     manifestAttributes = ["Test-Attribute": "Test-Value"]
 }
 ```
 
-| Name | Type | Required | Description |
-| --- | --- | --- | --- |
-| `archiveBaseName` | `String` | No | Archive base name. Default: `project.archivesBaseName` |
-| `archiveAppendix` | `String` | No | Archive appendix. |
-| `archiveVersion` | `String` | No | Archive version. Default: `project.version` |
-| `archiveClassifier` | `String` | No | Archive classifier. Default: `"unojar"` |
-| `archiveExtension` | `String` | No | Archive extension. Default: `"jar"` |
-| `embedConfiguration` | `org.gradle.api.artifacts.Configuration` | No | Embed configuration. Library artifacts to include in the uno-jar. Default: `configurations.getByName("runtimeClasspath")` |
-| `manifestAttributes` | `Map<String, String>` | No | Manifest attributes. |
+| Name                 | Type | Required | Description                                                             |
+|----------------------| --- | --- |-------------------------------------------------------------------------|
+| `archiveBaseName`    | `String` | No | Archive base name. Default: `project.archivesBaseName`                  |
+| `archiveAppendix`    | `String` | No | Archive appendix.                                                       |
+| `archiveVersion`     | `String` | No | Archive version. Default: `project.version`                             |
+| `archiveClassifier`  | `String` | No | Archive classifier. Default: `"unojar"`                                 |
+| `archiveExtension`   | `String` | No | Archive extension. Default: `"jar"`                                     |
+| `artifacts`          | `ArtifactDetails` | No | Library artifacts to include in the uno-jar. Default: runtime classpath |
+| `manifestAttributes` | `Map<String, String>` | No | Manifest attributes.                                                    |

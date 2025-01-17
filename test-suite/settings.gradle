@@ -1,17 +1,28 @@
 pluginManagement {
+  var includeDir = System.getProperty("gradle.include.dir")
+  if (includeDir != null) {
+    includeBuild(includeDir)
+  } else {
     includeBuild("..")
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
-    plugins {
-        id"ca.cutterslade.analyze" version "1.9.0"
-        id"com.needhamsoftware.unojar" version "2.0.0-SNAPSHOT"
-    }
+  }
+  repositories {
+    gradlePluginPortal()
+  }
+  plugins {
+    id "ca.cutterslade.analyze" version "1.9.0"
+    id "com.needhamsoftware.unojar" version "2.0.0-SNAPSHOT"
+  }
 }
 
-rootDir.eachDir {dir ->
-    if ((dir.name != "buildSrc") && (new File(dir, "build.gradle").isFile() || new File(dir, "build.gradle.kts").isFile())) {
-        include(dir.name)
-    }
+var includeDir = System.getProperty("gradle.include.dir")
+if (includeDir != null) {
+  includeBuild(includeDir)
+} else {
+  includeBuild("..")
+}
+
+rootDir.eachDir { dir ->
+  if ((dir.name != "buildSrc") && (new File(dir, "build.gradle").isFile() || new File(dir, "build.gradle.kts").isFile())) {
+    include(dir.name)
+  }
 }

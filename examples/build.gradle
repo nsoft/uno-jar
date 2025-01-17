@@ -1,21 +1,21 @@
-buildscript {
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-}
-
-
 plugins {
   id('java')
   id('wrapper')
   id 'com.needhamsoftware.unojar' version '2.0.0-SNAPSHOT'
 }
 
-repositories {
-  mavenLocal()
+
+def depJar = tasks.register("depJar", Jar) {
+  destinationDirectory = layout.buildDirectory.dir("deps")
+  archiveBaseName = "dep"
+  archiveVersion = "1.0"
+  from(file("src/dep/resources"))
 }
 
 unojar {
   mainClass = 'com.needhamsoftware.unojar.example.PrintSysprops'
+}
+
+tasks.named("packageUnoJar") {
+  extraJars.from(depJar)
 }

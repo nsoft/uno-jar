@@ -26,7 +26,7 @@ tasks.register("packageUnoJar2", PackageUnoJarTask) {
   dependsOn "jar"
   mainClass = "Main2"
   archiveBaseName = "test"
-  embedConfiguration = configurations.named("runtimeClasspath")
+  from(configurations.runtimeClasspath)
   manifestAttributes = ["Test-Attribute": "Groovy-Register"]
 }
 
