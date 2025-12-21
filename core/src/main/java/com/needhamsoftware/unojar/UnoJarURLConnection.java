@@ -40,7 +40,7 @@ public class UnoJarURLConnection extends JarURLConnection {
     int separator = jarWithContent.indexOf("!/");
     // TODO: generalize to allow codebase to be a URL.  This may require a complete
     //  rewrite of OneJarFile since JarFile can only handle Files.
-    String codebase = this.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+    String codebase = getJarFileURL().getPath();
     // Handle the case where a URL points to the top-level jar file, i.e. no '!/' separator.
     if (separator >= 0) {
       String jarFilename, filename;
