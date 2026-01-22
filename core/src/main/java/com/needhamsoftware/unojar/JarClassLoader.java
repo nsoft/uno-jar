@@ -1012,6 +1012,9 @@ public class JarClassLoader extends ClassLoader {
   }
 
   protected Enumeration<URL> findResources(String name) throws IOException {
+    if (name.length()>1 && name.endsWith("/")) {
+      return findResources(name.substring(0, name.length() - 1));
+    }
     LOGGER.info("findResources(%s)", name);
     LOGGER.info("findResources: looking in %s", jarNames);
     Iterator<String> iter = jarNames.iterator();
@@ -1024,6 +1027,9 @@ public class JarClassLoader extends ClassLoader {
         LOGGER.info("findResources(): Adding %s to resources list.", url);
         resources.add(url);
       }
+    }
+    if (name.endsWith("micronaut/")) {
+      System.out.println("resources = " + resources);
     }
     final Iterator<URL> ri = resources.iterator();
     return new Enumeration<URL>() {

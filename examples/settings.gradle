@@ -1,8 +1,4 @@
 pluginManagement {
-    repositories {
-        mavenLocal()
-        gradlePluginPortal()
-    }
     plugins {
         id 'com.palantir.git-version' version '0.12.2'
         id 'com.gradle.plugin-publish' version '0.11.0'
@@ -10,4 +6,3 @@ pluginManagement {
 }
 
 rootProject.name = 'uno-jar-examples'
-

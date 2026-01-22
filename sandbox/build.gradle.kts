@@ -1,12 +1,4 @@
 // experimental kotlin build... take nothing here seriously, see README
-
-buildscript {
-  repositories {
-    mavenLocal()
-    mavenCentral()
-  }
-}
-
 plugins {
   id("java")
   id("com.needhamsoftware.unojar") version "2.0.0-SNAPSHOT"
@@ -16,7 +8,6 @@ group = "org.example"
 version = "2.0.0-SNAPSHOT"
 
 repositories {
-  mavenLocal()
   mavenCentral()
 }
 
